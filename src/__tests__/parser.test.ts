@@ -375,42 +375,42 @@ describe('parseNoteContent', () => {
      `)
   })
 
-  //   test('Should assert an intersecting node', () => {
-  //     const note = fakeNote({
-  //       content: 'Test: https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/ text',
-  //     })
-  //  ect(parseNoteContent(note)).toMatchInlineSnapshot(`
-  //        {
-  //          "content": [
-  //            {
-  //              "content": [
-  //                {
-  //                  "text": "Test: ",
-  //                  "type": "text",
-  //                },
-  //                {
-  //                  "marks": [
-  //                    {
-  //                      "attrs": {
-  //                        "href": "https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/",
-  //                      },
-  //                      "type": "link",
-  //                    },
-  //                  ],
-  //                  "text": "https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/",
-  //                  "type": "text",
-  //                },
-  //                {
-  //                  "text": " text",
-  //                  "type": "text",
-  //                },
-  //              ],
-  //              "type": "paragraph",
-  //            },
-  //          ],
-  //          "type": "doc",
-  //        }
-  //      `)
-  // })
-  // })
+  test('Should assert an intersecting node', () => {
+    const note = fakeNote({
+      content:
+        'Test: https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/ text',
+    })
+    expect(parseNoteContent(note)).toMatchInlineSnapshot(`
+         {
+           "content": [
+             {
+               "content": [
+                 {
+                   "text": "Test: ",
+                   "type": "text",
+                 },
+                 {
+                   "marks": [
+                     {
+                       "attrs": {
+                         "href": "https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/",
+                       },
+                       "type": "link",
+                     },
+                   ],
+                   "text": "https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/",
+                   "type": "text",
+                 },
+                 {
+                   "text": " text",
+                   "type": "text",
+                 },
+               ],
+               "type": "paragraph",
+             },
+           ],
+           "type": "doc",
+         }
+      `)
+  })
 })
