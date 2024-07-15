@@ -1,6 +1,6 @@
 import * as linkifyjs from 'linkifyjs'
-import { IMetaTags } from '../nip92.imeta'
-import { MatchBase } from '../types'
+import type { IMetaTags } from '../nip92.imeta'
+import type { MatchBase } from '../types'
 import { isValidTLD } from '../utils'
 
 const IMAGE_EXTENSIONS = /.(jpg|jpeg|gif|png|bmp|svg|webp)$/

@@ -1,5 +1,6 @@
-import { NostrReference, parseReferences } from '../nip27.references'
-import { MatchBase } from '../types'
+import type { NostrReference } from '../nip27.references'
+import { parseReferences } from '../nip27.references'
+import type { MatchBase } from '../types'
 
 export interface MatchNostr extends MatchBase {
   kind: 'nostr'

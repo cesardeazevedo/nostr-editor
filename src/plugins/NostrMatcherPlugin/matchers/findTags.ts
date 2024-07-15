@@ -1,4 +1,4 @@
-import { MatchBase } from '../types'
+import type { MatchBase } from '../types'
 
 export interface MatchTag extends MatchBase {
   kind: 'tag'

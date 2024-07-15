@@ -1,5 +1,6 @@
 // Adapted from nostr-tools/src/references.ts
-import { nip19, Event as NostrEvent } from 'nostr-tools'
+import type { Event as NostrEvent } from 'nostr-tools'
+import { nip19 } from 'nostr-tools'
 import type { AddressPointer, EventPointer, ProfilePointer } from 'nostr-tools/nip19'
 
 type BaseReference = {
