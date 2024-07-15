@@ -1,13 +1,18 @@
+import { Editor } from '@tiptap/core'
 import { nip19 } from 'nostr-tools'
 import { parseNoteContent } from '../parser'
+import { getExtensions, getExtensionsMarkdown } from './testExtensions/extensions'
 import { fakeNote } from './testUtils'
+
+const editor = new Editor({ extensions: getExtensions() })
+const editorMarkdown = new Editor({ extensions: getExtensionsMarkdown() })
 
 describe('parseNoteContent', () => {
   test('Should assert simple text', () => {
     const note = fakeNote({
       content: 'Hello nostr-editor! https://github.com/cesardeazevedo/nostr-editor',
     })
-    expect(parseNoteContent(note)).toMatchInlineSnapshot(`
+    expect(parseNoteContent(editor.state, note)).toMatchInlineSnapshot(`
       {
         "content": [
           {
@@ -45,7 +50,7 @@ describe('parseNoteContent', () => {
         ['imeta', 'url http://host.com/video', 'm video/mp4'],
       ],
     })
-    expect(parseNoteContent(note)).toMatchInlineSnapshot(`
+    expect(parseNoteContent(editor.state, note)).toMatchInlineSnapshot(`
        {
          "content": [
            {
@@ -103,7 +108,6 @@ describe('parseNoteContent', () => {
 
   test('Should assert content with multiple nodes', () => {
     const ref = fakeNote({
-      // id: '8a8bb0ba3edbb76e74b7e09c48ac3c853d4fa113fb69b10e6c22039321fdb9fd',
       content: 'related',
       created_at: 1,
       pubkey: '1',
@@ -112,7 +116,7 @@ describe('parseNoteContent', () => {
     const note = fakeNote({
       content: `Hi! https://google.com #tag nostr:${nevent} Hi nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj check this out https://nostr.com/img.jpg https://v.nostr.build/g6BQ.mp4`,
     })
-    expect(parseNoteContent(note)).toMatchInlineSnapshot(`
+    expect(parseNoteContent(editor.state, note)).toMatchInlineSnapshot(`
        {
          "content": [
            {
@@ -160,9 +164,10 @@ describe('parseNoteContent', () => {
              "attrs": {
                "author": "${ref.pubkey}",
                "id": "${ref.id}",
+               "kind": null,
                "relays": [],
              },
-             "type": "note",
+             "type": "nevent",
            },
            {
              "content": [
@@ -178,7 +183,7 @@ describe('parseNoteContent', () => {
                    ],
                    "text": "nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj",
                  },
-                 "type": "mention",
+                 "type": "nprofile",
                },
                {
                  "text": " check this out ",
@@ -229,7 +234,7 @@ describe('parseNoteContent', () => {
  text **bold** *italic* [link](https://google.com)
  `,
     })
-    expect(parseNoteContent(note)).toMatchInlineSnapshot(`
+    expect(parseNoteContent(editorMarkdown.state, note)).toMatchInlineSnapshot(`
        {
          "content": [
            {
@@ -344,7 +349,7 @@ describe('parseNoteContent', () => {
  https://host.com/2.jpeg
  `,
     })
-    expect(parseNoteContent(note)).toMatchInlineSnapshot(`
+    expect(parseNoteContent(editor.state, note)).toMatchInlineSnapshot(`
        {
          "content": [
            {
@@ -380,7 +385,7 @@ describe('parseNoteContent', () => {
       content:
         'Test: https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/ text',
     })
-    expect(parseNoteContent(note)).toMatchInlineSnapshot(`
+    expect(parseNoteContent(editor.state, note)).toMatchInlineSnapshot(`
          {
            "content": [
              {
