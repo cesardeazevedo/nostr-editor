@@ -1,18 +1,21 @@
 import { combineTransactionSteps, getChangedRanges, type Range } from '@tiptap/core'
 import { undoDepth } from 'prosemirror-history'
-import type { MarkType, Node } from 'prosemirror-model'
+import type { Attrs, MarkType, Node, NodeType } from 'prosemirror-model'
 import { Plugin, PluginKey, type EditorState, type Transaction } from 'prosemirror-state'
-import { MatchLinks, findLinks } from './matchers/findLinks'
-import { MatchNostr, findNostrRefs } from './matchers/findNostrRefs'
-import { MatchTag, findTags } from './matchers/findTags'
-import { GetMarkRange, NodeWithPosition } from './types'
+import type { MatchLinks } from './matchers/findLinks'
+import { findLinks } from './matchers/findLinks'
+import type { MatchNostr } from './matchers/findNostrRefs'
+import { findNostrRefs } from './matchers/findNostrRefs'
+import type { MatchTag } from './matchers/findTags'
+import { findTags } from './matchers/findTags'
+import type { NostrReference } from './nip27.references'
+import type { IMetaTags } from './nip92.imeta'
+import type { GetMarkRange, NodeWithPosition } from './types'
 import { isValidTLD, removeIntersectingNodes } from './utils'
-import { IMetaTags } from './nip92.imeta'
-import { NostrReference } from './nip27.references'
 
 export type Matches = MatchLinks | MatchNostr | MatchTag
 
-export class AutoMatcherPlugin {
+export class NostrMatcherPlugin {
   plugin: Plugin
 
   constructor(imeta?: IMetaTags, references?: NostrReference[]) {
@@ -131,7 +134,7 @@ export class AutoMatcherPlugin {
               return
             }
             text += node.textContent
-            if (node.type.name === 'mention' || node.type.name === 'note') {
+            if (node.type.name === 'nprofile' || node.type.name === 'nevent') {
               text += node.attrs.text
             }
           })
@@ -146,27 +149,27 @@ export class AutoMatcherPlugin {
     const { nodes, marks } = state.schema
     switch (kind) {
       case 'text': {
-        tr.addMark(from, to, marks.link.create({ href: match.href }))
+        this.addMark(tr, from, to, marks.link, { href: match.href })
         return true
       }
       case 'image': {
-        tr.replaceWith(from, to, nodes.image.create({ src: match.href }))
+        this.replaceWith(tr, from, to, nodes.image, { src: match.href })
         return true
       }
       case 'youtube': {
-        tr.replaceWith(from, to, nodes.youtube.create({ src: match.href }))
+        this.replaceWith(tr, from, to, nodes.youtube, { src: match.href })
         return true
       }
       case 'tweet': {
-        tr.replaceWith(from, to, nodes.tweet.create({ src: match.href }))
+        this.replaceWith(tr, from, to, nodes.tweet, { src: match.href })
         return true
       }
       case 'video': {
-        tr.replaceWith(from, to, nodes.video.create({ src: match.href }))
+        this.replaceWith(tr, from, to, nodes.video, { src: match.href })
         return true
       }
       case 'tag': {
-        tr.addMark(from, to, marks.tag.create({ tag: match.text }))
+        this.addMark(tr, from, to, marks.tag, { tag: match.text })
         return true
       }
       case 'nostr': {
@@ -174,12 +177,12 @@ export class AutoMatcherPlugin {
         switch (ref.prefix) {
           case 'npub':
           case 'nprofile': {
-            tr.replaceWith(from, to, nodes.mention.create({ ...ref.profile, text }))
+            this.replaceWith(tr, from, to, nodes.nprofile, { ...ref.profile, text })
             return true
           }
           case 'note':
           case 'nevent': {
-            tr.replaceWith(from, to, nodes.note.create(ref.event))
+            this.replaceWith(tr, from, to, nodes.nevent, ref.event)
             return true
           }
           default: {
@@ -190,6 +193,18 @@ export class AutoMatcherPlugin {
       default: {
         return false
       }
+    }
+  }
+
+  private addMark(tr: Transaction, from: number, to: number, mark: MarkType | undefined, attrs: Attrs) {
+    if (mark) {
+      tr.addMark(from, to, mark.create(attrs))
+    }
+  }
+
+  private replaceWith(tr: Transaction, from: number, to: number, node: NodeType | undefined, attrs: Attrs) {
+    if (node) {
+      tr.replaceWith(from, to, node.create(attrs))
     }
   }
 

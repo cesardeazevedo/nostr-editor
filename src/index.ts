@@ -1,7 +1,1 @@
-export { NostrMatcherExtension as AutoMatcherExtension } from './extensions/NostrMatcherExtension'
-export { LinkExtension } from './extensions/LinkExtension'
-export { MentionExtension } from './extensions/MentionExtension'
-export { NoteExtension } from './extensions/NoteExtension'
-export { TagExtension } from './extensions/TagExtension'
-export { TweetExtension } from './extensions/TweetExtension'
-export { VideoExtension } from './extensions/VideoExtension'
+export { NostrMatcherExtension } from './extensions/NostrMatcherExtension'

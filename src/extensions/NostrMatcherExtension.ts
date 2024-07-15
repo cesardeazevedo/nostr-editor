@@ -1,5 +1,5 @@
 import { Extension } from '@tiptap/core'
-import { AutoMatcherPlugin } from '../plugins/NostrMatcherPlugin/NostrMatcherPlugin'
+import { NostrMatcherPlugin } from '../plugins/NostrMatcherPlugin/NostrMatcherPlugin'
 import type { IMetaFields } from '../plugins/NostrMatcherPlugin/nip92.imeta'
 
 type Storage = {
@@ -11,6 +11,6 @@ export const NostrMatcherExtension = Extension.create<unknown, Storage>({
 
   addProseMirrorPlugins() {
     const { imeta, references } = this.editor.storage
-    return [new AutoMatcherPlugin(imeta, references).plugin]
+    return [new NostrMatcherPlugin(imeta, references).plugin]
   },
 })

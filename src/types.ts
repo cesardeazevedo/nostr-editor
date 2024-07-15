@@ -1,10 +1,30 @@
 import type { ImageOptions } from '@tiptap/extension-image'
 import type { StarterKitOptions } from '@tiptap/starter-kit'
-import type { LinkAttributes } from './extensions/LinkExtension'
-import type { MentionExtensionAttributes } from './extensions/MentionExtension'
-import type { NoteExtensionAttributes } from './extensions/NoteExtension'
-import type { TagAttributes } from './extensions/TagExtension'
-import type { VideoExtensionAttributes } from './extensions/VideoExtension'
+
+// Attributes
+export type LinkAttributes = {
+  href: string
+}
+
+export type NProfileExtensionAttributes = {
+  id: string
+  pubkey: string
+}
+
+export interface NEventExtensionAttributes {
+  id: string
+  kind: number
+  author: string
+  relays: string[]
+}
+
+export interface TagAttributes {
+  tag: string
+}
+
+export interface VideoExtensionAttributes {
+  src: string
+}
 
 type Extensions<T extends keyof StarterKitOptions> = T
 
@@ -49,14 +69,14 @@ type StrikeMark = {
   type: 'strike'
 }
 
-type MentionNode = {
-  type: 'mention'
-  attrs: MentionExtensionAttributes
+type NProfileNode = {
+  type: 'nprofile'
+  attrs: NProfileExtensionAttributes
 }
 
-type NoteNode = {
-  type: 'note'
-  attrs: NoteExtensionAttributes
+type NEventNode = {
+  type: 'nevent'
+  attrs: NEventExtensionAttributes
 }
 
 type ImageNode = {
@@ -132,8 +152,8 @@ export type Node =
   | ParagraphNode
   | TextNode
   | HardBreak
-  | MentionNode
-  | NoteNode
+  | NProfileNode
+  | NEventNode
   | ImageNode
   | VideoNode
   | HeadingNode
