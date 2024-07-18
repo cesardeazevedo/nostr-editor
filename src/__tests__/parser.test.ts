@@ -418,4 +418,36 @@ describe('parseNoteContent', () => {
          }
       `)
   })
+
+  test('Should assert an intersecting node', () => {
+    const note = fakeNote({
+      content:
+        'Test addr nostr:naddr1qqwysetjv5syxmmdv4ejqsnfw33k76twyp38jgznwp5hyctvqgsph3c2q9yt8uckmgelu0yf7glruudvfluesqn7cuftjpwdynm2gygrqsqqqa2w4ua43m',
+    })
+    expect(parseNoteContent(editor.state, note)).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "content": [
+              {
+                "text": "Test addr ",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
+          },
+          {
+            "attrs": {
+              "identifier": "Here Comes Bitcoin by Spiral",
+              "kind": 30030,
+              "pubkey": "1bc70a0148b3f316da33fe3c89f23e3e71ac4ff998027ec712b905cd24f6a411",
+              "relays": [],
+            },
+            "type": "naddr",
+          },
+        ],
+        "type": "doc",
+      }
+    `)
+  })
 })

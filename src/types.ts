@@ -18,6 +18,13 @@ export interface NEventExtensionAttributes {
   relays: string[]
 }
 
+export interface NAddrExtensionAttributes {
+  kind: number
+  pubkey: string
+  relays?: string[]
+  identifier: string
+}
+
 export interface TagAttributes {
   tag: string
 }
@@ -77,6 +84,11 @@ type NProfileNode = {
 type NEventNode = {
   type: 'nevent'
   attrs: NEventExtensionAttributes
+}
+
+type NAddrNode = {
+  type: 'naddr'
+  attrs: NAddrExtensionAttributes
 }
 
 type ImageNode = {
@@ -154,6 +166,7 @@ export type Node =
   | HardBreak
   | NProfileNode
   | NEventNode
+  | NAddrNode
   | ImageNode
   | VideoNode
   | HeadingNode

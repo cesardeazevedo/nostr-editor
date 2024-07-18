@@ -150,27 +150,27 @@ export class NostrMatcherPlugin {
     switch (kind) {
       case 'text': {
         this.addMark(tr, from, to, marks.link, { href: match.href })
-        return true
+        break
       }
       case 'image': {
         this.replaceWith(tr, from, to, nodes.image, { src: match.href })
-        return true
+        break
       }
       case 'youtube': {
         this.replaceWith(tr, from, to, nodes.youtube, { src: match.href })
-        return true
+        break
       }
       case 'tweet': {
         this.replaceWith(tr, from, to, nodes.tweet, { src: match.href })
-        return true
+        break
       }
       case 'video': {
         this.replaceWith(tr, from, to, nodes.video, { src: match.href })
-        return true
+        break
       }
       case 'tag': {
         this.addMark(tr, from, to, marks.tag, { tag: match.text })
-        return true
+        break
       }
       case 'nostr': {
         const { ref } = match
@@ -178,20 +178,25 @@ export class NostrMatcherPlugin {
           case 'npub':
           case 'nprofile': {
             this.replaceWith(tr, from, to, nodes.nprofile, { ...ref.profile, text })
-            return true
+            break
           }
           case 'note':
           case 'nevent': {
             this.replaceWith(tr, from, to, nodes.nevent, ref.event)
-            return true
+            break
+          }
+          case 'naddr': {
+            this.replaceWith(tr, from, to, nodes.naddr, ref.address)
+            break
           }
           default: {
-            return false
+            break
           }
         }
+        break
       }
       default: {
-        return false
+        break
       }
     }
   }

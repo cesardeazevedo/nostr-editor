@@ -10,6 +10,7 @@ import { NProfileExtension } from './NProfileExtension'
 import { TagExtension } from './TagExtension'
 import { TweetExtension } from './TweetExtension'
 import { VideoExtension } from './VideoExtension'
+import { NAddrExtension } from './NAddressExtension'
 
 export function getExtensions() {
   return [
@@ -18,6 +19,7 @@ export function getExtensions() {
     TagExtension,
     LinkExtension,
     NEventExtension,
+    NAddrExtension,
     ImageExtension,
     VideoExtension,
     TweetExtension,
