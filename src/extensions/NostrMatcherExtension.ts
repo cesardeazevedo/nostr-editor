@@ -7,7 +7,7 @@ type Storage = {
 }
 
 export const NostrMatcherExtension = Extension.create<unknown, Storage>({
-  name: 'autoMatcher',
+  name: 'nostrMatcher',
 
   addProseMirrorPlugins() {
     const { imeta, references } = this.editor.storage
