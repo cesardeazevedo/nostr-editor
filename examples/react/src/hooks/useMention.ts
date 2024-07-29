@@ -8,14 +8,16 @@ export function useMention(pubkey: string, relays: string[] = []) {
   const createdAt = user?.created_at || 0
 
   useEffect(() => {
-    const subscription = pool.subscribeMany([...relays, 'wss://purplepag.es'], [{ kinds: [0], authors: [pubkey] }], {
-      onevent(event) {
-        if (event.created_at >= createdAt) {
-          setUser(event)
-        }
-      },
-    })
-    return () => subscription.close()
+    if (pubkey) {
+      const subscription = pool.subscribeMany([...relays, 'wss://purplepag.es'], [{ kinds: [0], authors: [pubkey] }], {
+        onevent(event) {
+          if (event.created_at >= createdAt) {
+            setUser(event)
+          }
+        },
+      })
+      return () => subscription.close()
+    }
   }, [pubkey, relays, createdAt])
 
   return user
