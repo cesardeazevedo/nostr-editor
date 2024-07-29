@@ -7,6 +7,10 @@ export const NEventExtension = Node.create({
 
   atom: true,
 
+  selectable: true,
+
+  content: 'text*',
+
   addAttributes() {
     return {
       id: { default: null },

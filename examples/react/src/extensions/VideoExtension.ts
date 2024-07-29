@@ -11,6 +11,8 @@ export const VideoExtension = Node.create({
 
   atom: true,
 
+  content: 'text*',
+
   addAttributes() {
     return {
       src: { default: null },

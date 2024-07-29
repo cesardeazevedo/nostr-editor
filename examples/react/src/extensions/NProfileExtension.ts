@@ -9,13 +9,14 @@ export const NProfileExtension = Node.create({
 
   group: 'inline',
 
+  content: 'text*',
+
   renderHTML(p) {
     return ['span', { ...p.node.attrs }, 'mention']
   },
 
   addAttributes() {
     return {
-      text: { default: null },
       pubkey: { default: null },
       relays: { default: null },
     }

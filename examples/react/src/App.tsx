@@ -1,4 +1,5 @@
 import ImageExtension from '@tiptap/extension-image'
+import YoutubeExtension from '@tiptap/extension-youtube'
 import { EditorContent, ReactNodeViewRenderer, useEditor } from '@tiptap/react'
 import { StarterKit } from '@tiptap/starter-kit'
 import { NostrMatcherExtension } from 'nostr-editor'
@@ -8,23 +9,31 @@ import { Image } from './components/Image'
 import { Mention } from './components/Mention'
 import { NAddr } from './components/NAddr'
 import { NEvent } from './components/NEvent'
+import { Tweet } from './components/Tweet'
+import { Video } from './components/Video'
 import { LinkExtension } from './extensions/LinkExtension'
 import { NAddrExtension } from './extensions/NAddressExtension'
 import { NEventExtension } from './extensions/NEventExtension'
 import { NProfileExtension } from './extensions/NProfileExtension'
 import { TagExtension } from './extensions/TagExtension'
+import { TweetExtension } from './extensions/TweetExtension'
 import { VideoExtension } from './extensions/VideoExtension'
 
 const extensions = [
-  StarterKit.configure(),
+  StarterKit,
   NostrMatcherExtension,
   LinkExtension,
   TagExtension,
-  VideoExtension,
-  ImageExtension.extend({ addNodeView: () => ReactNodeViewRenderer(Image) }),
+  VideoExtension.extend({ addNodeView: () => ReactNodeViewRenderer(Video) }),
+  ImageExtension.extend({
+    addNodeView: () => ReactNodeViewRenderer(Image),
+    renderText: (p) => p.node.attrs.src,
+  }),
+  YoutubeExtension.extend({ renderText: (p) => p.node.attrs.src }),
+  TweetExtension.extend({ addNodeView: () => ReactNodeViewRenderer(Tweet) }),
   NProfileExtension.extend({ addNodeView: () => ReactNodeViewRenderer(Mention) }),
   NEventExtension.extend({ addNodeView: () => ReactNodeViewRenderer(NEvent) }),
-  NAddrExtension.extend({ addNodeView: () => ReactNodeViewRenderer(NAddr) })
+  NAddrExtension.extend({ addNodeView: () => ReactNodeViewRenderer(NAddr) }),
 ]
 
 function App() {
@@ -35,10 +44,12 @@ function App() {
     },
   })
 
+  const [raw, setRaw] = useState('raw_')
   const [snapshot, setSnapshot] = useState({})
 
   const handleSnapshot = useCallback(() => {
     if (editor) {
+      setRaw(editor.getText())
       // ReactJsonView is buggy so we need to stringify and parse
       setSnapshot(JSON.parse(JSON.stringify(editor?.state.toJSON() || {})).doc.content)
     }
@@ -48,7 +59,7 @@ function App() {
     <div className='w-3/4 relative'>
       <h1 className='text-xl'>nostr-editor</h1>
       <br />
-      <h6>raw text</h6>
+      <h6>testing text</h6>
       <span id='raw' className='text-xs break-all text-wrap z-20 relative'>
         Hello
         nostr:nprofile1qy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcprfmhxue69uhhyetvv9ujuem9w3skccne9e3k7mf0wccsqgxxvqas78x0a339m8qgkaf7fam5atmarne8dy3rzfd4l4x6w2qpncmfs8zh
@@ -71,6 +82,12 @@ function App() {
           prefix
         </small>
       </div>
+      {raw && (
+        <>
+          <h1>raw text</h1>
+          {raw}
+        </>
+      )}
       {snapshot && (
         <div className='text-left pl-5 mt-5'>
           <h1 className='mb-2'>Schema</h1>
