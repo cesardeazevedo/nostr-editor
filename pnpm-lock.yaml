@@ -35,6 +35,9 @@ importers:
       prosemirror-history:
         specifier: ^1.4.1
         version: 1.4.1
+      prosemirror-markdown:
+        specifier: ^1.13.0
+        version: 1.13.0
       prosemirror-model:
         specifier: ^1.22.1
         version: 1.22.1
