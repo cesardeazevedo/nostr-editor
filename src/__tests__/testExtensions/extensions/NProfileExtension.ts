@@ -9,7 +9,7 @@ export const NProfileExtension = Node.create({
 
   group: 'inline',
 
-  content: 'text*',
+  content: 'text?',
 
   renderHTML(p) {
     return ['span', p.node.attrs, '@']

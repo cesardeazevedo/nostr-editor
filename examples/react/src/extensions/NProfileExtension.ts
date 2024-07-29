@@ -9,7 +9,9 @@ export const NProfileExtension = Node.create({
 
   group: 'inline',
 
-  content: 'text*',
+  renderText(p) {
+    return p.node.textContent
+  },
 
   renderHTML(p) {
     return ['span', { ...p.node.attrs }, 'mention']
