@@ -7,6 +7,8 @@ export const NAddrExtension = Node.create({
 
   atom: true,
 
+  content: 'text*',
+
   addAttributes() {
     return {
       kind: { default: null },

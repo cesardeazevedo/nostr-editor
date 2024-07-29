@@ -153,19 +153,19 @@ export class NostrMatcherPlugin {
         break
       }
       case 'image': {
-        this.replaceWith(tr, from, to, nodes.image, { src: match.href })
+        this.replaceWith(tr, from, to, nodes.image, { src: match.href }, text)
         break
       }
       case 'youtube': {
-        this.replaceWith(tr, from, to, nodes.youtube, { src: match.href })
+        this.replaceWith(tr, from, to, nodes.youtube, { src: match.href }, text)
         break
       }
       case 'tweet': {
-        this.replaceWith(tr, from, to, nodes.tweet, { src: match.href })
+        this.replaceWith(tr, from, to, nodes.tweet, { src: match.href }, text)
         break
       }
       case 'video': {
-        this.replaceWith(tr, from, to, nodes.video, { src: match.href })
+        this.replaceWith(tr, from, to, nodes.video, { src: match.href }, text)
         break
       }
       case 'tag': {
@@ -177,16 +177,16 @@ export class NostrMatcherPlugin {
         switch (ref.prefix) {
           case 'npub':
           case 'nprofile': {
-            this.replaceWith(tr, from, to, nodes.nprofile, { ...ref.profile, text })
+            this.replaceWith(tr, from, to, nodes.nprofile, ref.profile, text)
             break
           }
           case 'note':
           case 'nevent': {
-            this.replaceWith(tr, from, to, nodes.nevent, ref.event)
+            this.replaceWith(tr, from, to, nodes.nevent, ref.event, text)
             break
           }
           case 'naddr': {
-            this.replaceWith(tr, from, to, nodes.naddr, ref.address)
+            this.replaceWith(tr, from, to, nodes.naddr, ref.address, text)
             break
           }
           default: {
@@ -207,9 +207,16 @@ export class NostrMatcherPlugin {
     }
   }
 
-  private replaceWith(tr: Transaction, from: number, to: number, node: NodeType | undefined, attrs: Attrs) {
+  private replaceWith(
+    tr: Transaction,
+    from: number,
+    to: number,
+    node: NodeType | undefined,
+    attrs: Attrs,
+    content?: string,
+  ) {
     if (node) {
-      tr.replaceWith(from, to, node.create(attrs))
+      tr.replaceWith(from, to, node.create(attrs, content ? node.schema.text(content) : null))
     }
   }
 

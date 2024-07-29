@@ -12,7 +12,7 @@ export const TagExtension = Mark.create({
   group: 'inline',
 
   renderHTML(p) {
-    return ['span', { ...p.mark.attrs, style: 'border:1px solid red;' }, 0]
+    return ['span', p.mark.attrs, 0]
   },
 
   addAttributes() {

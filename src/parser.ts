@@ -1,11 +1,10 @@
-import { DOMParser } from '@tiptap/pm/model'
 import markdownIt from 'markdown-it'
 import { type NostrEvent } from 'nostr-tools'
+import { DOMParser } from 'prosemirror-model'
 import type { EditorState } from 'prosemirror-state'
 import { parseReferences, type NostrReference } from './plugins/NostrMatcherPlugin/nip27.references'
 import type { IMetaTags } from './plugins/NostrMatcherPlugin/nip92.imeta'
 import { parseImeta } from './plugins/NostrMatcherPlugin/nip92.imeta'
-import type { ContentSchema } from './types'
 
 const md = markdownIt()
 
@@ -27,11 +26,11 @@ export function parseTextContent(
   imeta?: IMetaTags,
 ) {
   const { tr } = editor
-  const newState = tr
+  const changes = tr
     .insertText(event.content.replace(/\n+/g, '<br />'))
     .setMeta('imeta', imeta || parseImeta(event.tags))
     .setMeta('references', references || parseReferences(event))
-  return editor.apply(newState).toJSON().doc as ContentSchema
+  return editor.apply(changes)
 }
 
 export function parseMarkdownContent(
@@ -52,12 +51,12 @@ export function parseMarkdownContent(
     .setMeta('imeta', imeta || parseImeta(event.tags))
     .setMeta('references', references || parseReferences(event))
 
-  return editor.apply(newState).toJSON().doc as ContentSchema
+  return editor.apply(newState)
 }
 
 export function parseUserAbout(editor: EditorState, about: string) {
   const tr = editor.tr.insertText(about)
   tr.setMeta('imeta', null)
   tr.setMeta('references', null)
-  return editor.apply(tr).toJSON().doc as ContentSchema
+  return editor.apply(tr)
 }
