@@ -1,9 +1,53 @@
 @tailwind base;
+@layer base {
+  h1 {
+    @apply text-3xl;
+  }
+  h2 {
+    @apply text-2xl;
+  }
+  h3 {
+    @apply text-xl;
+  }
+  h4 {
+    @apply text-lg;
+  }
+  h5 {
+    @apply text-lg;
+  }
+  h6 {
+    @apply text-lg;
+  }
+  a {
+    @apply text-blue-700 underline cursor-pointer;
+  }
+  ul {
+    @apply list-disc ml-4;
+  }
+  ol {
+    @apply list-decimal ml-4;
+  }
+  img {
+    @apply rounded-xl;
+  }
+  pre {
+    @apply bg-gray-200 rounded-lg px-2;
+  }
+  :not(pre) > code {
+    @apply bg-gray-200 rounded-lg text-lg mx-1 px-2;
+    font-size: inherit;
+  }
+  blockquote {
+    @apply border-l-4 border-l-gray-200 border-solid pl-4 text-gray-500 italic;
+  }
+};
+
 @tailwind components;
 @tailwind utilities;
 
-#root {
-  padding: 2rem;
+
+html, body, #root {
+  height: 100%;
 }
 
 .tiptap {
@@ -15,15 +59,6 @@
   font-weight: 400;
   border-radius: 0.75rem;
   z-index: 20;
-}
-
-a {
-  cursor: pointer;
-  color: #1d4ed8
-}
-
-img {
-  border-radius: 0.75rem;
 }
 
 [data-tooltip] {
