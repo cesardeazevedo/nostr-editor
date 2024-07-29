@@ -1,5 +1,6 @@
 import type { NodeViewProps } from '@tiptap/core'
 import { NodeViewWrapper } from '@tiptap/react'
+import { IconX } from '@tabler/icons-react'
 import { DateTime } from 'luxon'
 import type { NostrEvent } from 'nostr-tools/core'
 import { useEffect, useMemo, useState } from 'react'
@@ -31,9 +32,15 @@ export function NEvent(props: NodeViewProps) {
 
   return (
     <NodeViewWrapper>
-      <div className='px-6 py-4 my-2 border rounded-xl w-2/4'>
-        {!(event && user) && 'Loading'}
-        {event && user && (
+      <div className={`relative px-6 py-4 my-2 border rounded-xl w-10/12 ${props.selected ? 'bg-blue-100' : ''}`}>
+        <div className='absolute right-2 opacity-40 text-xs'>
+          {props.selected && <div className='absolute right-10 top-1 opacity-40 text-xs'>selected</div>}
+          <button className='rounded-full border border-solid border-gray-900' onClick={() => props.deleteNode()}>
+            <IconX strokeWidth='1.5' />
+          </button>
+        </div>
+        {!event && 'Loading'}
+        {event && (
           <>
             <div className='flex flex-row items-center py-2'>
               <img className='w-8 rounded-full mr-4' src={picture} />
