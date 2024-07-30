@@ -1,7 +1,7 @@
 // Adapted from nostr-tools/src/references.ts
 import type { Event as NostrEvent } from 'nostr-tools'
 import { nip19 } from 'nostr-tools'
-import type { AddressPointer, EventPointer, ProfilePointer } from 'nostr-tools/nip19'
+import type { AddressPointer, ProfilePointer } from 'nostr-tools/nip19'
 
 type BaseReference = {
   index: number
@@ -9,13 +9,12 @@ type BaseReference = {
   author?: string
 }
 
-export type EventReference = BaseReference & { prefix: 'nevent' | 'note'; event: EventPointer }
 export type ProfileReference = BaseReference & { prefix: 'nprofile' | 'npub'; profile: ProfilePointer }
 type AddressReference = BaseReference & { prefix: 'naddr'; address: AddressPointer }
 
-export type NostrReference = ProfileReference | EventReference | AddressReference
+export type NostrReference = ProfileReference | AddressReference
 
-const mentionRegex = /\bnostr:((note|npub|naddr|nevent|nprofile)1\w+)\b|#\[(\d+)\]/g
+const mentionRegex = /\bnostr:((npub|naddr|nprofile)1\w+)\b|#\[(\d+)\]/g
 
 const { decode } = nip19
 
@@ -48,25 +47,6 @@ export function parseReferences(evt: Partial<NostrEvent>): NostrReference[] {
             })
             break
           }
-          case 'note': {
-            references.push({
-              index,
-              prefix: 'note',
-              text: ref[0],
-              event: { id: data as string, relays: [] },
-            })
-            break
-          }
-          case 'nevent': {
-            references.push({
-              index,
-              prefix: 'nevent',
-              text: ref[0],
-              event: data as EventPointer,
-              author: data.author,
-            })
-            break
-          }
           case 'naddr': {
             references.push({
               index,
@@ -95,15 +75,6 @@ export function parseReferences(evt: Partial<NostrEvent>): NostrReference[] {
             text: ref[0],
             profile: { pubkey: tag[1], relays: tag[2] ? [tag[2]] : [] },
             author: tag[1],
-          })
-          break
-        }
-        case 'e': {
-          references.push({
-            index,
-            prefix: 'nevent',
-            text: ref[0],
-            event: { id: tag[1], relays: tag[2] ? [tag[2]] : [] },
           })
           break
         }
