@@ -134,7 +134,7 @@ export class NostrMatcherPlugin {
               return
             }
             text += node.textContent
-            if (node.type.name === 'nprofile' || node.type.name === 'nevent') {
+            if (node.type.name === 'nprofile') {
               text += node.attrs.text
             }
           })
@@ -178,11 +178,6 @@ export class NostrMatcherPlugin {
           case 'npub':
           case 'nprofile': {
             this.replaceWith(tr, from, to, nodes.nprofile, ref.profile, text)
-            break
-          }
-          case 'note':
-          case 'nevent': {
-            this.replaceWith(tr, from, to, nodes.nevent, ref.event, text)
             break
           }
           case 'naddr': {
