@@ -7,6 +7,8 @@ export const VideoExtension = Node.create({
 
   inclusive: false,
 
+  isolating: true,
+
   group: 'block',
 
   atom: true,
