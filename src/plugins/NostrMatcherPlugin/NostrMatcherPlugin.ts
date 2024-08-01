@@ -77,7 +77,7 @@ export class NostrMatcherPlugin {
 
               // Check newLinkText for a remaining valid link
               if (from === to) {
-                this.findMatches(newLinkText, newFrom, newState).forEach((match) => {
+                this.findMatches(newLinkText, newFrom).forEach((match) => {
                   this.replaceNodes(tr, newState, match)
                 })
               }
@@ -86,7 +86,7 @@ export class NostrMatcherPlugin {
 
           const replacements = this.findTextBlocksInRange(doc, { from, to }, newState.schema.marks.link).flatMap(
             ({ text, positionStart }) => {
-              return this.findMatches(text, positionStart + 1, newState)
+              return this.findMatches(text, positionStart + 1)
                 .filter((range) => {
                   const fromIsInRange = range.from >= from && range.from <= to
                   const toIsInRange = range.to >= from && range.to <= to
@@ -220,10 +220,9 @@ export class NostrMatcherPlugin {
     }))
   }
 
-  private findMatches(text: string, positionStart: number, state: EditorState): Matches[] {
-    const { imeta, references } = this.plugin.getState(state)
-    const links = findLinks(text, imeta)
-    const refs = findNostrRefs(text, references)
+  private findMatches(text: string, positionStart: number): Matches[] {
+    const links = findLinks(text)
+    const refs = findNostrRefs(text)
     const tags = findTags(text)
     const res = [...links, ...tags, ...refs].map((match) => ({
       ...match,
