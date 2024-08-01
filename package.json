@@ -59,6 +59,7 @@
     "prosemirror-history": "^1.4.1",
     "prosemirror-model": "^1.22.1",
     "prosemirror-state": "^1.4.3",
+    "prosemirror-markdown": "^1.13.0",
     "tiptap-markdown": "^0.8.10",
     "tlds": "^1.254.0"
   }
