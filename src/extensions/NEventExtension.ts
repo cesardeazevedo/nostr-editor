@@ -3,6 +3,9 @@ import type { EventPointer } from 'nostr-tools/nip19'
 import { Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
+import {createPasteRuleMatch} from './util'
+
+export const NOTE_REGEX = /(nostr:)?(note1[0-9a-z]+)/g
 
 export const NEVENT_REGEX = /(nostr:)?(nevent1[0-9a-z]+)/g
 
@@ -22,7 +25,7 @@ export const NEventExtension = Node.create({
       id: { default: null },
       kind: { default: null },
       author: { default: null },
-      relays: { default: null },
+      relays: { default: [] },
     }
   },
 
@@ -49,17 +52,21 @@ export const NEventExtension = Node.create({
         find: text => {
           const matches = []
 
+          for (const match of text.matchAll(NOTE_REGEX)) {
+            try {
+              const id = nip19.decode(match[2]).data as string
+
+              matches.push(createPasteRuleMatch(match, {id}))
+            } catch (e) {
+              continue
+            }
+          }
+
           for (const match of text.matchAll(NEVENT_REGEX)) {
             try {
               const data = nip19.decode(match[2]).data as EventPointer
 
-              matches.push({
-                index: match.index,
-                replaceWith: match[2],
-                text: match[0],
-                match,
-                data,
-              })
+              matches.push(createPasteRuleMatch(match, data))
             } catch (e) {
               continue
             }

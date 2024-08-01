@@ -3,6 +3,9 @@ import type { ProfilePointer } from 'nostr-tools/nip19'
 import { Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
+import {createPasteRuleMatch} from './util'
+
+export const NPUB_REGEX = /(nostr:)?(npub1[0-9a-z]+)/g
 
 export const NPROFILE_REGEX = /(nostr:)?(nprofile1[0-9a-z]+)/g
 
@@ -20,7 +23,7 @@ export const NProfileExtension = Node.create({
   addAttributes() {
     return {
       pubkey: { default: null },
-      relays: { default: null },
+      relays: { default: [] },
     }
   },
 
@@ -47,17 +50,21 @@ export const NProfileExtension = Node.create({
         find: text => {
           const matches = []
 
+          for (const match of text.matchAll(NPUB_REGEX)) {
+            try {
+              const pubkey = nip19.decode(match[2]).data as string
+
+              matches.push(createPasteRuleMatch(match, {pubkey}))
+            } catch (e) {
+              continue
+            }
+          }
+
           for (const match of text.matchAll(NPROFILE_REGEX)) {
             try {
               const data = nip19.decode(match[2]).data as ProfilePointer
 
-              matches.push({
-                index: match.index,
-                replaceWith: match[2],
-                text: match[0],
-                match,
-                data,
-              })
+              matches.push(createPasteRuleMatch(match, data))
             } catch (e) {
               continue
             }

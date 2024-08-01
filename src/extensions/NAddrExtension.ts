@@ -3,6 +3,7 @@ import type { AddressPointer } from 'nostr-tools/nip19'
 import { Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
+import {createPasteRuleMatch} from './util'
 
 export const NADDR_REGEX = /(nostr:)?(naddr1[0-9a-z]+)/g
 
@@ -22,7 +23,7 @@ export const NAddrExtension = Node.create({
       identifier: { default: null },
       pubkey: { default: null },
       kind: { default: null },
-      relays: { default: null },
+      relays: { default: [] },
     }
   },
 
@@ -53,13 +54,7 @@ export const NAddrExtension = Node.create({
             try {
               const data = nip19.decode(match[2]).data as AddressPointer
 
-              matches.push({
-                index: match.index,
-                replaceWith: match[2],
-                text: match[0],
-                match,
-                data,
-              })
+              matches.push(createPasteRuleMatch(match, data))
             } catch (e) {
               continue
             }
