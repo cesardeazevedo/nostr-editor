@@ -48,6 +48,25 @@ export function parseReferences(evt: Partial<NostrEvent>): NostrReference[] {
             })
             break
           }
+          case 'note': {
+            references.push({
+              index,
+              prefix: 'note',
+              text: ref[0],
+              event: { id: data as string, relays: [] },
+            })
+            break
+          }
+          case 'nevent': {
+            references.push({
+              index,
+              prefix: 'nevent',
+              text: ref[0],
+              event: data as EventPointer,
+              author: data.author,
+            })
+            break
+          }
           case 'naddr': {
             references.push({
               index,
@@ -76,6 +95,15 @@ export function parseReferences(evt: Partial<NostrEvent>): NostrReference[] {
             text: ref[0],
             profile: { pubkey: tag[1], relays: tag[2] ? [tag[2]] : [] },
             author: tag[1],
+          })
+          break
+        }
+        case 'e': {
+          references.push({
+            index,
+            prefix: 'nevent',
+            text: ref[0],
+            event: { id: tag[1], relays: tag[2] ? [tag[2]] : [] },
           })
           break
         }
