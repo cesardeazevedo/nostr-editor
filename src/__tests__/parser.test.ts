@@ -1,6 +1,5 @@
 // @vitest-environment happy-dom
 /* eslint-disable no-empty-pattern, */
-/* eslint-disable prettier/prettier */
 import { test as base } from 'vitest'
 import { Editor } from '@tiptap/core'
 import { nip19 } from 'nostr-tools'
