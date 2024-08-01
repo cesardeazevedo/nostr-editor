@@ -10,7 +10,6 @@ export const NostrMatcherExtension = Extension.create<unknown, Storage>({
   name: 'nostrMatcher',
 
   addProseMirrorPlugins() {
-    const { imeta, references } = this.editor.storage
-    return [new NostrMatcherPlugin(imeta, references).plugin]
+    return [new NostrMatcherPlugin().plugin]
   },
 })

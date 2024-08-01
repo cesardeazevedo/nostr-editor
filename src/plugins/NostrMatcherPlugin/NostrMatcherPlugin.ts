@@ -8,8 +8,6 @@ import type { MatchNostr } from './matchers/findNostrRefs'
 import { findNostrRefs } from './matchers/findNostrRefs'
 import type { MatchTag } from './matchers/findTags'
 import { findTags } from './matchers/findTags'
-import type { NostrReference } from './nip27.references'
-import type { IMetaTags } from './nip92.imeta'
 import type { GetMarkRange, NodeWithPosition } from './types'
 import { isValidTLD, removeIntersectingNodes } from './utils'
 
@@ -18,24 +16,9 @@ export type Matches = MatchLinks | MatchNostr | MatchTag
 export class NostrMatcherPlugin {
   plugin: Plugin
 
-  constructor(imeta?: IMetaTags, references?: NostrReference[]) {
+  constructor() {
     this.plugin = new Plugin({
       key: new PluginKey('nostr'),
-
-      state: {
-        init: () => {
-          return {
-            imeta,
-            references,
-          }
-        },
-        apply: (tr) => {
-          return {
-            imeta: tr.getMeta('imeta'),
-            references: tr.getMeta('references'),
-          }
-        },
-      },
 
       appendTransaction: (transactions, oldState, newState) => {
         const isUndo = undoDepth(oldState) - undoDepth(newState) === 1
