@@ -7,7 +7,7 @@ export interface MatchNostr extends MatchBase {
   ref: NostrReference
 }
 
-export function findNostrRefs(text: string, references: NostrReference[]): MatchNostr[] {
+export function findNostrRefs(text: string, references?: NostrReference[]): MatchNostr[] {
   const refs: MatchNostr[] = []
   const parsed = references || parseReferences({ content: text })
   for (const ref of parsed) {
