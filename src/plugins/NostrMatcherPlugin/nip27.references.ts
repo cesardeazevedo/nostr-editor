@@ -1,7 +1,7 @@
 // Adapted from nostr-tools/src/references.ts
 import type { Event as NostrEvent } from 'nostr-tools'
 import { nip19 } from 'nostr-tools'
-import type { AddressPointer, ProfilePointer } from 'nostr-tools/nip19'
+import type { AddressPointer, EventPointer, ProfilePointer } from 'nostr-tools/nip19'
 
 type BaseReference = {
   index: number
@@ -9,12 +9,13 @@ type BaseReference = {
   author?: string
 }
 
+export type EventReference = BaseReference & { prefix: 'nevent' | 'note'; event: EventPointer }
 export type ProfileReference = BaseReference & { prefix: 'nprofile' | 'npub'; profile: ProfilePointer }
 type AddressReference = BaseReference & { prefix: 'naddr'; address: AddressPointer }
 
-export type NostrReference = ProfileReference | AddressReference
+export type NostrReference = ProfileReference | EventReference | AddressReference
 
-const mentionRegex = /\bnostr:((npub|naddr|nprofile)1\w+)\b|#\[(\d+)\]/g
+const mentionRegex = /\bnostr:((note|npub|naddr|nevent|nprofile)1\w+)\b|#\[(\d+)\]/g
 
 const { decode } = nip19
 
