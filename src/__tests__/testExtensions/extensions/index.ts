@@ -3,12 +3,12 @@ import StarterKit from '@tiptap/starter-kit'
 import { Markdown as MarkdownExtension } from 'tiptap-markdown'
 import { ImageExtension } from './ImageExtension'
 import { LinkExtension } from './LinkExtension'
-import { NAddrExtension } from './NAddressExtension'
-import { NEventExtension } from './NEventExtension'
-import { NProfileExtension } from './NProfileExtension'
 import { TagExtension } from './TagExtension'
 import { TweetExtension } from './TweetExtension'
 import { VideoExtension } from './VideoExtension'
+import { NAddrExtension } from '../../../extensions/NAddrExtension'
+import { NEventExtension } from '../../../extensions/NEventExtension'
+import { NProfileExtension } from '../../../extensions/NProfileExtension'
 import { NostrParserExtension } from '../../../extensions/NostrParserExtension'
 
 export function getExtensions() {
@@ -17,8 +17,8 @@ export function getExtensions() {
     NostrParserExtension,
     TagExtension,
     LinkExtension,
-    NEventExtension,
     NAddrExtension,
+    NEventExtension,
     NProfileExtension,
     TweetExtension,
     ImageExtension,

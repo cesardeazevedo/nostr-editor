@@ -1,3 +1,5 @@
 export { NostrMatcherExtension } from './extensions/NostrMatcherExtension'
+export { NProfileExtension } from './extensions/NProfileExtension'
 export { NEventExtension } from './extensions/NEventExtension'
+export { NAddrExtension } from './extensions/NAddrExtension'
 export * from './types'
