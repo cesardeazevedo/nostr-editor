@@ -1,6 +1,8 @@
 import { nip19 } from 'nostr-tools'
 import type { EventPointer } from 'nostr-tools/nip19'
 import { Node, nodePasteRule } from '@tiptap/core'
+import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
+import type { MarkdownSerializerState } from 'prosemirror-markdown'
 
 export const NEVENT_REGEX = /(nostr:)?(nevent1[0-9a-z]+)/g
 
@@ -26,6 +28,17 @@ export const NEventExtension = Node.create({
 
   renderHTML() {
     return ['div', {}, 0]
+  },
+
+  addStorage() {
+    return {
+      markdown: {
+        serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
+          state.write(node.textContent)
+        },
+        parse: {},
+      },
+    }
   },
 
   addPasteRules() {
