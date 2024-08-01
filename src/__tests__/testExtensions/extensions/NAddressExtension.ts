@@ -1,4 +1,6 @@
 import { Node } from '@tiptap/core'
+import type { MarkdownSerializerState } from 'prosemirror-markdown'
+import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 
 export const NAddrExtension = Node.create({
   name: 'naddr',
@@ -6,6 +8,8 @@ export const NAddrExtension = Node.create({
   group: 'block',
 
   atom: true,
+
+  isolating: true,
 
   content: 'text*',
 
@@ -15,6 +19,17 @@ export const NAddrExtension = Node.create({
       pubkey: { default: null },
       relays: { default: null },
       identifier: { default: null },
+    }
+  },
+
+  addStorage() {
+    return {
+      markdown: {
+        serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
+          state.write(node.textContent)
+        },
+        parse: {},
+      },
     }
   },
 

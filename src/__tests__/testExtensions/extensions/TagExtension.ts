@@ -1,5 +1,9 @@
 import { Mark } from '@tiptap/core'
 
+export interface TagAttributes {
+  tag: string
+}
+
 export const TagExtension = Mark.create({
   name: 'tag',
 
@@ -11,8 +15,22 @@ export const TagExtension = Mark.create({
 
   group: 'inline',
 
+  addStorage() {
+    return {
+      markdown: {
+        serialize: {
+          open: '',
+          close: '',
+          mixable: false,
+          expelEnclosingWhitespace: true,
+        },
+        parse: {},
+      },
+    }
+  },
+
   renderHTML(p) {
-    return ['span', p.mark.attrs, 0]
+    return ['a', { ...p.mark.attrs }, 0]
   },
 
   addAttributes() {
