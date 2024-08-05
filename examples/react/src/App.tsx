@@ -200,7 +200,7 @@ function App() {
     if (editor) {
       prevContent.current = editor.getText()
       if (type === 'text') {
-        setRaw(editor.getText({blockSeparator: '\n'}))
+        setRaw(editor.getText({ blockSeparator: '\n' }))
       } else {
         setRaw(editor.storage.markdown.getMarkdown())
       }

@@ -31,7 +31,7 @@ export function NEvent(props: NodeViewProps) {
   }, [user])
 
   return (
-    <NodeViewWrapper as='div' data-nevent={nevent} data-drag-handle="" draggable={props.node.type.spec.draggable}>
+    <NodeViewWrapper as='div' data-nevent={nevent} data-drag-handle='' draggable={props.node.type.spec.draggable}>
       <div
         className={`select-none relative px-6 py-4 my-2 border rounded-xl w-10/12 ${props.selected ? 'bg-blue-100' : ''}`}>
         <div className='absolute right-2 opacity-40 text-xs'>

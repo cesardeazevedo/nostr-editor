@@ -7,7 +7,7 @@ export function NAddr(props: NodeViewProps) {
   const mention = useMention(pubkey)
   const profile = useProfileParsed(mention)
   return (
-    <NodeViewWrapper data-drag-handle="" draggable={props.node.type.spec.draggable}>
+    <NodeViewWrapper data-drag-handle='' draggable={props.node.type.spec.draggable}>
       <div className={`select-none border rounded-md p-2 pt-4 my-2 ${props.selected ? 'bg-blue-100' : ''}`}>
         <div className='flex flex-row'>
           <img src={profile?.picture} className='size-8 rounded-full' />

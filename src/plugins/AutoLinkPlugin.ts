@@ -151,13 +151,7 @@ export class AutoLinkPlugin {
     }
   }
 
-  private replaceWith(
-    tr: Transaction,
-    from: number,
-    to: number,
-    node: NodeType | undefined,
-    attrs: Attrs,
-  ) {
+  private replaceWith(tr: Transaction, from: number, to: number, node: NodeType | undefined, attrs: Attrs) {
     if (node) {
       tr.replaceWith(from, to, node.create(attrs))
     }
