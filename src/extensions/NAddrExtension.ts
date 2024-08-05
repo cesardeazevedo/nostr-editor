@@ -3,7 +3,7 @@ import type { AddressPointer } from 'nostr-tools/nip19'
 import { Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
-import {createPasteRuleMatch} from './util'
+import { createPasteRuleMatch } from './util'
 
 export const NADDR_REGEX = /(nostr:)?(naddr1[0-9a-z]+)/g
 
@@ -16,10 +16,11 @@ export const NAddrExtension = Node.create({
 
   selectable: true,
 
-  content: 'text*',
+  draggable: true,
 
   addAttributes() {
     return {
+      naddr: { default: null },
       identifier: { default: null },
       pubkey: { default: null },
       kind: { default: null },
@@ -28,14 +29,18 @@ export const NAddrExtension = Node.create({
   },
 
   renderHTML() {
-    return ['div', {}, 0]
+    return ['div', {}]
+  },
+
+  renderText(props) {
+    return props.node.attrs.naddr
   },
 
   addStorage() {
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.textContent)
+          state.write(node.attrs.naddr)
         },
         parse: {},
       },
@@ -46,15 +51,16 @@ export const NAddrExtension = Node.create({
     return [
       nodePasteRule({
         type: this.type,
-        getAttributes: match => match.data,
-        find: text => {
+        getAttributes: (match) => match.data,
+        find: (text) => {
           const matches = []
 
           for (const match of text.matchAll(NADDR_REGEX)) {
             try {
+              const naddr = match[0]
               const data = nip19.decode(match[2]).data as AddressPointer
 
-              matches.push(createPasteRuleMatch(match, data))
+              matches.push(createPasteRuleMatch(match, { ...data, naddr }))
             } catch (e) {
               continue
             }
