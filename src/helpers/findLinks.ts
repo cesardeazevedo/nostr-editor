@@ -1,7 +1,7 @@
 import * as linkifyjs from 'linkifyjs'
-import type { IMetaTags } from '../nip92.imeta'
-import type { MatchBase } from '../types'
-import { isValidTLD } from '../utils'
+import type { IMetaTags } from './nip92.imeta'
+import type { MatchBase } from './types'
+import { isValidTLD } from './utils'
 
 const IMAGE_EXTENSIONS = /.(jpg|jpeg|gif|png|bmp|svg|webp)$/
 const VIDEO_EXTENSIONS = /.(webm|mp4|ogg|mov)$/
@@ -11,7 +11,7 @@ export interface MatchLinks extends MatchBase {
   href: string
 }
 
-function getLinkKind(url: string, href: string, imeta: IMetaTags): MatchLinks['kind'] {
+function getLinkKind(url: string, href: string, imeta?: IMetaTags): MatchLinks['kind'] {
   const mimetype = imeta?.[url]?.m?.split?.('/')?.[0]
   if (mimetype && ['image', 'video'].includes(mimetype)) {
     return mimetype as 'image' | 'video'
@@ -30,7 +30,7 @@ function getLinkKind(url: string, href: string, imeta: IMetaTags): MatchLinks['k
   }
 }
 
-export function findLinks(text: string, imeta: IMetaTags): MatchLinks[] {
+export function findLinks(text: string, imeta?: IMetaTags): MatchLinks[] {
   const links: MatchLinks[] = []
 
   for (const { start: from, end: to, value, href } of linkifyjs.find(text) || []) {

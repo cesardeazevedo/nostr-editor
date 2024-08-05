@@ -11,7 +11,9 @@ export const VideoExtension = Node.create({
 
   atom: true,
 
-  content: 'text*',
+  selectable: true,
+
+  draggable: true,
 
   addAttributes() {
     return {
@@ -19,7 +21,11 @@ export const VideoExtension = Node.create({
     }
   },
 
+  renderText(props) {
+    return props.node.attrs.src
+  },
+
   renderHTML() {
-    return ['a', {}, 0]
+    return ['a', {}]
   },
 })

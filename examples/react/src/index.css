@@ -40,13 +40,14 @@
   blockquote {
     @apply border-l-4 border-l-gray-200 border-solid pl-4 text-gray-500 italic;
   }
-};
+}
 
 @tailwind components;
 @tailwind utilities;
 
-
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 
@@ -81,7 +82,7 @@ html, body, #root {
   padding: 8px;
   width: 400px;
   transform: translateY(-20px);
-  transition: all 150ms cubic-bezier(.25, .8, .25, 1);
+  transition: all 150ms cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 [data-tooltip]:hover::after {

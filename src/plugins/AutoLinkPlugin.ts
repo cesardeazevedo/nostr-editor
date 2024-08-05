@@ -2,40 +2,23 @@ import { combineTransactionSteps, getChangedRanges, type Range } from '@tiptap/c
 import { undoDepth } from 'prosemirror-history'
 import type { Attrs, MarkType, Node, NodeType } from 'prosemirror-model'
 import { Plugin, PluginKey, type EditorState, type Transaction } from 'prosemirror-state'
-import type { MatchLinks } from './matchers/findLinks'
-import { findLinks } from './matchers/findLinks'
-import type { MatchNostr } from './matchers/findNostrRefs'
-import { findNostrRefs } from './matchers/findNostrRefs'
-import type { MatchTag } from './matchers/findTags'
-import { findTags } from './matchers/findTags'
-import type { NostrReference } from './nip27.references'
-import type { IMetaTags } from './nip92.imeta'
-import type { GetMarkRange, NodeWithPosition } from './types'
-import { isValidTLD, removeIntersectingNodes } from './utils'
+import type { MatchLinks } from '../helpers/findLinks'
+import { findLinks } from '../helpers/findLinks'
+import type { MatchNostr } from '../helpers/findNostrRefs'
+import { findNostrRefs } from '../helpers/findNostrRefs'
+import type { MatchTag } from '../helpers/findTags'
+import { findTags } from '../helpers/findTags'
+import type { GetMarkRange, NodeWithPosition } from '../helpers/types'
+import { isValidTLD, removeIntersectingNodes } from '../helpers/utils'
 
 export type Matches = MatchLinks | MatchNostr | MatchTag
 
-export class NostrMatcherPlugin {
+export class AutoLinkPlugin {
   plugin: Plugin
 
-  constructor(imeta?: IMetaTags, references?: NostrReference[]) {
+  constructor() {
     this.plugin = new Plugin({
-      key: new PluginKey('nostr'),
-
-      state: {
-        init: () => {
-          return {
-            imeta,
-            references,
-          }
-        },
-        apply: (tr) => {
-          return {
-            imeta: tr.getMeta('imeta'),
-            references: tr.getMeta('references'),
-          }
-        },
-      },
+      key: new PluginKey('autolink'),
 
       appendTransaction: (transactions, oldState, newState) => {
         const isUndo = undoDepth(oldState) - undoDepth(newState) === 1
@@ -94,7 +77,7 @@ export class NostrMatcherPlugin {
 
               // Check newLinkText for a remaining valid link
               if (from === to) {
-                this.findMatches(newLinkText, newFrom, newState).forEach((match) => {
+                this.findMatches(newLinkText, newFrom).forEach((match) => {
                   this.replaceNodes(tr, newState, match)
                 })
               }
@@ -103,7 +86,7 @@ export class NostrMatcherPlugin {
 
           const replacements = this.findTextBlocksInRange(doc, { from, to }, newState.schema.marks.link).flatMap(
             ({ text, positionStart }) => {
-              return this.findMatches(text, positionStart + 1, newState)
+              return this.findMatches(text, positionStart + 1)
                 .filter((range) => {
                   const fromIsInRange = range.from >= from && range.from <= to
                   const toIsInRange = range.to >= from && range.to <= to
@@ -125,27 +108,11 @@ export class NostrMatcherPlugin {
 
         return tr
       },
-
-      props: {
-        clipboardTextSerializer(slice) {
-          let text = ''
-          slice.content.descendants((node) => {
-            if (node.type.name === 'paragraph') {
-              return
-            }
-            text += node.textContent
-            if (node.type.name === 'nprofile' || node.type.name === 'nevent') {
-              text += node.attrs.text
-            }
-          })
-          return text
-        },
-      },
     })
   }
 
   private replaceNodes(tr: Transaction, state: EditorState, match: Matches) {
-    const { kind, text, from, to } = match
+    const { kind, from, to } = match
     const { nodes, marks } = state.schema
     switch (kind) {
       case 'text': {
@@ -153,46 +120,23 @@ export class NostrMatcherPlugin {
         break
       }
       case 'image': {
-        this.replaceWith(tr, from, to, nodes.image, { src: match.href }, text)
+        this.replaceWith(tr, from, to, nodes.image, { src: match.href })
         break
       }
       case 'youtube': {
-        this.replaceWith(tr, from, to, nodes.youtube, { src: match.href }, text)
+        this.replaceWith(tr, from, to, nodes.youtube, { src: match.href })
         break
       }
       case 'tweet': {
-        this.replaceWith(tr, from, to, nodes.tweet, { src: match.href }, text)
+        this.replaceWith(tr, from, to, nodes.tweet, { src: match.href })
         break
       }
       case 'video': {
-        this.replaceWith(tr, from, to, nodes.video, { src: match.href }, text)
+        this.replaceWith(tr, from, to, nodes.video, { src: match.href })
         break
       }
       case 'tag': {
         this.addMark(tr, from, to, marks.tag, { tag: match.text })
-        break
-      }
-      case 'nostr': {
-        const { ref } = match
-        switch (ref.prefix) {
-          case 'npub':
-          case 'nprofile': {
-            this.replaceWith(tr, from, to, nodes.nprofile, ref.profile, text)
-            break
-          }
-          case 'note':
-          case 'nevent': {
-            this.replaceWith(tr, from, to, nodes.nevent, ref.event, text)
-            break
-          }
-          case 'naddr': {
-            this.replaceWith(tr, from, to, nodes.naddr, ref.address, text)
-            break
-          }
-          default: {
-            break
-          }
-        }
         break
       }
       default: {
@@ -207,16 +151,9 @@ export class NostrMatcherPlugin {
     }
   }
 
-  private replaceWith(
-    tr: Transaction,
-    from: number,
-    to: number,
-    node: NodeType | undefined,
-    attrs: Attrs,
-    content?: string,
-  ) {
+  private replaceWith(tr: Transaction, from: number, to: number, node: NodeType | undefined, attrs: Attrs) {
     if (node) {
-      tr.replaceWith(from, to, node.create(attrs, content ? node.schema.text(content) : null))
+      tr.replaceWith(from, to, node.create(attrs))
     }
   }
 
@@ -242,10 +179,9 @@ export class NostrMatcherPlugin {
     }))
   }
 
-  private findMatches(text: string, positionStart: number, state: EditorState): Matches[] {
-    const { imeta, references } = this.plugin.getState(state)
-    const links = findLinks(text, imeta)
-    const refs = findNostrRefs(text, references)
+  private findMatches(text: string, positionStart: number): Matches[] {
+    const links = findLinks(text)
+    const refs = findNostrRefs(text)
     const tags = findTags(text)
     const res = [...links, ...tags, ...refs].map((match) => ({
       ...match,

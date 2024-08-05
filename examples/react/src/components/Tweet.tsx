@@ -6,7 +6,7 @@ export function Tweet(props: NodeViewRendererProps) {
   const { src } = props.node.attrs
   const id = src.slice(src.lastIndexOf('/') + 1)
   return (
-    <NodeViewWrapper>
+    <NodeViewWrapper data-drag-handle='' draggable={props.node.type.spec.draggable}>
       <ReactTweet id={id} />
     </NodeViewWrapper>
   )

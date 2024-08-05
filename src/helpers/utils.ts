@@ -1,6 +1,6 @@
 import extractDomain from 'extract-domain'
 import tlds from 'tlds'
-import type { Matches } from './NostrMatcherPlugin'
+import type { Matches } from '../plugins/AutoLinkPlugin'
 
 export function isValidTLD(str: string): boolean {
   const domain = extractDomain(str)

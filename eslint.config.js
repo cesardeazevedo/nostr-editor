@@ -10,6 +10,7 @@ export default [
   eslintPluginPrettierRecommended,
   {
     rules: {
+      'prettier/prettier': 0,
       '@typescript-eslint/consistent-type-imports': 'error',
     },
   },

@@ -15,6 +15,20 @@ export const TagExtension = Mark.create({
 
   group: 'inline',
 
+  addStorage() {
+    return {
+      markdown: {
+        serialize: {
+          open: '',
+          close: '',
+          mixable: false,
+          expelEnclosingWhitespace: true,
+        },
+        parse: {},
+      },
+    }
+  },
+
   renderHTML(p) {
     return ['a', { ...p.mark.attrs }, 0]
   },
