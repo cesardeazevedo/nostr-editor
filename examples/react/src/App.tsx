@@ -18,6 +18,7 @@ import {
   TagExtension,
   TweetExtension,
   VideoExtension,
+  NSecRejectExtension,
 } from 'nostr-editor'
 import { nip19 } from 'nostr-tools'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -52,7 +53,7 @@ function App() {
     tweet: true,
   })
   const extensions = useMemo(() => {
-    const baseExtensions: AnyExtension[] = [Dropcursor]
+    const baseExtensions: AnyExtension[] = [Dropcursor, NSecRejectExtension]
 
     if (type === 'text') {
       // Disabled markdown elements
