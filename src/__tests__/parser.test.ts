@@ -1,9 +1,11 @@
 // @vitest-environment happy-dom
 /* eslint-disable no-empty-pattern, */
-import { test as base } from 'vitest'
 import { Editor } from '@tiptap/core'
+import StarterKit from '@tiptap/starter-kit'
 import { nip19 } from 'nostr-tools'
-import { getExtensions, getExtensionsMarkdown } from './testExtensions/extensions'
+import { Markdown as MarkdownExtension } from 'tiptap-markdown'
+import { test as base } from 'vitest'
+import { NostrParserExtension } from '../extensions/NostrParserExtension'
 import { fakeNote } from './testUtils'
 
 type Fixtures = {
@@ -11,16 +13,18 @@ type Fixtures = {
   editorMarkdown: Editor
 }
 
+const extensions = [StarterKit.configure({ history: false }), NostrParserExtension]
+
 const test = base.extend<Fixtures>({
-  editor: ({ }, use) => {
-    return use(new Editor({ extensions: getExtensions() }))
+  editor: ({}, use) => {
+    return use(new Editor({ extensions }))
   },
-  editorMarkdown: ({ }, use) => {
-    return use(new Editor({ extensions: getExtensionsMarkdown() }))
+  editorMarkdown: ({}, use) => {
+    return use(new Editor({ extensions: [...extensions, MarkdownExtension] }))
   },
 })
 
-describe('parseNoteContent', () => {
+describe('parseNote()', () => {
   test('Should assert simple text', ({ editor }) => {
     const note = fakeNote({
       content: 'Hello nostr-editor! https://github.com/cesardeazevedo/nostr-editor',
@@ -65,7 +69,9 @@ describe('parseNoteContent', () => {
       ],
     })
     editor.commands.parseNote(note)
-    expect(editor.state.doc.textContent).toStrictEqual('http://host.com/image http://host.com/video https://simplelink.com')
+    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(
+      'http://host.com/image http://host.com/video https://simplelink.com',
+    )
     expect(editor.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -78,12 +84,6 @@ describe('parseNoteContent', () => {
               "src": "http://host.com/image",
               "title": null,
             },
-            "content": [
-              {
-                "text": "http://host.com/image",
-                "type": "text",
-              },
-            ],
             "type": "image",
           },
           {
@@ -99,12 +99,6 @@ describe('parseNoteContent', () => {
             "attrs": {
               "src": "http://host.com/video",
             },
-            "content": [
-              {
-                "text": "http://host.com/video",
-                "type": "text",
-              },
-            ],
             "type": "video",
           },
           {
@@ -135,143 +129,126 @@ describe('parseNoteContent', () => {
   })
 
   test('Should assert content with multiple nodes', ({ editor }) => {
-    const ref = fakeNote({
+    const ref = {
+      kind: 1,
       content: 'related',
-      created_at: 1,
-      pubkey: '1',
-    })
+      created_at: 1722797852.844,
+      tags: [],
+      pubkey: '0a5a87baeead12b08c0c026caa46c009bb533aae1bd1681f52d609dd2b6fd8bc',
+      id: '2ceb90d42ab5a19b76dddfbda45687bc8011917a41286783edd14ca690fd86ee',
+      sig: 'be275b494d07d7dc793bb82b475c1e4f697013a644542aabf5a701a83e26e495af7d53897d8c713d235d779c0d5613dcf5caf26c79db3468b04027dd0069a71e',
+    }
     const nevent = nip19.neventEncode({ id: ref.id, relays: [], author: ref.pubkey })
+    const nprofile = nip19.nprofileEncode({ pubkey: ref.pubkey, relays: ['wss://relay.damus.io'] })
     const note = fakeNote({
-      content: `Hi! https://google.com #tag nostr:${nevent} Hi nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj check this out https://nostr.com/img.jpg https://v.nostr.build/g6BQ.mp4`,
+      content: `Hi! https://google.com #tag nostr:${nevent} Hi nostr:${nprofile} check this out https://nostr.com/img.jpg https://v.nostr.build/g6BQ.mp4`,
     })
     editor.commands.parseNote(note)
-    expect(editor.state.doc.textContent).toStrictEqual(note.content)
+    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(note.content)
     expect(editor.getJSON()).toMatchInlineSnapshot(`
-       {
-         "content": [
-           {
-             "content": [
-               {
-                 "text": "Hi! ",
-                 "type": "text",
-               },
-               {
-                 "marks": [
-                   {
-                     "attrs": {
-                       "href": "https://google.com",
-                     },
-                     "type": "link",
-                   },
-                 ],
-                 "text": "https://google.com",
-                 "type": "text",
-               },
-               {
-                 "text": " ",
-                 "type": "text",
-               },
-               {
-                 "marks": [
-                   {
-                     "attrs": {
-                       "tag": "#tag",
-                     },
-                     "type": "tag",
-                   },
-                 ],
-                 "text": "#tag",
-                 "type": "text",
-               },
-               {
-                 "text": " ",
-                 "type": "text",
-               },
-             ],
-             "type": "paragraph",
-           },
-           {
-             "attrs": {
-               "author": "${ref.pubkey}",
-               "id": "${ref.id}",
-               "kind": null,
-               "relays": [],
-             },
-             "content": [
-               {
-                 "text": "nostr:${nevent}",
-                 "type": "text",
-               },
-             ],
-             "type": "nevent",
-           },
-           {
-             "content": [
-               {
-                 "text": " Hi ",
-                 "type": "text",
-               },
-               {
-                 "attrs": {
-                   "pubkey": "c6603b0f1ccfec625d9c08b753e4f774eaf7d1cf2769223125b5fd4da728019e",
-                   "relays": [
-                     "wss://relay.damus.io",
-                   ],
-                 },
-                 "content": [
-                   {
-                     "text": "nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj",
-                     "type": "text",
-                   },
-                 ],
-                 "type": "nprofile",
-               },
-               {
-                 "text": " check this out ",
-                 "type": "text",
-               },
-             ],
-             "type": "paragraph",
-           },
-           {
-             "attrs": {
-               "alt": null,
-               "src": "https://nostr.com/img.jpg",
-               "title": null,
-             },
-             "content": [
-               {
-                 "text": "https://nostr.com/img.jpg",
-                 "type": "text",
-               },
-             ],
-             "type": "image",
-           },
-           {
-             "content": [
-               {
-                 "text": " ",
-                 "type": "text",
-               },
-             ],
-             "type": "paragraph",
-           },
-           {
-             "attrs": {
-               "src": "https://v.nostr.build/g6BQ.mp4",
-             },
-             "content": [
-               {
-                 "text": "https://v.nostr.build/g6BQ.mp4",
-                 "type": "text",
-               },
-             ],
-             "type": "video",
-           },
-         ],
-         "type": "doc",
-       }
-     `)
+      {
+        "content": [
+          {
+            "content": [
+              {
+                "text": "Hi! ",
+                "type": "text",
+              },
+              {
+                "marks": [
+                  {
+                    "attrs": {
+                      "href": "https://google.com",
+                    },
+                    "type": "link",
+                  },
+                ],
+                "text": "https://google.com",
+                "type": "text",
+              },
+              {
+                "text": " ",
+                "type": "text",
+              },
+              {
+                "marks": [
+                  {
+                    "attrs": {
+                      "tag": "#tag",
+                    },
+                    "type": "tag",
+                  },
+                ],
+                "text": "#tag",
+                "type": "text",
+              },
+              {
+                "text": " ",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
+          },
+          {
+            "attrs": {
+              "author": "0a5a87baeead12b08c0c026caa46c009bb533aae1bd1681f52d609dd2b6fd8bc",
+              "id": "2ceb90d42ab5a19b76dddfbda45687bc8011917a41286783edd14ca690fd86ee",
+              "kind": null,
+              "nevent": "nostr:nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp",
+              "relays": [],
+            },
+            "type": "nevent",
+          },
+          {
+            "content": [
+              {
+                "text": " Hi ",
+                "type": "text",
+              },
+              {
+                "attrs": {
+                  "nprofile": "nostr:nprofile1qy28wumn8ghj7un9d3shjtnyv9kh2uewd9hsqgq2t2rm4m4dz2cgcrqzdj4ydsqfhdfn4tsm695p75kkp8wjkm7chsuhqyfh",
+                  "pubkey": "0a5a87baeead12b08c0c026caa46c009bb533aae1bd1681f52d609dd2b6fd8bc",
+                  "relays": [
+                    "wss://relay.damus.io",
+                  ],
+                },
+                "type": "nprofile",
+              },
+              {
+                "text": " check this out ",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
+          },
+          {
+            "attrs": {
+              "alt": null,
+              "src": "https://nostr.com/img.jpg",
+              "title": null,
+            },
+            "type": "image",
+          },
+          {
+            "content": [
+              {
+                "text": " ",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
+          },
+          {
+            "attrs": {
+              "src": "https://v.nostr.build/g6BQ.mp4",
+            },
+            "type": "video",
+          },
+        ],
+        "type": "doc",
+      }
+    `)
   })
 
   test('Should assert markdown content', ({ editorMarkdown }) => {
@@ -408,7 +385,9 @@ text **bold** *italic* link`)
     })
     editorMarkdown.commands.parseNote(note)
     expect(editorMarkdown.storage.markdown.getMarkdown()).toStrictEqual(note.content)
-    expect(editorMarkdown.state.doc.textContent).toStrictEqual('Test nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj')
+    expect(editorMarkdown.getText({ blockSeparator: '' })).toStrictEqual(
+      'Test nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj',
+    )
     expect(editorMarkdown.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -423,17 +402,12 @@ text **bold** *italic* link`)
               },
               {
                 "attrs": {
+                  "nprofile": "nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj",
                   "pubkey": "c6603b0f1ccfec625d9c08b753e4f774eaf7d1cf2769223125b5fd4da728019e",
                   "relays": [
                     "wss://relay.damus.io",
                   ],
                 },
-                "content": [
-                  {
-                    "text": "nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj",
-                    "type": "text",
-                  },
-                ],
                 "type": "nprofile",
               },
             ],
@@ -445,8 +419,7 @@ text **bold** *italic* link`)
     `)
   })
 
-  // TODO: NOT WORKING, Investigate later
-  test.skip('Should assert image links with line breaks', ({ editor }) => {
+  test('Should assert image links with line breaks', ({ editor }) => {
     const note = fakeNote({
       kind: 1,
       content: `
@@ -457,7 +430,7 @@ https://host.com/2.jpeg
  `,
     })
     editor.commands.parseNote(note)
-    //expect(editor.state.doc.textContent).toStrictEqual('https://host.com/1.jpeg https://host.com/2.jpeg')
+    expect(editor.getText({ blockSeparator: '' })).toStrictEqual('https://host.com/1.jpeg https://host.com/2.jpeg')
     expect(editor.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -470,15 +443,15 @@ https://host.com/2.jpeg
               "src": "https://host.com/1.jpeg",
               "title": null,
             },
-            "content": [
-              {
-                "text": "https://host.com/1.jpeg",
-                "type": "text",
-              },
-            ],
             "type": "image",
           },
           {
+            "content": [
+              {
+                "text": " ",
+                "type": "text",
+              },
+            ],
             "type": "paragraph",
           },
           {
@@ -487,12 +460,6 @@ https://host.com/2.jpeg
               "src": "https://host.com/2.jpeg",
               "title": null,
             },
-            "content": [
-              {
-                "text": "https://host.com/2.jpeg",
-                "type": "text",
-              },
-            ],
             "type": "image",
           },
         ],
@@ -548,7 +515,7 @@ https://host.com/2.jpeg
         'Test addr nostr:naddr1qqwysetjv5syxmmdv4ejqsnfw33k76twyp38jgznwp5hyctvqgsph3c2q9yt8uckmgelu0yf7glruudvfluesqn7cuftjpwdynm2gygrqsqqqa2w4ua43m',
     })
     editor.commands.parseNote(note)
-    expect(editor.state.doc.textContent).toStrictEqual(note.content)
+    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(note.content)
     expect(editor.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -565,15 +532,10 @@ https://host.com/2.jpeg
             "attrs": {
               "identifier": "Here Comes Bitcoin by Spiral",
               "kind": 30030,
+              "naddr": "nostr:naddr1qqwysetjv5syxmmdv4ejqsnfw33k76twyp38jgznwp5hyctvqgsph3c2q9yt8uckmgelu0yf7glruudvfluesqn7cuftjpwdynm2gygrqsqqqa2w4ua43m",
               "pubkey": "1bc70a0148b3f316da33fe3c89f23e3e71ac4ff998027ec712b905cd24f6a411",
               "relays": [],
             },
-            "content": [
-              {
-                "text": "nostr:naddr1qqwysetjv5syxmmdv4ejqsnfw33k76twyp38jgznwp5hyctvqgsph3c2q9yt8uckmgelu0yf7glruudvfluesqn7cuftjpwdynm2gygrqsqqqa2w4ua43m",
-                "type": "text",
-              },
-            ],
             "type": "naddr",
           },
         ],
