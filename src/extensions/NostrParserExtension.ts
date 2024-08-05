@@ -1,14 +1,24 @@
-import { Extension } from '@tiptap/core';
-import { type NostrEvent } from 'nostr-tools';
-import type { Attrs, MarkType, NodeType } from 'prosemirror-model';
-import type { Transaction } from 'prosemirror-state';
-import { findLinks } from '../plugins/NostrMatcherPlugin/matchers/findLinks';
-import { findNostrRefs } from '../plugins/NostrMatcherPlugin/matchers/findNostrRefs';
-import { findTags } from '../plugins/NostrMatcherPlugin/matchers/findTags';
-import { parseReferences, type NostrReference } from '../plugins/NostrMatcherPlugin/nip27.references';
-import { parseImeta, type IMetaTags } from '../plugins/NostrMatcherPlugin/nip92.imeta';
-import type { Matches } from '../plugins/NostrMatcherPlugin/NostrMatcherPlugin';
-import { removeIntersectingNodes } from '../plugins/NostrMatcherPlugin/utils';
+import type { AnyExtension } from '@tiptap/core'
+import { Extension, getText } from '@tiptap/core'
+import ImageExtension from '@tiptap/extension-image'
+import YoutubeExtension from '@tiptap/extension-youtube'
+import { type NostrEvent } from 'nostr-tools'
+import { type Attrs, type MarkType, type NodeType } from 'prosemirror-model'
+import type { Transaction } from 'prosemirror-state'
+import { findLinks } from '../helpers/findLinks'
+import { findNostrRefs } from '../helpers/findNostrRefs'
+import { findTags } from '../helpers/findTags'
+import { parseReferences, type NostrReference } from '../helpers/nip27.references'
+import { parseImeta, type IMetaTags } from '../helpers/nip92.imeta'
+import type { Matches } from '../plugins/AutoLinkPlugin'
+import { removeIntersectingNodes } from '../helpers/utils'
+import { LinkExtension } from './LinkExtension'
+import { NAddrExtension } from './NAddrExtension'
+import { NEventExtension } from './NEventExtension'
+import { NProfileExtension } from './NProfileExtension'
+import { TagExtension } from './TagExtension'
+import { TweetExtension } from './TweetExtension'
+import { VideoExtension } from './VideoExtension'
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -18,9 +28,57 @@ declare module '@tiptap/core' {
   }
 }
 
-export const NostrParserExtension = Extension.create({
+export interface NostrParserOptions {
+  nprofile: boolean
+  nevent: boolean
+  naddr: boolean
+  link: boolean
+  image: boolean
+  youtube: boolean
+  tweet: boolean
+  video: boolean
+  tag: boolean
+}
+
+export const NostrParserExtension = Extension.create<NostrParserOptions>({
   name: 'nostrparser',
-  priority: 100,
+
+  addExtensions() {
+    const extensions = [] as AnyExtension[]
+    if (this.options.nprofile !== false) {
+      extensions.push(NProfileExtension)
+    }
+    if (this.options.nevent !== false) {
+      extensions.push(NEventExtension)
+    }
+    if (this.options.naddr !== false) {
+      extensions.push(NAddrExtension)
+    }
+    if (this.options.link !== false) {
+      extensions.push(LinkExtension)
+    }
+    if (this.options.tag !== false) {
+      extensions.push(TagExtension)
+    }
+    if (this.options.image !== false) {
+      extensions.push(
+        ImageExtension.extend({
+          renderText: (p) => p.node.attrs.src,
+        }),
+      )
+    }
+    if (this.options.video !== false) {
+      extensions.push(VideoExtension)
+    }
+    if (this.options.youtube !== false) {
+      extensions.push(YoutubeExtension)
+    }
+    if (this.options.tweet !== false) {
+      extensions.push(TweetExtension)
+    }
+    return extensions
+  },
+
   addCommands() {
     return {
       parseNote: (event: NostrEvent, imeta?: IMetaTags, references?: NostrReference[]) => (props) => {
@@ -29,24 +87,16 @@ export const NostrParserExtension = Extension.create({
             tr.addMark(from, to, mark.create(attrs))
           }
         }
-        function replaceWith(
-          tr: Transaction,
-          from: number,
-          to: number,
-          node: NodeType | undefined,
-          attrs: Attrs,
-          content?: string,
-        ) {
+        function replaceWith(tr: Transaction, from: number, to: number, node: NodeType | undefined, attrs: Attrs) {
           if (node) {
-            tr.replaceWith(from, to, node.create(attrs, content ? node.schema.text(content) : null))
+            tr.replaceWith(from, to, node.create(attrs))
           }
         }
 
         props.commands.setContent(event.content)
 
-        const content = event.kind === 1 ? event.content : props.tr.doc.textContent
-
         const tr = props.state.tr
+        const content = getText(tr.doc)
 
         const refs = findNostrRefs(content, references || parseReferences({ content }))
         const links = findLinks(content, imeta || parseImeta(event.tags))
@@ -69,19 +119,19 @@ export const NostrParserExtension = Extension.create({
                 break
               }
               case 'image': {
-                replaceWith(tr, from, to, nodes.image, { src: match.href }, text)
+                replaceWith(tr, from, to, nodes.image, { src: match.href })
                 break
               }
               case 'youtube': {
-                replaceWith(tr, from, to, nodes.youtube, { src: match.href }, text)
+                replaceWith(tr, from, to, nodes.youtube, { src: match.href })
                 break
               }
               case 'tweet': {
-                replaceWith(tr, from, to, nodes.tweet, { src: match.href }, text)
+                replaceWith(tr, from, to, nodes.tweet, { src: match.href })
                 break
               }
               case 'video': {
-                replaceWith(tr, from, to, nodes.video, { src: match.href }, text)
+                replaceWith(tr, from, to, nodes.video, { src: match.href })
                 break
               }
               case 'tag': {
@@ -93,16 +143,16 @@ export const NostrParserExtension = Extension.create({
                 switch (ref.prefix) {
                   case 'npub':
                   case 'nprofile': {
-                    replaceWith(tr, from, to, nodes.nprofile, ref.profile, text)
+                    replaceWith(tr, from, to, nodes.nprofile, { ...ref.profile, nprofile: text })
                     break
                   }
                   case 'note':
                   case 'nevent': {
-                    replaceWith(tr, from, to, nodes.nevent, ref.event, text)
+                    replaceWith(tr, from, to, nodes.nevent, { ...ref.event, nevent: text })
                     break
                   }
                   case 'naddr': {
-                    replaceWith(tr, from, to, nodes.naddr, ref.address, text)
+                    replaceWith(tr, from, to, nodes.naddr, { ...ref.address, naddr: text })
                     break
                   }
                   default: {
