@@ -7,13 +7,9 @@ export const TweetExtension = Node.create({
 
   group: 'block',
 
-  atom: true,
-
-  isolating: true,
-
   selectable: true,
 
-  content: 'text*',
+  draggable: true,
 
   addAttributes() {
     return {
@@ -25,14 +21,18 @@ export const TweetExtension = Node.create({
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.textContent)
+          state.write(node.attrs.src)
         },
         parse: {},
       },
     }
   },
 
+  renderText(props) {
+    return props.node.attrs.src
+  },
+
   renderHTML() {
-    return ['div', {}, 0]
+    return ['div', {}]
   },
 })
