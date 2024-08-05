@@ -19,13 +19,17 @@
     "lint": "eslint src",
     "build": "tsc && vite build",
     "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
     "test": "vitest",
     "preview": "vite preview"
   },
   "devDependencies": {
     "@eslint/js": "^9.7.0",
     "@playwright/test": "^1.45.2",
+    "@tiptap/extension-document": "^2.5.8",
     "@tiptap/extension-image": "^2.5.4",
+    "@tiptap/extension-paragraph": "^2.5.8",
+    "@tiptap/extension-text": "^2.5.8",
     "@tiptap/extension-youtube": "^2.5.4",
     "@tiptap/starter-kit": "^2.5.4",
     "@types/eslint__js": "^8.42.3",
