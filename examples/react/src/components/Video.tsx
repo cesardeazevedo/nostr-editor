@@ -6,12 +6,10 @@ export function Video(props: NodeViewRendererProps) {
   const { src } = props.node.attrs
   const extension = useMemo(() => new URL(src).pathname.split('.').pop(), [src])
   return (
-    <>
-      <NodeViewWrapper>
-        <video src={src} controls style={{ maxHeight: 400 }}>
-          <source src={src} type={`video/${extension === 'mov' ? 'mp4' : extension}`} />
-        </video>
-      </NodeViewWrapper>
-    </>
+    <NodeViewWrapper data-drag-handle="" draggable={props.node.type.spec.draggable}>
+      <video src={src} controls style={{ maxHeight: 400 }}>
+        <source src={src} type={`video/${extension === 'mov' ? 'mp4' : extension}`} />
+      </video>
+    </NodeViewWrapper>
   )
 }
