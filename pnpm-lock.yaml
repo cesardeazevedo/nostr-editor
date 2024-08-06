@@ -587,10 +587,10 @@ packages:
       '@tiptap/core': ^2.5.4
       '@tiptap/pm': ^2.5.4
 
-  '@tiptap/extension-hard-break@2.5.4':
-    resolution: {integrity: sha512-nLn6HP9tqgdGGwbMORXVtcY30DTGctYFaWADRthvBjVgacYSeKlhUcsSu3YgaxtbxZp6BhfRvD2kKrxyQsSjnQ==}
+  '@tiptap/extension-hard-break@2.5.8':
+    resolution: {integrity: sha512-samZEL0EXzHSmMQ7KyLnfSxdDv3qSjia0JzelfCnFZS6LLcbwjrIjV8ZPxEhJ7UlZqroQdFxPegllkLHZj/MdQ==}
     peerDependencies:
-      '@tiptap/core': ^2.5.4
+      '@tiptap/core': ^2.5.8
 
   '@tiptap/extension-heading@2.5.4':
     resolution: {integrity: sha512-DuAB58/e7eho1rkyad0Z/SjW+EB+H2hRqHlswEeZZYhBTjzey5UmBwkMWTGC/SQiRisx1xYQYTd8T0fiABi5hw==}
@@ -3053,7 +3053,7 @@ snapshots:
       '@tiptap/core': 2.5.4(@tiptap/pm@2.5.4)
       '@tiptap/pm': 2.5.4
 
-  '@tiptap/extension-hard-break@2.5.4(@tiptap/core@2.5.4(@tiptap/pm@2.5.4))':
+  '@tiptap/extension-hard-break@2.5.8(@tiptap/core@2.5.4(@tiptap/pm@2.5.4))':
     dependencies:
       '@tiptap/core': 2.5.4(@tiptap/pm@2.5.4)
 
@@ -3135,7 +3135,7 @@ snapshots:
       '@tiptap/extension-document': 2.5.8(@tiptap/core@2.5.4(@tiptap/pm@2.5.4))
       '@tiptap/extension-dropcursor': 2.5.4(@tiptap/core@2.5.4(@tiptap/pm@2.5.4))(@tiptap/pm@2.5.4)
       '@tiptap/extension-gapcursor': 2.5.4(@tiptap/core@2.5.4(@tiptap/pm@2.5.4))(@tiptap/pm@2.5.4)
-      '@tiptap/extension-hard-break': 2.5.4(@tiptap/core@2.5.4(@tiptap/pm@2.5.4))
+      '@tiptap/extension-hard-break': 2.5.8(@tiptap/core@2.5.4(@tiptap/pm@2.5.4))
       '@tiptap/extension-heading': 2.5.4(@tiptap/core@2.5.4(@tiptap/pm@2.5.4))
       '@tiptap/extension-history': 2.5.4(@tiptap/core@2.5.4(@tiptap/pm@2.5.4))(@tiptap/pm@2.5.4)
       '@tiptap/extension-horizontal-rule': 2.5.4(@tiptap/core@2.5.4(@tiptap/pm@2.5.4))(@tiptap/pm@2.5.4)
