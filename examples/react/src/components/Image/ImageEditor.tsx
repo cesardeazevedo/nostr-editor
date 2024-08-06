@@ -1,8 +1,9 @@
 import { IconX } from '@tabler/icons-react'
 import type { NodeViewProps } from '@tiptap/core'
 import { NodeViewWrapper } from '@tiptap/react'
+import { Image } from './Image'
 
-export function Image(props: NodeViewProps) {
+export function ImageEditor(props: NodeViewProps) {
   const { src } = props.node.attrs
   return (
     <NodeViewWrapper
@@ -16,7 +17,7 @@ export function Image(props: NodeViewProps) {
           <IconX strokeWidth='1.5' />
         </button>
       )}
-      <img src={src} />
+      <Image src={src} />
     </NodeViewWrapper>
   )
 }

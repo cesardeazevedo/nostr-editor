@@ -1,7 +1,7 @@
-import { IconBolt, IconCheck, IconCopy } from "@tabler/icons-react";
-import type { NodeViewProps } from "@tiptap/react";
-import { NodeViewWrapper } from "@tiptap/react"
-import { useCallback, useMemo, useState } from "react"
+import { IconBolt, IconCheck, IconCopy } from '@tabler/icons-react'
+import type { NodeViewProps } from '@tiptap/react'
+import { NodeViewWrapper } from '@tiptap/react'
+import { useCallback, useMemo, useState } from 'react'
 
 export const LNInvoice = function LNInvoice(props: NodeViewProps) {
   const { bolt11, lnbc } = props.node.attrs
@@ -13,7 +13,7 @@ export const LNInvoice = function LNInvoice(props: NodeViewProps) {
 
   const expired = useMemo(() => {
     const timestamp = bolt11.sections.find((x: { name: string }) => x.name === 'timestamp')?.value
-    return Date.now() > ((timestamp + bolt11.expiry) * 1000)
+    return Date.now() > (timestamp + bolt11.expiry) * 1000
   }, [bolt11])
 
   const handleCopy = useCallback(() => {
@@ -27,7 +27,7 @@ export const LNInvoice = function LNInvoice(props: NodeViewProps) {
 
   return (
     <NodeViewWrapper data-drag-handle='' draggable={props.node.type.spec.draggable}>
-      <div className="relative bg-gray-100 border-gray-200 border border-solid py-8 px-8 rounded-xl">
+      <div className='relative my-2 bg-gray-100 border-gray-200 border border-solid py-8 px-8 rounded-xl'>
         <button className='absolute right-4 top-4' onClick={() => handleCopy()}>
           {copied && <IconCheck size={20} strokeWidth='2.5' className='text-green-600' />}
           {!copied && <IconCopy size={20} />}
