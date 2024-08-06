@@ -5,6 +5,6 @@ export const AutoLinkExtension = Extension.create({
   name: 'autolink',
 
   addProseMirrorPlugins() {
-    return [new AutoLinkPlugin().plugin]
+    return [new AutoLinkPlugin(this.editor).plugin]
   },
 })

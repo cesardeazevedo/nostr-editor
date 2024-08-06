@@ -1,6 +1,5 @@
 import extractDomain from 'extract-domain'
 import tlds from 'tlds'
-import type { Matches } from '../plugins/AutoLinkPlugin'
 
 export function isValidTLD(str: string): boolean {
   const domain = extractDomain(str)
@@ -14,12 +13,4 @@ export function isValidTLD(str: string): boolean {
   const tld = parts[parts.length - 1]
 
   return tlds.includes(tld)
-}
-
-export function removeIntersectingNodes(acc: Matches[], current: Matches) {
-  const prev = acc[acc.length - 1]
-  if (current.to < (prev?.from || Infinity)) {
-    return [...acc, current]
-  }
-  return acc
 }
