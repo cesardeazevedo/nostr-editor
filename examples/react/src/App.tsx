@@ -1,37 +1,23 @@
-import Dropcursor from '@tiptap/extension-dropcursor'
-import ImageExtension from '@tiptap/extension-image'
-import YoutubeExtension from '@tiptap/extension-youtube'
 import { PluginKey } from '@tiptap/pm/state'
 import type { AnyExtension } from '@tiptap/react'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
-import { StarterKit } from '@tiptap/starter-kit'
+import StarterKit from '@tiptap/starter-kit'
 import Suggestion from '@tiptap/suggestion'
-import {
-  AutoLinkExtension,
-  Bolt11Extension,
-  LinkExtension,
-  NAddrExtension,
-  NEventExtension,
-  NProfileExtension,
-  NSecRejectExtension,
-  TagExtension,
-  TweetExtension,
-  VideoExtension,
-} from 'nostr-editor'
+import { NostrExtension } from 'nostr-editor'
 import { nip19 } from 'nostr-tools'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import ReactJsonView from 'react-json-view'
 import type { Instance } from 'tippy.js'
 import tippy from 'tippy.js'
 import { Markdown as MarkdownExtension } from 'tiptap-markdown'
-import { Image } from './components/Image'
-import { LNInvoice } from './components/LNInvoice'
-import { Mention } from './components/Mention'
-import { NAddr } from './components/NAddr'
-import { NEvent } from './components/NEvent'
+import { ImageEditor } from './components/Image/ImageEditor'
+import { LNInvoice } from './components/LNInvoice/LNInvoice'
+import { MentionEditor } from './components/Mention/MentionEditor'
+import { NAddrEditor } from './components/NAddr/NAddrEditor'
+import { NEventEditor } from './components/NEvent/NEventEditor'
 import Suggestions from './components/Suggestions'
-import { Tweet } from './components/Tweet'
-import { Video } from './components/Video'
+import { TweetEditor } from './components/Tweet/TweetEditor'
+import { VideoEditor } from './components/Video/VideoEditor'
 import { Sidebar } from './Sidebar'
 import { TestText } from './TestText'
 import type { EditorExtensionSettings, EditorType } from './types'
@@ -53,166 +39,132 @@ function App() {
     bolt11: true,
     nsecReject: true,
   })
-  const extensions = useMemo(() => {
-    const baseExtensions: AnyExtension[] = [Dropcursor]
-
-    if (type === 'text') {
-      // Disabled markdown elements
-      baseExtensions.push(StarterKit.configure({
-        heading: false,
-        bold: false,
-        italic: false,
-        strike: false,
-        listItem: false,
-        bulletList: false,
-        orderedList: false,
-        code: false,
-        codeBlock: false,
-        blockquote: false,
-      }))
-    } else if (type === 'markdown') {
-      // StarterKit already bundles some markdown elements
-      baseExtensions.push(MarkdownExtension)
-      baseExtensions.push(StarterKit)
-    } else {
-      // todo
-    }
-
-    if (settings.links) {
-      baseExtensions.push(AutoLinkExtension)
-    }
-    if (settings.links) {
-      baseExtensions.push(LinkExtension)
-    }
-    if (settings.tags) {
-      baseExtensions.push(TagExtension)
-    }
-    if (settings.videos) {
-      baseExtensions.push(VideoExtension.extend({ addNodeView: () => ReactNodeViewRenderer(Video) }))
-    }
-    if (settings.images)
-      baseExtensions.push(
-        ImageExtension.extend({
-          addNodeView: () => ReactNodeViewRenderer(Image),
-          renderText: (p) => p.node.attrs.src,
-        }),
-      )
-    if (settings.youtube) {
-      baseExtensions.push(YoutubeExtension.extend({ renderText: (p) => p.node.attrs.src }))
-    }
-    if (settings.tweet) {
-      baseExtensions.push(TweetExtension.extend({ addNodeView: () => ReactNodeViewRenderer(Tweet) }))
-    }
-    if (settings.nprofile1)
-      baseExtensions.push(
-        NProfileExtension.extend({
-          addNodeView: () => ReactNodeViewRenderer(Mention),
-          addProseMirrorPlugins() {
-            return [
-              Suggestion({
-                char: '@',
-                editor: this.editor,
-                pluginKey: new PluginKey('@'),
-                command: ({ editor, range, props }) => {
-                  // increase range.to by one when the next node is of type "text"
-                  // and starts with a space character
-                  const nodeAfter = editor.view.state.selection.$to.nodeAfter
-                  const overrideSpace = nodeAfter?.text?.startsWith(' ')
-
-                  if (overrideSpace) {
-                    range.to += 1
-                  }
-
-                  const attrs = {
-                    pubkey: props.pubkey,
-                    relays: ['wss://purplepag.es', 'wss://relay.nostr.band'],
-                  }
-                  attrs.nprofile = 'nostr:' + nip19.nprofileEncode(attrs)
-
-                  editor
-                    .chain()
-                    .focus()
-                    .insertContentAt(range, [
-                      { type: 'nprofile', attrs },
-                      { type: 'text', text: ' ' },
-                    ])
-                    .run()
-
-                  window.getSelection()?.collapseToEnd()
-                },
-                render: () => {
-                  let component: ReactRenderer
-                  let popover: Instance<unknown>[]
-                  return {
-                    onStart: (props) => {
-                      component = new ReactRenderer(Suggestions, {
-                        props,
-                        editor: props.editor,
-                      })
-
-                      popover = tippy('body', {
-                        getReferenceClientRect: props.clientRect as () => DOMRect | ClientRect,
-                        appendTo: () => document.body,
-                        content: component.element,
-                        showOnCreate: true,
-                        interactive: true,
-                        trigger: 'manual',
-                        placement: 'bottom-start',
-                      })
-                    },
-                    onUpdate: (props) => {
-                      component.updateProps(props)
-                      if (props.clientRect) {
-                        popover[0].setProps({
-                          getReferenceClientRect: props.clientRect,
-                        })
-                      }
-                    },
-                    onKeyDown: (props) => {
-                      if (props.event.key === 'Escape') {
-                        popover[0].hide()
-                        return true
-                      }
-                      return component.ref?.onKeyDown?.(props)
-                    },
-                    onExit() {
-                      popover[0].destroy()
-                      component.destroy()
-                    },
-                  }
-                },
-              }),
-            ]
-          },
-        }),
-      )
-    if (settings.nevent1) {
-      baseExtensions.push(NEventExtension.extend({ addNodeView: () => ReactNodeViewRenderer(NEvent) }))
-    }
-    if (settings.naddr1) {
-      baseExtensions.push(NAddrExtension.extend({ addNodeView: () => ReactNodeViewRenderer(NAddr) }))
-    }
-    if (settings.nsecReject) {
-      baseExtensions.push(NSecRejectExtension)
-    }
-    if (settings.bolt11) {
-      baseExtensions.push(Bolt11Extension.extend({ addNodeView: () => ReactNodeViewRenderer(LNInvoice) }))
-    }
-
-    return baseExtensions
-  }, [type, settings])
 
   const prevContent = useRef('')
 
+  const baseExtensions = useMemo(() => {
+    return type === 'text'
+      ? [
+          StarterKit.configure({
+            heading: false,
+            bold: false,
+            italic: false,
+            strike: false,
+            listItem: false,
+            bulletList: false,
+            orderedList: false,
+            code: false,
+            codeBlock: false,
+            blockquote: false,
+          }),
+        ]
+      : [MarkdownExtension, StarterKit]
+  }, [type]) as AnyExtension[]
+
   const editor = useEditor(
     {
-      extensions,
+      extensions: [
+        ...baseExtensions,
+        NostrExtension.configure({
+          link: settings.links !== false && {},
+          bolt11: settings.bolt11 !== false && { addNodeView: () => ReactNodeViewRenderer(LNInvoice) },
+          naddr: settings.naddr1 !== false && { addNodeView: () => ReactNodeViewRenderer(NAddrEditor) },
+          nevent: settings.nevent1 !== false && { addNodeView: () => ReactNodeViewRenderer(NEventEditor) },
+          nprofile: settings.nprofile1 !== false && {
+            addNodeView: () => ReactNodeViewRenderer(MentionEditor),
+            addProseMirrorPlugins() {
+              return [
+                Suggestion({
+                  char: '@',
+                  editor: this.editor,
+                  pluginKey: new PluginKey('@'),
+                  command: ({ editor, range, props }) => {
+                    // increase range.to by one when the next node is of type "text"
+                    // and starts with a space character
+                    const nodeAfter = editor.view.state.selection.$to.nodeAfter
+                    const overrideSpace = nodeAfter?.text?.startsWith(' ')
+
+                    if (overrideSpace) {
+                      range.to += 1
+                    }
+
+                    const attrs = {
+                      pubkey: props.pubkey,
+                      relays: ['wss://purplepag.es', 'wss://relay.nostr.band'],
+                    }
+                    attrs.nprofile = 'nostr:' + nip19.nprofileEncode(attrs)
+
+                    editor
+                      .chain()
+                      .focus()
+                      .insertContentAt(range, [
+                        { type: 'nprofile', attrs },
+                        { type: 'text', text: ' ' },
+                      ])
+                      .run()
+
+                    window.getSelection()?.collapseToEnd()
+                  },
+                  render: () => {
+                    let component: ReactRenderer
+                    let popover: Instance<unknown>[]
+                    return {
+                      onStart: (props) => {
+                        component = new ReactRenderer(Suggestions, {
+                          props,
+                          editor: props.editor,
+                        })
+
+                        popover = tippy('body', {
+                          getReferenceClientRect: props.clientRect as () => DOMRect | ClientRect,
+                          appendTo: () => document.body,
+                          content: component.element,
+                          showOnCreate: true,
+                          interactive: true,
+                          trigger: 'manual',
+                          placement: 'bottom-start',
+                        })
+                      },
+                      onUpdate: (props) => {
+                        component.updateProps(props)
+                        if (props.clientRect) {
+                          popover[0].setProps({
+                            getReferenceClientRect: props.clientRect,
+                          })
+                        }
+                      },
+                      onKeyDown: (props) => {
+                        if (props.event.key === 'Escape') {
+                          popover[0].hide()
+                          return true
+                        }
+                        return component.ref?.onKeyDown?.(props)
+                      },
+                      onExit() {
+                        popover[0].destroy()
+                        component.destroy()
+                      },
+                    }
+                  },
+                }),
+              ]
+            },
+          },
+          tag: settings.tags !== false && {},
+          image: settings.images !== false && { addNodeView: () => ReactNodeViewRenderer(ImageEditor) },
+          video: settings.videos !== false && { addNodeView: () => ReactNodeViewRenderer(VideoEditor) },
+          tweet: settings.tweet !== false && { addNodeView: () => ReactNodeViewRenderer(TweetEditor) },
+          youtube: settings.youtube !== false && { renderText: (props) => props.node.attrs.src },
+          nsecReject: settings.nsecReject !== false && {},
+        }),
+      ],
       onUpdate: () => {
         handleSnapshot()
       },
     },
-    [extensions],
+    [settings, baseExtensions],
   )
+
   const handleSnapshot = useCallback(() => {
     if (editor) {
       prevContent.current = editor.getText()
