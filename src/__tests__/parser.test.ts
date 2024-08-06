@@ -5,7 +5,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { nip19 } from 'nostr-tools'
 import { Markdown as MarkdownExtension } from 'tiptap-markdown'
 import { test as base } from 'vitest'
-import { NostrParserExtension } from '../extensions/NostrParserExtension'
+import { NostrExtension } from '../extensions/NostrExtension'
 import { fakeNote } from './testUtils'
 
 type Fixtures = {
@@ -13,14 +13,22 @@ type Fixtures = {
   editorMarkdown: Editor
 }
 
-const extensions = [StarterKit.configure({ history: false }), NostrParserExtension]
+const extensions = [StarterKit.configure({ history: false }), NostrExtension]
 
 const test = base.extend<Fixtures>({
   editor: ({}, use) => {
     return use(new Editor({ extensions }))
   },
   editorMarkdown: ({}, use) => {
-    return use(new Editor({ extensions: [...extensions, MarkdownExtension] }))
+    return use(
+      new Editor({
+        extensions: [
+          StarterKit.configure({ history: false }),
+          NostrExtension.configure({ autolink: false }),
+          MarkdownExtension.configure({ breaks: true }),
+        ],
+      }),
+    )
   },
 })
 
@@ -141,7 +149,7 @@ describe('parseNote()', () => {
     const nevent = nip19.neventEncode({ id: ref.id, relays: [], author: ref.pubkey })
     const nprofile = nip19.nprofileEncode({ pubkey: ref.pubkey, relays: ['wss://relay.damus.io'] })
     const note = fakeNote({
-      content: `Hi! https://google.com #tag nostr:${nevent} Hi nostr:${nprofile} check this out https://nostr.com/img.jpg https://v.nostr.build/g6BQ.mp4`,
+      content: `Hi! https://nostr.com #tag nostr:${nevent} Hi nostr:${nprofile} check this out https://nostr.com/img.jpg https://v.nostr.build/g6BQ.mp4`,
     })
     editor.commands.parseNote(note)
     expect(editor.getText({ blockSeparator: '' })).toStrictEqual(note.content)
@@ -158,12 +166,12 @@ describe('parseNote()', () => {
                 "marks": [
                   {
                     "attrs": {
-                      "href": "https://google.com",
+                      "href": "https://nostr.com",
                     },
                     "type": "link",
                   },
                 ],
-                "text": "https://google.com",
+                "text": "https://nostr.com",
                 "type": "text",
               },
               {
@@ -261,7 +269,7 @@ describe('parseNote()', () => {
  * list 2
  * list 3
 
- text **bold** *italic* [link](https://google.com)
+ text **bold** *italic* [link](https://nostr.com)
  `,
     })
     editorMarkdown.commands.parseNote(note)
@@ -271,7 +279,7 @@ describe('parseNote()', () => {
 - list 2
 - list 3
 
-text **bold** *italic* link`)
+text **bold** *italic* [link](https://nostr.com)`)
     expect(editorMarkdown.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -366,7 +374,19 @@ text **bold** *italic* link`)
                 "type": "text",
               },
               {
-                "text": " link",
+                "text": " ",
+                "type": "text",
+              },
+              {
+                "marks": [
+                  {
+                    "attrs": {
+                      "href": "https://nostr.com",
+                    },
+                    "type": "link",
+                  },
+                ],
+                "text": "link",
                 "type": "text",
               },
             ],
@@ -430,11 +450,19 @@ https://host.com/2.jpeg
  `,
     })
     editor.commands.parseNote(note)
-    expect(editor.getText({ blockSeparator: '' })).toStrictEqual('https://host.com/1.jpeg https://host.com/2.jpeg')
+    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(`
+https://host.com/1.jpeg
+https://host.com/2.jpeg
+`)
     expect(editor.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
           {
+            "content": [
+              {
+                "type": "hardBreak",
+              },
+            ],
             "type": "paragraph",
           },
           {
@@ -448,8 +476,7 @@ https://host.com/2.jpeg
           {
             "content": [
               {
-                "text": " ",
-                "type": "text",
+                "type": "hardBreak",
               },
             ],
             "type": "paragraph",
@@ -462,51 +489,68 @@ https://host.com/2.jpeg
             },
             "type": "image",
           },
+          {
+            "content": [
+              {
+                "type": "hardBreak",
+              },
+            ],
+            "type": "paragraph",
+          },
         ],
         "type": "doc",
       }
     `)
   })
 
+  // This might be incorrect
   test('Should assert an intersecting node', ({ editor }) => {
     const note = fakeNote({
       content:
         'Test: https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/ text',
     })
     editor.commands.parseNote(note)
-    expect(editor.state.doc.textContent).toStrictEqual(note.content)
+    expect(editor.getText()).toStrictEqual(note.content)
     expect(editor.getJSON()).toMatchInlineSnapshot(`
-         {
-           "content": [
-             {
-               "content": [
-                 {
-                   "text": "Test: ",
-                   "type": "text",
-                 },
-                 {
-                   "marks": [
-                     {
-                       "attrs": {
-                         "href": "https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/",
-                       },
-                       "type": "link",
-                     },
-                   ],
-                   "text": "https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/",
-                   "type": "text",
-                 },
-                 {
-                   "text": " text",
-                   "type": "text",
-                 },
-               ],
-               "type": "paragraph",
-             },
-           ],
-           "type": "doc",
-         }
-      `)
+      {
+        "content": [
+          {
+            "content": [
+              {
+                "text": "Test: ",
+                "type": "text",
+              },
+              {
+                "marks": [
+                  {
+                    "attrs": {
+                      "href": "https://github.com/",
+                    },
+                    "type": "link",
+                  },
+                ],
+                "text": "https://github.com/",
+                "type": "text",
+              },
+              {
+                "attrs": {
+                  "nprofile": "nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c",
+                  "pubkey": "c6603b0f1ccfec625d9c08b753e4f774eaf7d1cf2769223125b5fd4da728019e",
+                  "relays": [],
+                },
+                "type": "nprofile",
+              },
+              {
+                "text": "/wrong/link/ text",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
+          },
+        ],
+        "type": "doc",
+      }
+    `)
   })
 
   test('Should assert a nostr:naddr1', ({ editor }) => {
