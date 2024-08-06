@@ -1,5 +1,9 @@
 import { Node } from '@tiptap/core'
 
+export interface VideoAttributes {
+  src: string
+}
+
 export const VideoExtension = Node.create({
   name: 'video',
 

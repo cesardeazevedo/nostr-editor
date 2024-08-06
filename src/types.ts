@@ -1,37 +1,12 @@
 import type { ImageOptions } from '@tiptap/extension-image'
 import type { StarterKitOptions } from '@tiptap/starter-kit'
-
-// Attributes
-export type LinkAttributes = {
-  href: string
-}
-
-export type NProfileExtensionAttributes = {
-  id: string
-  pubkey: string
-}
-
-export interface NEventExtensionAttributes {
-  id: string
-  kind: number
-  author: string
-  relays: string[]
-}
-
-export interface NAddrExtensionAttributes {
-  kind: number
-  pubkey: string
-  relays?: string[]
-  identifier: string
-}
-
-export interface TagAttributes {
-  tag: string
-}
-
-export interface VideoExtensionAttributes {
-  src: string
-}
+import type { LinkAttributes } from './extensions/LinkExtension'
+import type { NAddrAttributes } from './extensions/NAddrExtension'
+import type { NEventAttributes } from './extensions/NEventExtension'
+import type { NProfileAttributes } from './extensions/NProfileExtension'
+import type { TagAttributes } from './extensions/TagExtension'
+import type { TweetAttributes } from './extensions/TweetExtension'
+import type { VideoAttributes } from './extensions/VideoExtension'
 
 type Extensions<T extends keyof StarterKitOptions> = T
 
@@ -48,6 +23,10 @@ export type TextNode = {
 
 type HardBreak = {
   type: Extensions<'hardBreak'>
+}
+
+type HorizontalRule = {
+  type: Extensions<'horizontalRule'>
 }
 
 type TagMark = {
@@ -78,17 +57,17 @@ type StrikeMark = {
 
 type NProfileNode = {
   type: 'nprofile'
-  attrs: NProfileExtensionAttributes
+  attrs: NProfileAttributes
 }
 
 type NEventNode = {
   type: 'nevent'
-  attrs: NEventExtensionAttributes
+  attrs: NEventAttributes
 }
 
 type NAddrNode = {
   type: 'naddr'
-  attrs: NAddrExtensionAttributes
+  attrs: NAddrAttributes
 }
 
 type ImageNode = {
@@ -98,7 +77,7 @@ type ImageNode = {
 
 type VideoNode = {
   type: 'video'
-  attrs: VideoExtensionAttributes
+  attrs: VideoAttributes
 }
 
 export type HeadingNode = {
@@ -143,9 +122,7 @@ export type BlockQuoteNode = {
 
 type TweetNode = {
   type: 'tweet'
-  attrs: {
-    src: string
-  }
+  attrs: TweetAttributes
 }
 
 type YoutubeNode = {
@@ -164,6 +141,7 @@ export type Node =
   | ParagraphNode
   | TextNode
   | HardBreak
+  | HorizontalRule
   | NProfileNode
   | NEventNode
   | NAddrNode

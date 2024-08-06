@@ -1,9 +1,9 @@
-import type { PasteRuleMatch } from "@tiptap/core";
-import { Node, nodePasteRule } from "@tiptap/core";
+import type { PasteRuleMatch } from '@tiptap/core'
+import { Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { decode } from 'light-bolt11-decoder'
-import { createPasteRuleMatch } from "./util";
+import { createPasteRuleMatch } from './util'
 
 const LNBC_REGEX = /(lnbc[0-9a-z]{10,})/g
 
@@ -56,8 +56,8 @@ export const Bolt11Extension = Node.create({
             matches.push(createPasteRuleMatch(match, { bolt11, lnbc: match[0] }))
           }
           return matches
-        }
-      })
+        },
+      }),
     ]
-  }
+  },
 })

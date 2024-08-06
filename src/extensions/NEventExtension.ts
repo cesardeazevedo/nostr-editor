@@ -1,13 +1,21 @@
-import { nip19 } from 'nostr-tools'
-import type { EventPointer } from 'nostr-tools/nip19'
 import { Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
+import { nip19 } from 'nostr-tools'
+import type { EventPointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch } from './util'
 
 export const NOTE_REGEX = /(nostr:)?(note1[0-9a-z]+)/g
 
 export const NEVENT_REGEX = /(nostr:)?(nevent1[0-9a-z]+)/g
+
+export interface NEventAttributes {
+  nevent: string
+  id: string
+  kind: number
+  author: string
+  relays: string[]
+}
 
 export const NEventExtension = Node.create({
   name: 'nevent',

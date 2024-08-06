@@ -1,11 +1,19 @@
-import { nip19 } from 'nostr-tools'
-import type { AddressPointer } from 'nostr-tools/nip19'
 import { Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
+import { nip19 } from 'nostr-tools'
+import type { AddressPointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch } from './util'
 
 export const NADDR_REGEX = /(nostr:)?(naddr1[0-9a-z]+)/g
+
+export interface NAddrAttributes {
+  naddr: string
+  kind: number
+  pubkey: string
+  relays?: string[]
+  identifier: string
+}
 
 export const NAddrExtension = Node.create({
   name: 'naddr',
