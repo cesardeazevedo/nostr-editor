@@ -1,11 +1,13 @@
 import {
   IconAt,
+  IconBolt,
   IconBrandX,
   IconBrandYoutube,
   IconExternalLink,
   IconHash,
   IconLink,
   IconMovie,
+  IconPassword,
   IconPhoto,
   IconQuote,
 } from '@tabler/icons-react'
@@ -53,6 +55,8 @@ export function Sidebar(props: Props) {
         <Switch icon={IconMovie} label='Videos' onChange={handleChange('videos')} />
         <Switch icon={IconBrandYoutube} label='Youtube' onChange={handleChange('youtube')} />
         <Switch icon={IconBrandX} label='Tweets' onChange={handleChange('tweet')} />
+        <Switch icon={IconPassword} label='NsecReject' onChange={handleChange('nsecReject')} />
+        <Switch icon={IconBolt} label='Bolt11' onChange={handleChange('bolt11')} />
       </div>
     </nav>
   )

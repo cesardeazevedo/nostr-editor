@@ -10,4 +10,6 @@ export type EditorExtensionSettings = {
   videos: boolean
   youtube: boolean
   tweet: boolean
+  bolt11: boolean
+  nsecReject: boolean
 }

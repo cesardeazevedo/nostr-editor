@@ -1,8 +1,5 @@
-import DocumentExtension from '@tiptap/extension-document'
 import Dropcursor from '@tiptap/extension-dropcursor'
 import ImageExtension from '@tiptap/extension-image'
-import ParagraphExtension from '@tiptap/extension-paragraph'
-import TextExtension from '@tiptap/extension-text'
 import YoutubeExtension from '@tiptap/extension-youtube'
 import { PluginKey } from '@tiptap/pm/state'
 import type { AnyExtension } from '@tiptap/react'
@@ -11,14 +8,15 @@ import { StarterKit } from '@tiptap/starter-kit'
 import Suggestion from '@tiptap/suggestion'
 import {
   AutoLinkExtension,
+  Bolt11Extension,
   LinkExtension,
   NAddrExtension,
   NEventExtension,
   NProfileExtension,
+  NSecRejectExtension,
   TagExtension,
   TweetExtension,
   VideoExtension,
-  NSecRejectExtension,
 } from 'nostr-editor'
 import { nip19 } from 'nostr-tools'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -27,6 +25,7 @@ import type { Instance } from 'tippy.js'
 import tippy from 'tippy.js'
 import { Markdown as MarkdownExtension } from 'tiptap-markdown'
 import { Image } from './components/Image'
+import { LNInvoice } from './components/LNInvoice'
 import { Mention } from './components/Mention'
 import { NAddr } from './components/NAddr'
 import { NEvent } from './components/NEvent'
@@ -51,15 +50,26 @@ function App() {
     videos: true,
     youtube: true,
     tweet: true,
+    bolt11: true,
+    nsecReject: true,
   })
   const extensions = useMemo(() => {
-    const baseExtensions: AnyExtension[] = [Dropcursor, NSecRejectExtension]
+    const baseExtensions: AnyExtension[] = [Dropcursor]
 
     if (type === 'text') {
       // Disabled markdown elements
-      baseExtensions.push(DocumentExtension)
-      baseExtensions.push(ParagraphExtension)
-      baseExtensions.push(TextExtension)
+      baseExtensions.push(StarterKit.configure({
+        heading: false,
+        bold: false,
+        italic: false,
+        strike: false,
+        listItem: false,
+        bulletList: false,
+        orderedList: false,
+        code: false,
+        codeBlock: false,
+        blockquote: false,
+      }))
     } else if (type === 'markdown') {
       // StarterKit already bundles some markdown elements
       baseExtensions.push(MarkdownExtension)
@@ -181,6 +191,12 @@ function App() {
     }
     if (settings.naddr1) {
       baseExtensions.push(NAddrExtension.extend({ addNodeView: () => ReactNodeViewRenderer(NAddr) }))
+    }
+    if (settings.nsecReject) {
+      baseExtensions.push(NSecRejectExtension)
+    }
+    if (settings.bolt11) {
+      baseExtensions.push(Bolt11Extension.extend({ addNodeView: () => ReactNodeViewRenderer(LNInvoice) }))
     }
 
     return baseExtensions
