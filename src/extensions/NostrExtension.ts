@@ -1,5 +1,6 @@
 import type { AnyExtension, NodeConfig } from '@tiptap/core'
 import { Extension } from '@tiptap/core'
+import { HardBreak } from '@tiptap/extension-hard-break'
 import ImageExtension from '@tiptap/extension-image'
 import YoutubeExtension from '@tiptap/extension-youtube'
 import { type NostrEvent } from 'nostr-tools'
@@ -42,7 +43,7 @@ export const NostrExtension = Extension.create<NostrParserOptions>({
   name: 'nostr',
 
   addExtensions() {
-    const extensions = [] as AnyExtension[]
+    const extensions = [HardBreak] as AnyExtension[]
     if (this.options.nprofile !== false) {
       extensions.push(NProfileExtension.extend(this.options.nprofile))
     }
@@ -104,7 +105,6 @@ export const NostrExtension = Extension.create<NostrParserOptions>({
     return {
       parseNote: (event: NostrEvent, imeta?: IMetaTags) => (props) => {
         this.storage.setImeta(imeta || parseImeta(event.tags))
-        props.editor.view
         props
           .chain()
           // These metadata will trigger pasting rules on all other extensions
