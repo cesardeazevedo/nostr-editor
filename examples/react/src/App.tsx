@@ -5,7 +5,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Suggestion from '@tiptap/suggestion'
 import { NostrExtension } from 'nostr-editor'
 import { nip19 } from 'nostr-tools'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import ReactJsonView from 'react-json-view'
 import type { Instance } from 'tippy.js'
 import tippy from 'tippy.js'
@@ -38,6 +38,7 @@ function App() {
     tweet: true,
     bolt11: true,
     nsecReject: true,
+    fileUpload: true,
   })
 
   const prevContent = useRef('')
@@ -157,6 +158,7 @@ function App() {
           tweet: settings.tweet !== false && { addNodeView: () => ReactNodeViewRenderer(TweetEditor) },
           youtube: settings.youtube !== false && { renderText: (props) => props.node.attrs.src },
           nsecReject: settings.nsecReject !== false && {},
+          fileUpload: settings.fileUpload !== false && {},
         }),
       ],
       onUpdate: () => {
@@ -232,6 +234,10 @@ function App() {
     editor?.commands.focus('start')
   }, [editor])
 
+  const handleInsertMedia = useCallback(() => {
+    editor?.chain().selectFile().run()
+  }, [editor])
+
   return (
     <div className='flex'>
       <main className='relative width-auto p-10' style={{ width: 'calc(100% - 400px)' }}>
@@ -248,13 +254,12 @@ function App() {
           <button className='border rounded-lg p-2 ml-2' onClick={handleInsertNAddr}>
             Add NAddr
           </button>
+          <button className='border rounded-lg p-2 ml-2' onClick={handleInsertMedia}>
+            Add Media
+          </button>
         </div>
         <div className='mt-2 z-20 relative'>
           <EditorContent editor={editor} id='editor' />
-          <small>
-            Don't forget the <code>nostr:</code>
-            prefix
-          </small>
         </div>
         {raw && (
           <>

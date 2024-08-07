@@ -10,6 +10,7 @@ import {
   IconPassword,
   IconPhoto,
   IconQuote,
+  IconUpload,
 } from '@tabler/icons-react'
 
 import { Switch } from './components/settings/Switch'
@@ -57,6 +58,7 @@ export function Sidebar(props: Props) {
         <Switch icon={IconBrandX} label='Tweets' onChange={handleChange('tweet')} />
         <Switch icon={IconPassword} label='NsecReject' onChange={handleChange('nsecReject')} />
         <Switch icon={IconBolt} label='Bolt11' onChange={handleChange('bolt11')} />
+        <Switch icon={IconUpload} label='FileUpload' onChange={handleChange('fileUpload')} />
       </div>
     </nav>
   )

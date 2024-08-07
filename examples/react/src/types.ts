@@ -12,4 +12,5 @@ export type EditorExtensionSettings = {
   tweet: boolean
   bolt11: boolean
   nsecReject: boolean
+  fileUpload: boolean
 }

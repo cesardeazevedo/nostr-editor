@@ -1,12 +1,12 @@
 import type { AnyExtension, NodeConfig } from '@tiptap/core'
 import { Extension } from '@tiptap/core'
-import { HardBreak } from '@tiptap/extension-hard-break'
 import ImageExtension from '@tiptap/extension-image'
 import YoutubeExtension from '@tiptap/extension-youtube'
 import { type NostrEvent } from 'nostr-tools'
 import { parseImeta, type IMetaTags } from '../helpers/nip92.imeta'
 import { AutoLinkExtension } from './AutoLinkExtension'
 import { Bolt11Extension } from './Bolt11Extension'
+import { FileUploadExtension } from './FileUploadExtension'
 import { LinkExtension } from './LinkExtension'
 import { NAddrExtension } from './NAddrExtension'
 import { NEventExtension } from './NEventExtension'
@@ -37,13 +37,14 @@ export interface NostrParserOptions {
   tag: Partial<NodeConfig> | false
   bolt11: Partial<NodeConfig> | false
   nsecReject: Partial<NSecRejectionOptions> | false
+  fileUpload: Partial<NodeConfig> | false
 }
 
 export const NostrExtension = Extension.create<NostrParserOptions>({
   name: 'nostr',
 
   addExtensions() {
-    const extensions = [HardBreak] as AnyExtension[]
+    const extensions = [] as AnyExtension[]
     if (this.options.nprofile !== false) {
       extensions.push(NProfileExtension.extend(this.options.nprofile))
     }
@@ -89,6 +90,9 @@ export const NostrExtension = Extension.create<NostrParserOptions>({
     }
     if (this.options.nsecReject !== false) {
       extensions.push(NSecRejectExtension)
+    }
+    if (this.options.fileUpload !== false) {
+      extensions.push(FileUploadExtension)
     }
     return extensions
   },
