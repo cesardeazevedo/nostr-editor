@@ -15,6 +15,14 @@ export interface NAddrAttributes {
   identifier: string
 }
 
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    naddr: {
+      insertNAddr: (options: { naddr: string }) => ReturnType
+    }
+  }
+}
+
 export const NAddrExtension = Node.create({
   name: 'naddr',
 
@@ -52,6 +60,18 @@ export const NAddrExtension = Node.create({
         },
         parse: {},
       },
+    }
+  },
+
+  addCommands() {
+    return {
+      insertNAddr:
+        ({ naddr }) =>
+        ({ commands }) => {
+          const parts = naddr.split(':')
+          const attrs = nip19.decode(parts[parts.length - 1])?.data as AddressPointer
+          return commands.insertContent({ type: this.name, attrs: { ...attrs, naddr } })
+        },
     }
   },
 

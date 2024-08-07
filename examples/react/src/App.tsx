@@ -5,7 +5,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Suggestion from '@tiptap/suggestion'
 import { NostrExtension } from 'nostr-editor'
 import { nip19 } from 'nostr-tools'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactJsonView from 'react-json-view'
 import type { Instance } from 'tippy.js'
 import tippy from 'tippy.js'
@@ -63,6 +63,7 @@ function App() {
 
   const editor = useEditor(
     {
+      autofocus: true,
       extensions: [
         ...baseExtensions,
         NostrExtension.configure({
@@ -195,12 +196,59 @@ function App() {
     [settings],
   )
 
+  const handleInsertNevent = useCallback(() => {
+    editor
+      ?.chain()
+      .insertContent({ type: 'text', text: ' ' })
+      .insertNEvent({
+        nevent:
+          'nostr:nevent1qvzqqqqqqypzplnld0r0wvutw6alsrd5q2k7vk2nug9j7glxd6ycyp9k8nzz2wdrqyg8wumn8ghj7mn0wd68ytnhd9hx2qg5waehxw309aex2mrp0yhxgctdw4eju6t0qyxhwumn8ghj7mn0wvhxcmmvqqs9gg4thq8ng87z8377jxksjwhk9dl0f8su9c4kq335ydzp0ykmv5gqt3csa',
+      })
+      .run()
+    editor?.commands.focus('start')
+  }, [editor])
+
+  const handleInsertNProfile = useCallback(() => {
+    editor
+      ?.chain()
+      .insertNProfile({
+        nprofile:
+          'nostr:nprofile1qy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcprfmhxue69uhhyetvv9ujuem9w3skccne9e3k7mf0wccsqgxxvqas78x0a339m8qgkaf7fam5atmarne8dy3rzfd4l4x6w2qpncmfs8zh',
+      })
+      .focus()
+      .run()
+  }, [editor])
+
+  const handleInsertNAddr = useCallback(() => {
+    editor
+      ?.chain()
+      .insertContent({ type: 'text', text: ' ' })
+      .insertNAddr({
+        naddr:
+          'nostr:naddr1qqwysetjv5syxmmdv4ejqsnfw33k76twyp38jgznwp5hyctvqgsph3c2q9yt8uckmgelu0yf7glruudvfluesqn7cuftjpwdynm2gygrqsqqqa2w4ua43m',
+      })
+      .focus()
+      .run()
+    editor?.commands.focus('start')
+  }, [editor])
+
   return (
     <div className='flex'>
       <main className='relative width-auto p-10' style={{ width: 'calc(100% - 400px)' }}>
         <h1>nostr-editor</h1>
         <br />
         <TestText />
+        <div className='mt-2'>
+          <button className='border rounded-lg p-2' onClick={handleInsertNevent}>
+            Add NEvent
+          </button>
+          <button className='border rounded-lg p-2 ml-2' onClick={handleInsertNProfile}>
+            Add NProfile
+          </button>
+          <button className='border rounded-lg p-2 ml-2' onClick={handleInsertNAddr}>
+            Add NAddr
+          </button>
+        </div>
         <div className='mt-2 z-20 relative'>
           <EditorContent editor={editor} id='editor' />
           <small>

@@ -17,6 +17,14 @@ export interface NEventAttributes {
   relays: string[]
 }
 
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    nevent: {
+      insertNEvent: (options: { nevent: string }) => ReturnType
+    }
+  }
+}
+
 export const NEventExtension = Node.create({
   name: 'nevent',
 
@@ -56,6 +64,18 @@ export const NEventExtension = Node.create({
         },
         parse: {},
       },
+    }
+  },
+
+  addCommands() {
+    return {
+      insertNEvent:
+        ({ nevent }) =>
+        ({ commands }) => {
+          const parts = nevent.split(':')
+          const attrs = nip19.decode(parts[parts.length - 1])?.data as EventPointer
+          return commands.insertContent({ type: this.name, attrs: { ...attrs, nevent } })
+        },
     }
   },
 

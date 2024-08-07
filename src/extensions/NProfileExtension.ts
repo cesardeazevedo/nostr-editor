@@ -15,6 +15,14 @@ export type NProfileAttributes = {
   relays: string[]
 }
 
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    nprofile: {
+      insertNProfile: (options: { nprofile: string }) => ReturnType
+    }
+  }
+}
+
 export const NProfileExtension = Node.create({
   name: 'nprofile',
   inline: true,
@@ -45,6 +53,21 @@ export const NProfileExtension = Node.create({
         },
         parse: {},
       },
+    }
+  },
+
+  addCommands() {
+    return {
+      insertNProfile:
+        ({ nprofile }) =>
+        ({ commands }) => {
+          const parts = nprofile.split(':')
+          const attrs = nip19.decode(parts[parts.length - 1])?.data as ProfilePointer
+          return commands.insertContent([
+            { type: this.name, attrs: { ...attrs, nprofile } },
+            { type: 'text', text: ' ' },
+          ])
+        },
     }
   },
 
