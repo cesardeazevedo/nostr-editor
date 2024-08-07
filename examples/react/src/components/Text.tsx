@@ -42,7 +42,7 @@ export function TextContent(props: { node: ParagraphNode | HeadingNode | BlockQu
         <React.Fragment key={node.type + index}>
           {node.type === 'nprofile' && <Mention {...node.attrs} />}
           {node.type === 'text' && <Text node={node} />}
-          {node.type === 'hardBreak' && <br />}
+          {node.type === 'hardBreak' && <div className='mt-4' />}
         </React.Fragment>
       ))}
     </>

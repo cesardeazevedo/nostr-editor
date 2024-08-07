@@ -7,7 +7,7 @@ type Props = {
 
 export default function Paragraph(props: Props) {
   return (
-    <div className={`mt-2 ml-2`}>
+    <div className='mt-2 ml-2'>
       <TextContent node={props.node} />
     </div>
   )
