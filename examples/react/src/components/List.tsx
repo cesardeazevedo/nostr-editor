@@ -12,7 +12,7 @@ function List(props: Props) {
   const { type, node } = props
   const ListComponent = type
   return (
-    <ListComponent>
+    <ListComponent className='ml-10'>
       {node.content.map((item, index) => (
         <li key={item.type + index}>
           {item.content.map((node, index) => (

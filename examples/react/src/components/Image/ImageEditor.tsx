@@ -9,7 +9,7 @@ export function ImageEditor(props: NodeViewProps) {
     <NodeViewWrapper
       data-drag-handle=''
       draggable={props.node.type.spec.draggable}
-      className={`relative ${props.selected ? 'opacity-80' : ''}`}>
+      className={`relative w-fit ${props.selected ? 'opacity-80' : ''}`}>
       {props.selected && (
         <button
           className='absolute right-2 top-2 rounded-full border border-solid border-gray-900'
