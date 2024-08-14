@@ -3,7 +3,7 @@ import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import { nip19 } from 'nostr-tools'
 import type { ProfilePointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
-import { createPasteRuleMatch } from './util'
+import { createPasteRuleMatch } from '../helpers/utils'
 
 export const NPUB_REGEX = /(nostr:)?(npub1[0-9a-z]+)/g
 
@@ -28,6 +28,7 @@ export const NProfileExtension = Node.create({
   inline: true,
   group: 'inline',
   atom: true,
+  priority: 1000,
 
   addAttributes() {
     return {

@@ -1,9 +1,9 @@
 import type { PasteRuleMatch } from '@tiptap/core'
 import { Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
-import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { decode } from 'light-bolt11-decoder'
-import { createPasteRuleMatch } from './util'
+import type { MarkdownSerializerState } from 'prosemirror-markdown'
+import { createPasteRuleMatch } from '../helpers/utils'
 
 const LNBC_REGEX = /(lnbc[0-9a-z]{10,})/g
 

@@ -3,7 +3,7 @@ import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import { nip19 } from 'nostr-tools'
 import type { EventPointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
-import { createPasteRuleMatch } from './util'
+import { createPasteRuleMatch } from '../helpers/utils'
 
 export const NOTE_REGEX = /(nostr:)?(note1[0-9a-z]+)/g
 
@@ -34,6 +34,8 @@ export const NEventExtension = Node.create({
 
   draggable: true,
 
+  priority: 1000,
+
   addAttributes() {
     return {
       id: { default: null },
@@ -44,8 +46,8 @@ export const NEventExtension = Node.create({
     }
   },
 
-  renderHTML(p) {
-    return ['div', { 'data-nevent': p.node.attrs.nevent }]
+  renderHTML(props) {
+    return ['div', { 'data-nevent': props.node.attrs.nevent }]
   },
 
   renderText(props) {
