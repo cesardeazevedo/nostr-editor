@@ -138,11 +138,7 @@ export const NostrExtension = Extension.create<NostrParserOptions>({
         } catch (error) {
           return false
         }
-        props
-          .chain()
-          .setMeta('parse', true)
-          .setMeta('uiEvent', 'paste')
-          .setContent(content.about, true)
+        props.chain().setMeta('parse', true).setMeta('uiEvent', 'paste').setContent(content.about, true)
         return true
       },
     }

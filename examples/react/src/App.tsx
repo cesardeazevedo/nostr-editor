@@ -51,19 +51,19 @@ function App() {
   const baseExtensions = useMemo(() => {
     return type === 'text'
       ? [
-        StarterKit.configure({
-          heading: false,
-          bold: false,
-          italic: false,
-          strike: false,
-          listItem: false,
-          bulletList: false,
-          orderedList: false,
-          code: false,
-          codeBlock: false,
-          blockquote: false,
-        }),
-      ]
+          StarterKit.configure({
+            heading: false,
+            bold: false,
+            italic: false,
+            strike: false,
+            listItem: false,
+            bulletList: false,
+            orderedList: false,
+            code: false,
+            codeBlock: false,
+            blockquote: false,
+          }),
+        ]
       : [MarkdownExtension, StarterKit]
   }, [type]) as AnyExtension[]
 
@@ -162,7 +162,7 @@ function App() {
             },
           },
           fileUpload: settings.fileUpload !== false && {
-            upload: async () => { },
+            upload: async () => {},
             sign: async (event) => {
               if ('nostr' in window) {
                 const nostr = window.nostr as NostrExtension

@@ -27,7 +27,8 @@ export const LNInvoice = function LNInvoice(props: NodeViewProps) {
 
   return (
     <NodeViewWrapper data-drag-handle='' draggable={props.node.type.spec.draggable}>
-      <div className='relative my-2 bg-gray-100 border-gray-200 border border-solid py-8 px-8 rounded-xl'>
+      <div
+        className={`relative my-2 bg-gray-100 border-gray-200 border border-solid py-8 px-8 rounded-xl ${props.selected ? 'opacity-60' : ''}`}>
         <button className='absolute right-4 top-4' onClick={() => handleCopy()}>
           {copied && <IconCheck size={20} strokeWidth='2.5' className='text-green-600' />}
           {!copied && <IconCopy size={20} />}

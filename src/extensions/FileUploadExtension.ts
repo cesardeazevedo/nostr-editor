@@ -89,15 +89,17 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
             const { file, alt, uploadType, uploadUrl: serverUrl } = node.attrs as ImageAttributes
             props.tr.setNodeAttribute(pos, 'uploading', true)
             if (uploadType === 'nip96') {
-              tasks.push(uploadNIP96({ file, alt, sign, serverUrl }).then((res) => {
-                const { tr } = props.view.state
-                const url = res?.nip94_event?.tags.find(x => x[0] === 'url')?.[1]
-                const sha256 = res?.nip94_event?.tags.find(x => x[0] === 'x')?.[1]
-                tr.setNodeAttribute(pos, 'src', url)
-                tr.setNodeAttribute(pos, 'sha256', sha256)
-                tr.setNodeAttribute(pos, 'uploading', false)
-                props.view.dispatch(tr)
-              }))
+              tasks.push(
+                uploadNIP96({ file, alt, sign, serverUrl }).then((res) => {
+                  const { tr } = props.view.state
+                  const url = res?.nip94_event?.tags.find((x) => x[0] === 'url')?.[1]
+                  const sha256 = res?.nip94_event?.tags.find((x) => x[0] === 'x')?.[1]
+                  tr.setNodeAttribute(pos, 'src', url)
+                  tr.setNodeAttribute(pos, 'sha256', sha256)
+                  tr.setNodeAttribute(pos, 'uploading', false)
+                  props.view.dispatch(tr)
+                }),
+              )
             } else if (uploadType === 'blossom') {
               tasks.push(
                 uploadBlossom({ file, serverUrl, hash, sign, expiration }).then((res) => {
@@ -106,7 +108,7 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
                   tr.setNodeAttribute(pos, 'sha256', res.sha256)
                   tr.setNodeAttribute(pos, 'uploading', false)
                   props.view.dispatch(tr)
-                })
+                }),
               )
             }
           }
