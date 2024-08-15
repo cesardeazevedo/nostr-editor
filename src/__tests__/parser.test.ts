@@ -11,10 +11,13 @@ import { fakeNote } from './testUtils'
 type Fixtures = {
   editor: Editor
   editorMarkdown: Editor
+  editorUserAbout: Editor
 }
 
 const extensions = [StarterKit.configure({ history: false }), NostrExtension]
 
+// We ideally want to have a single editor instance to parse markdown and user abouts,
+// But currently no ideal way to dynamically load extensions
 const test = base.extend<Fixtures>({
   editor: ({}, use) => {
     return use(new Editor({ extensions }))
@@ -26,6 +29,16 @@ const test = base.extend<Fixtures>({
           StarterKit.configure({ history: false }),
           NostrExtension.configure({ autolink: false }),
           MarkdownExtension.configure({ breaks: true }),
+        ],
+      }),
+    )
+  },
+  editorUserAbout: ({}, use) => {
+    return use(
+      new Editor({
+        extensions: [
+          StarterKit.configure({ history: false }),
+          NostrExtension.configure({ image: false, video: false }),
         ],
       }),
     )
@@ -89,8 +102,13 @@ describe('parseNote()', () => {
           {
             "attrs": {
               "alt": null,
+              "file": null,
+              "hash": null,
+              "sha256": null,
               "src": "http://host.com/image",
-              "title": null,
+              "uploadType": "nip96",
+              "uploadUrl": "https://nostr.build",
+              "uploading": false,
             },
             "type": "image",
           },
@@ -105,7 +123,13 @@ describe('parseNote()', () => {
           },
           {
             "attrs": {
+              "alt": null,
+              "file": null,
+              "sha256": null,
               "src": "http://host.com/video",
+              "uploadType": "nip96",
+              "uploadUrl": "https://nostr.build",
+              "uploading": false,
             },
             "type": "video",
           },
@@ -233,8 +257,13 @@ describe('parseNote()', () => {
           {
             "attrs": {
               "alt": null,
+              "file": null,
+              "hash": null,
+              "sha256": null,
               "src": "https://nostr.com/img.jpg",
-              "title": null,
+              "uploadType": "nip96",
+              "uploadUrl": "https://nostr.build",
+              "uploading": false,
             },
             "type": "image",
           },
@@ -249,7 +278,13 @@ describe('parseNote()', () => {
           },
           {
             "attrs": {
+              "alt": null,
+              "file": null,
+              "sha256": null,
               "src": "https://v.nostr.build/g6BQ.mp4",
+              "uploadType": "nip96",
+              "uploadUrl": "https://nostr.build",
+              "uploading": false,
             },
             "type": "video",
           },
@@ -454,6 +489,7 @@ https://host.com/2.jpeg
 https://host.com/1.jpeg
 https://host.com/2.jpeg
 `)
+    //console.dir(editor.getJSON(), { depth: null })
     expect(editor.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -468,8 +504,13 @@ https://host.com/2.jpeg
           {
             "attrs": {
               "alt": null,
+              "file": null,
+              "hash": null,
+              "sha256": null,
               "src": "https://host.com/1.jpeg",
-              "title": null,
+              "uploadType": "nip96",
+              "uploadUrl": "https://nostr.build",
+              "uploading": false,
             },
             "type": "image",
           },
@@ -484,8 +525,13 @@ https://host.com/2.jpeg
           {
             "attrs": {
               "alt": null,
+              "file": null,
+              "hash": null,
+              "sha256": null,
               "src": "https://host.com/2.jpeg",
-              "title": null,
+              "uploadType": "nip96",
+              "uploadUrl": "https://nostr.build",
+              "uploading": false,
             },
             "type": "image",
           },
@@ -503,14 +549,14 @@ https://host.com/2.jpeg
     `)
   })
 
-  // This might be incorrect
+  // This actually might be incorrect, but we need to track scenarios like this
   test('Should assert an intersecting node', ({ editor }) => {
     const note = fakeNote({
       content:
-        'Test: https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/ text',
+        'Test: https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/ text https://github.com/nostr:nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp/error link',
     })
     editor.commands.parseNote(note)
-    expect(editor.getText()).toStrictEqual(note.content)
+    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(note.content)
     expect(editor.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -541,7 +587,38 @@ https://host.com/2.jpeg
                 "type": "nprofile",
               },
               {
-                "text": "/wrong/link/ text",
+                "text": "/wrong/link/ text ",
+                "type": "text",
+              },
+              {
+                "marks": [
+                  {
+                    "attrs": {
+                      "href": "https://github.com/",
+                    },
+                    "type": "link",
+                  },
+                ],
+                "text": "https://github.com/",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
+          },
+          {
+            "attrs": {
+              "author": "0a5a87baeead12b08c0c026caa46c009bb533aae1bd1681f52d609dd2b6fd8bc",
+              "id": "2ceb90d42ab5a19b76dddfbda45687bc8011917a41286783edd14ca690fd86ee",
+              "kind": null,
+              "nevent": "nostr:nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp",
+              "relays": [],
+            },
+            "type": "nevent",
+          },
+          {
+            "content": [
+              {
+                "text": "/error link",
                 "type": "text",
               },
             ],
@@ -581,6 +658,96 @@ https://host.com/2.jpeg
               "relays": [],
             },
             "type": "naddr",
+          },
+        ],
+        "type": "doc",
+      }
+    `)
+  })
+
+  test('Should assert parseUserAbout', ({ editorUserAbout }) => {
+    const content = {
+      display_name: 'name',
+      about:
+        'Building nostr.com #nostr nostr:nprofile1qy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcprfmhxue69uhhyetvv9ujuem9w3skccne9e3k7mf0wccsqgxxvqas78x0a339m8qgkaf7fam5atmarne8dy3rzfd4l4x6w2qpncmfs8zh https://image.nostr.build/87dbc55a6391d15bddda206561d53867a5679dd95e84fe8ed62bfe2e3adcadf3.jpg',
+    }
+    const note = fakeNote({
+      kind: 0,
+      content: JSON.stringify(content),
+    })
+    editorUserAbout.commands.parseUserAbout(note)
+    expect(editorUserAbout.getText()).toStrictEqual(content.about)
+    expect(editorUserAbout.getJSON()).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "content": [
+              {
+                "text": "Building ",
+                "type": "text",
+              },
+              {
+                "marks": [
+                  {
+                    "attrs": {
+                      "href": "http://nostr.com",
+                    },
+                    "type": "link",
+                  },
+                ],
+                "text": "nostr.com",
+                "type": "text",
+              },
+              {
+                "text": " ",
+                "type": "text",
+              },
+              {
+                "marks": [
+                  {
+                    "attrs": {
+                      "tag": "#nostr",
+                    },
+                    "type": "tag",
+                  },
+                ],
+                "text": "#nostr",
+                "type": "text",
+              },
+              {
+                "text": " ",
+                "type": "text",
+              },
+              {
+                "attrs": {
+                  "nprofile": "nostr:nprofile1qy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcprfmhxue69uhhyetvv9ujuem9w3skccne9e3k7mf0wccsqgxxvqas78x0a339m8qgkaf7fam5atmarne8dy3rzfd4l4x6w2qpncmfs8zh",
+                  "pubkey": "c6603b0f1ccfec625d9c08b753e4f774eaf7d1cf2769223125b5fd4da728019e",
+                  "relays": [
+                    "wss://nos.lol/",
+                    "wss://relay.damus.io/",
+                    "wss://relay.getalby.com/v1",
+                  ],
+                },
+                "type": "nprofile",
+              },
+              {
+                "text": " ",
+                "type": "text",
+              },
+              {
+                "marks": [
+                  {
+                    "attrs": {
+                      "href": "https://image.nostr.build/87dbc55a6391d15bddda206561d53867a5679dd95e84fe8ed62bfe2e3adcadf3.jpg",
+                    },
+                    "type": "link",
+                  },
+                ],
+                "text": "https://image.nostr.build/87dbc55a6391d15bddda206561d53867a5679dd95e84fe8ed62bfe2e3adcadf3.jpg",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
           },
         ],
         "type": "doc",
