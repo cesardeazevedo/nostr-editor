@@ -4,6 +4,7 @@ import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '
 import StarterKit from '@tiptap/starter-kit'
 import Suggestion from '@tiptap/suggestion'
 import { NostrExtension } from 'nostr-editor'
+import type { EventTemplate, NostrEvent } from 'nostr-tools'
 import { nip19 } from 'nostr-tools'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import ReactJsonView from 'react-json-view'
@@ -21,6 +22,10 @@ import { VideoEditor } from './components/Video/VideoEditor'
 import { Sidebar } from './Sidebar'
 import { TestText } from './TestText'
 import type { EditorExtensionSettings, EditorType } from './types'
+
+export type NostrExtension = {
+  signEvent(event: EventTemplate): Promise<NostrEvent>
+}
 
 function App() {
   const [raw, setRaw] = useState('')
@@ -46,19 +51,19 @@ function App() {
   const baseExtensions = useMemo(() => {
     return type === 'text'
       ? [
-          StarterKit.configure({
-            heading: false,
-            bold: false,
-            italic: false,
-            strike: false,
-            listItem: false,
-            bulletList: false,
-            orderedList: false,
-            code: false,
-            codeBlock: false,
-            blockquote: false,
-          }),
-        ]
+        StarterKit.configure({
+          heading: false,
+          bold: false,
+          italic: false,
+          strike: false,
+          listItem: false,
+          bulletList: false,
+          orderedList: false,
+          code: false,
+          codeBlock: false,
+          blockquote: false,
+        }),
+      ]
       : [MarkdownExtension, StarterKit]
   }, [type]) as AnyExtension[]
 
@@ -68,97 +73,105 @@ function App() {
       extensions: [
         ...baseExtensions,
         NostrExtension.configure({
-          link: settings.links !== false && {},
-          bolt11: settings.bolt11 !== false && { addNodeView: () => ReactNodeViewRenderer(LNInvoice) },
-          naddr: settings.naddr1 !== false && { addNodeView: () => ReactNodeViewRenderer(NAddrEditor) },
-          nevent: settings.nevent1 !== false && { addNodeView: () => ReactNodeViewRenderer(NEventEditor) },
-          nprofile: settings.nprofile1 !== false && {
-            addNodeView: () => ReactNodeViewRenderer(MentionEditor),
-            addProseMirrorPlugins() {
-              return [
-                Suggestion({
-                  char: '@',
-                  editor: this.editor,
-                  pluginKey: new PluginKey('@'),
-                  command: ({ editor, range, props }) => {
-                    // increase range.to by one when the next node is of type "text"
-                    // and starts with a space character
-                    const nodeAfter = editor.view.state.selection.$to.nodeAfter
-                    const overrideSpace = nodeAfter?.text?.startsWith(' ')
+          extend: {
+            bolt11: { addNodeView: () => ReactNodeViewRenderer(LNInvoice) },
+            naddr: { addNodeView: () => ReactNodeViewRenderer(NAddrEditor) },
+            nevent: { addNodeView: () => ReactNodeViewRenderer(NEventEditor) },
+            image: { addNodeView: () => ReactNodeViewRenderer(ImageEditor) },
+            video: { addNodeView: () => ReactNodeViewRenderer(VideoEditor) },
+            tweet: { addNodeView: () => ReactNodeViewRenderer(TweetEditor) },
+            nprofile: {
+              addNodeView: () => ReactNodeViewRenderer(MentionEditor),
+              addProseMirrorPlugins() {
+                return [
+                  Suggestion({
+                    char: '@',
+                    editor: this.editor,
+                    pluginKey: new PluginKey('@'),
+                    command: ({ editor, range, props }) => {
+                      // increase range.to by one when the next node is of type "text"
+                      // and starts with a space character
+                      const nodeAfter = editor.view.state.selection.$to.nodeAfter
+                      const overrideSpace = nodeAfter?.text?.startsWith(' ')
 
-                    if (overrideSpace) {
-                      range.to += 1
-                    }
+                      if (overrideSpace) {
+                        range.to += 1
+                      }
 
-                    const attrs = {
-                      pubkey: props.pubkey,
-                      relays: ['wss://purplepag.es', 'wss://relay.nostr.band'],
-                    }
-                    attrs.nprofile = 'nostr:' + nip19.nprofileEncode(attrs)
+                      const attrs = {
+                        pubkey: props.pubkey,
+                        relays: ['wss://purplepag.es', 'wss://relay.nostr.band'],
+                      }
+                      attrs.nprofile = 'nostr:' + nip19.nprofileEncode(attrs)
 
-                    editor
-                      .chain()
-                      .focus()
-                      .insertContentAt(range, [
-                        { type: 'nprofile', attrs },
-                        { type: 'text', text: ' ' },
-                      ])
-                      .run()
+                      editor
+                        .chain()
+                        .focus()
+                        .insertContentAt(range, [
+                          { type: 'nprofile', attrs },
+                          { type: 'text', text: ' ' },
+                        ])
+                        .run()
 
-                    window.getSelection()?.collapseToEnd()
-                  },
-                  render: () => {
-                    let component: ReactRenderer
-                    let popover: Instance<unknown>[]
-                    return {
-                      onStart: (props) => {
-                        component = new ReactRenderer(Suggestions, {
-                          props,
-                          editor: props.editor,
-                        })
-
-                        popover = tippy('body', {
-                          getReferenceClientRect: props.clientRect as () => DOMRect | ClientRect,
-                          appendTo: () => document.body,
-                          content: component.element,
-                          showOnCreate: true,
-                          interactive: true,
-                          trigger: 'manual',
-                          placement: 'bottom-start',
-                        })
-                      },
-                      onUpdate: (props) => {
-                        component.updateProps(props)
-                        if (props.clientRect) {
-                          popover[0].setProps({
-                            getReferenceClientRect: props.clientRect,
+                      window.getSelection()?.collapseToEnd()
+                    },
+                    render: () => {
+                      let component: ReactRenderer
+                      let popover: Instance<unknown>[]
+                      return {
+                        onStart: (props) => {
+                          component = new ReactRenderer(Suggestions, {
+                            props,
+                            editor: props.editor,
                           })
-                        }
-                      },
-                      onKeyDown: (props) => {
-                        if (props.event.key === 'Escape') {
-                          popover[0].hide()
-                          return true
-                        }
-                        return component.ref?.onKeyDown?.(props)
-                      },
-                      onExit() {
-                        popover[0].destroy()
-                        component.destroy()
-                      },
-                    }
-                  },
-                }),
-              ]
+
+                          popover = tippy('body', {
+                            getReferenceClientRect: props.clientRect as () => DOMRect | ClientRect,
+                            appendTo: () => document.body,
+                            content: component.element,
+                            showOnCreate: true,
+                            interactive: true,
+                            trigger: 'manual',
+                            placement: 'bottom-start',
+                          })
+                        },
+                        onUpdate: (props) => {
+                          component.updateProps(props)
+                          if (props.clientRect) {
+                            popover[0].setProps({
+                              getReferenceClientRect: props.clientRect,
+                            })
+                          }
+                        },
+                        onKeyDown: (props) => {
+                          if (props.event.key === 'Escape') {
+                            popover[0].hide()
+                            return true
+                          }
+                          return component.ref?.onKeyDown?.(props)
+                        },
+                        onExit() {
+                          popover[0].destroy()
+                          component.destroy()
+                        },
+                      }
+                    },
+                  }),
+                ]
+              },
             },
           },
-          tag: settings.tags !== false && {},
-          image: settings.images !== false && { addNodeView: () => ReactNodeViewRenderer(ImageEditor) },
-          video: settings.videos !== false && { addNodeView: () => ReactNodeViewRenderer(VideoEditor) },
-          tweet: settings.tweet !== false && { addNodeView: () => ReactNodeViewRenderer(TweetEditor) },
-          youtube: settings.youtube !== false && { renderText: (props) => props.node.attrs.src },
-          nsecReject: settings.nsecReject !== false && {},
-          fileUpload: settings.fileUpload !== false && {},
+          fileUpload: settings.fileUpload !== false && {
+            upload: async () => { },
+            sign: async (event) => {
+              if ('nostr' in window) {
+                const nostr = window.nostr as NostrExtension
+                return await nostr.signEvent(event)
+              }
+              console.error('No nostr extension found')
+              return Promise.reject('No signer found, install a nostr browser extension')
+            },
+          },
         }),
       ],
       onUpdate: () => {
@@ -238,12 +251,15 @@ function App() {
     editor?.chain().selectFile().run()
   }, [editor])
 
+  const handleUpload = useCallback(() => {
+    editor?.chain().uploadFiles().run()
+    console.log(editor?.getText())
+  }, [editor])
+
   return (
-    <div className='flex'>
-      <main className='relative width-auto p-10' style={{ width: 'calc(100% - 400px)' }}>
+    <div className='flex flex-row'>
+      <main className='fixed overflow-y-auto h-full w-1/2 p-4' style={{}}>
         <h1>nostr-editor</h1>
-        <br />
-        <TestText />
         <div className='mt-2'>
           <button className='border rounded-lg p-2' onClick={handleInsertNevent}>
             Add NEvent
@@ -257,10 +273,17 @@ function App() {
           <button className='border rounded-lg p-2 ml-2' onClick={handleInsertMedia}>
             Add Media
           </button>
+          <button className='border rounded-lg p-2 ml-2' onClick={handleUpload}>
+            Upload
+          </button>
         </div>
-        <div className='mt-2 z-20 relative'>
+        <div className='my-2 z-20 relative'>
           <EditorContent editor={editor} id='editor' />
         </div>
+        <TestText />
+      </main>
+      {/* <Sidebar type={type} onChangeEditor={handleChangeEditor} onChangeExtensions={handleChangeExtensions} /> */}
+      <Sidebar>
         {raw && (
           <>
             <h3>{type === 'text' ? 'editor.getText()' : 'editor.storage.markdown.getMarkdown()'}</h3>
@@ -273,8 +296,7 @@ function App() {
             <ReactJsonView src={snapshot} />
           </div>
         )}
-      </main>
-      <Sidebar type={type} onChangeEditor={handleChangeEditor} onChangeExtensions={handleChangeExtensions} />
+      </Sidebar>
     </div>
   )
 }
