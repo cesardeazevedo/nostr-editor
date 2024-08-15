@@ -10,6 +10,11 @@ import type { VideoAttributes } from './extensions/VideoExtension'
 
 type Extensions<T extends keyof StarterKitOptions> = T
 
+export type UploadParams = {
+  type: 'nip96' | 'blossom'
+  url: string
+}
+
 export type ParagraphNode = {
   type: Extensions<'paragraph'>
   content?: Node[]
