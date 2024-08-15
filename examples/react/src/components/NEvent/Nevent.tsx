@@ -1,6 +1,7 @@
 import { Editor } from '@tiptap/core'
 import { Document } from '@tiptap/extension-document'
 import { Paragraph } from '@tiptap/extension-paragraph'
+import { HardBreak } from '@tiptap/extension-hard-break'
 import { Text } from '@tiptap/extension-text'
 import StarterKit from '@tiptap/starter-kit'
 import { DateTime } from 'luxon'
@@ -36,7 +37,7 @@ export function NEvent(props: Props) {
       const extensions =
         event.kind === 30023
           ? [StarterKit, Markdown, NostrExtension.configure({ autolink: false })]
-          : [Document, Paragraph, Text, NostrExtension]
+          : [Document, Paragraph, Text, HardBreak, NostrExtension]
       const editor = new Editor({ extensions })
       editor.commands.parseNote(event)
       return editor.getJSON() as ContentSchema
