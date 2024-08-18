@@ -6,7 +6,7 @@ import { nip19 } from 'nostr-tools'
 import { Markdown as MarkdownExtension } from 'tiptap-markdown'
 import { test as base } from 'vitest'
 import { NostrExtension } from '../extensions/NostrExtension'
-import { fakeNote } from './testUtils'
+import { fakeEvent } from './testUtils'
 
 type Fixtures = {
   editor: Editor
@@ -47,10 +47,10 @@ const test = base.extend<Fixtures>({
 
 describe('parseNote()', () => {
   test('Should assert simple text', ({ editor }) => {
-    const note = fakeNote({
+    const event = fakeEvent({
       content: 'Hello nostr-editor! https://github.com/cesardeazevedo/nostr-editor',
     })
-    editor.commands.parseNote(note)
+    editor.commands.setEventContent(event)
     expect(editor.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -85,14 +85,14 @@ describe('parseNote()', () => {
   })
 
   test('Should assert content with a image url with imeta', ({ editor }) => {
-    const note = fakeNote({
+    const event = fakeEvent({
       content: 'http://host.com/image http://host.com/video https://simplelink.com',
       tags: [
         ['imeta', 'url http://host.com/image', 'm image/jpg'],
         ['imeta', 'url http://host.com/video', 'm video/mp4'],
       ],
     })
-    editor.commands.parseNote(note)
+    editor.commands.setEventContent(event)
     expect(editor.getText({ blockSeparator: '' })).toStrictEqual(
       'http://host.com/image http://host.com/video https://simplelink.com',
     )
@@ -180,11 +180,11 @@ describe('parseNote()', () => {
     }
     const nevent = nip19.neventEncode({ id: ref.id, relays: [], author: ref.pubkey })
     const nprofile = nip19.nprofileEncode({ pubkey: ref.pubkey, relays: ['wss://relay.damus.io'] })
-    const note = fakeNote({
+    const event = fakeEvent({
       content: `Hi! https://nostr.com #tag nostr:${nevent} Hi nostr:${nprofile} check this out https://nostr.com/img.jpg https://v.nostr.build/g6BQ.mp4`,
     })
-    editor.commands.parseNote(note)
-    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(note.content)
+    editor.commands.setEventContent(event)
+    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(event.content)
     expect(editor.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -308,7 +308,7 @@ describe('parseNote()', () => {
   })
 
   test('Should assert markdown content', ({ editorMarkdown }) => {
-    const note = fakeNote({
+    const event = fakeEvent({
       kind: 30023,
       content: `
  # Title
@@ -320,7 +320,7 @@ describe('parseNote()', () => {
  text **bold** *italic* [link](https://nostr.com)
  `,
     })
-    editorMarkdown.commands.parseNote(note)
+    editorMarkdown.commands.setEventContent(event)
     expect(editorMarkdown.storage.markdown.getMarkdown()).toStrictEqual(`# Title
 
 - list 1
@@ -450,12 +450,12 @@ text **bold** *italic* [link](https://nostr.com)`)
   })
 
   test('Should assert a nostr links inside markdown', ({ editorMarkdown }) => {
-    const note = fakeNote({
+    const event = fakeEvent({
       kind: 30023,
       content: `### Test nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj`,
     })
-    editorMarkdown.commands.parseNote(note)
-    expect(editorMarkdown.storage.markdown.getMarkdown()).toStrictEqual(note.content)
+    editorMarkdown.commands.setEventContent(event)
+    expect(editorMarkdown.storage.markdown.getMarkdown()).toStrictEqual(event.content)
     expect(editorMarkdown.getText({ blockSeparator: '' })).toStrictEqual(
       'Test nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj',
     )
@@ -491,7 +491,7 @@ text **bold** *italic* [link](https://nostr.com)`)
   })
 
   test('Should assert image links with line breaks', ({ editor }) => {
-    const note = fakeNote({
+    const event = fakeEvent({
       kind: 1,
       content: `
 https://host.com/1.jpeg
@@ -500,7 +500,7 @@ https://host.com/1.jpeg
 https://host.com/2.jpeg
  `,
     })
-    editor.commands.parseNote(note)
+    editor.commands.setEventContent(event)
     expect(editor.getText({ blockSeparator: '' })).toStrictEqual(`
 https://host.com/1.jpeg
 https://host.com/2.jpeg
@@ -569,12 +569,12 @@ https://host.com/2.jpeg
 
   // This actually might be incorrect, but we need to track scenarios like this
   test('Should assert an intersecting node', ({ editor }) => {
-    const note = fakeNote({
+    const event = fakeEvent({
       content:
         'Test: https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/ text https://github.com/nostr:nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp/error link',
     })
-    editor.commands.parseNote(note)
-    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(note.content)
+    editor.commands.setEventContent(event)
+    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(event.content)
     expect(editor.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -685,12 +685,12 @@ https://host.com/2.jpeg
   })
 
   test('Should assert a nostr:naddr1', ({ editor }) => {
-    const note = fakeNote({
+    const event = fakeEvent({
       content:
         'Test addr nostr:naddr1qqwysetjv5syxmmdv4ejqsnfw33k76twyp38jgznwp5hyctvqgsph3c2q9yt8uckmgelu0yf7glruudvfluesqn7cuftjpwdynm2gygrqsqqqa2w4ua43m',
     })
-    editor.commands.parseNote(note)
-    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(note.content)
+    editor.commands.setEventContent(event)
+    expect(editor.getText({ blockSeparator: '' })).toStrictEqual(event.content)
     expect(editor.getJSON()).toMatchInlineSnapshot(`
       {
         "content": [
@@ -719,17 +719,17 @@ https://host.com/2.jpeg
     `)
   })
 
-  test('Should assert parseUserAbout', ({ editorUserAbout }) => {
+  test('Should assert setEventContentKind0', ({ editorUserAbout }) => {
     const content = {
       display_name: 'name',
       about:
         'Building nostr.com #nostr nostr:nprofile1qy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcprfmhxue69uhhyetvv9ujuem9w3skccne9e3k7mf0wccsqgxxvqas78x0a339m8qgkaf7fam5atmarne8dy3rzfd4l4x6w2qpncmfs8zh https://image.nostr.build/87dbc55a6391d15bddda206561d53867a5679dd95e84fe8ed62bfe2e3adcadf3.jpg',
     }
-    const note = fakeNote({
+    const event = fakeEvent({
       kind: 0,
       content: JSON.stringify(content),
     })
-    editorUserAbout.commands.parseUserAbout(note)
+    editorUserAbout.commands.setEventContentKind0(event)
     expect(editorUserAbout.getText()).toStrictEqual(content.about)
     expect(editorUserAbout.getJSON()).toMatchInlineSnapshot(`
       {

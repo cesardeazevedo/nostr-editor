@@ -24,8 +24,8 @@ import { VideoExtension } from './VideoExtension'
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     nostr: {
-      parseNote: (event: NostrEvent) => ReturnType
-      parseUserAbout: (event: NostrEvent) => ReturnType
+      setEventContent: (event: NostrEvent) => ReturnType
+      setEventContentKind0: (event: NostrEvent) => ReturnType
     }
   }
 }
@@ -155,7 +155,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
 
   addCommands() {
     return {
-      parseNote: (event: NostrEvent, imeta?: IMetaTags) => (props) => {
+      setEventContent: (event: NostrEvent, imeta?: IMetaTags) => (props) => {
         this.storage.setImeta(imeta || parseImeta(event.tags))
         props
           .chain()
@@ -165,7 +165,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
           .setContent(event.kind === 1 ? event.content.replace(/(\n)+/g, '<br />') : event.content)
         return true
       },
-      parseUserAbout: (event: NostrEvent) => (props) => {
+      setEventContentKind0: (event: NostrEvent) => (props) => {
         if (event.kind !== 0) {
           return false
         }

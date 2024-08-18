@@ -39,7 +39,7 @@ export function NEvent(props: Props) {
           ? [StarterKit, Markdown, NostrExtension]
           : [Document, Paragraph, Text, HardBreak, NostrExtension]
       const editor = new Editor({ extensions })
-      editor.commands.parseNote(event)
+      editor.commands.setEventContent(event)
       return editor.getJSON() as ContentSchema
     }
   }, [event?.content])
