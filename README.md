@@ -1,5 +1,7 @@
 # nostr-editor
 
+[![CI Checks](https://github.com/cesardeazevedo/nostr-editor/actions/workflows/ci-checks.yml/badge.svg)](https://github.com/cesardeazevedo/nostr-editor/actions/workflows/ci-checks.yml)
+
 `nostr-editor` is a collection of [Tiptap](https://tiptap.dev/) extensions designed to enhance the user experience when creating and editing nostr notes. It also provides tools for parsing existing notes into a structured content schema.
 
 
