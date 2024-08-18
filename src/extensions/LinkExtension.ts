@@ -1,45 +1,15 @@
 import type { PasteRuleMatch } from '@tiptap/core'
-import { Mark } from '@tiptap/core'
+import { Link } from '@tiptap/extension-link'
 import * as linkifyjs from 'linkifyjs'
-import { defaultMarkdownSerializer } from 'prosemirror-markdown'
 import { getLinkKind, isValidTLD } from '../helpers/utils'
 
 export type LinkAttributes = {
   href: string
 }
 
-export const LinkExtension = Mark.create({
-  name: 'link' as const,
+export const inputRegex = /(?:^|\s)(!\[(.+|:?)]\((\S+)(?:(?:\s+)["'](\S+)["'])?\))$/
 
-  inclusive: false,
-
-  excludes: '_',
-
-  priority: 100,
-
-  parseHTML() {
-    return [{ tag: 'a' }]
-  },
-
-  addAttributes() {
-    return {
-      href: { default: null },
-    }
-  },
-
-  addStorage() {
-    return {
-      markdown: {
-        serialize: defaultMarkdownSerializer.marks.link,
-        parse: {},
-      },
-    }
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return ['a', HTMLAttributes, 0]
-  },
-
+export const LinkExtension = Link.configure({ autolink: false }).extend({
   addPasteRules() {
     return [
       {
