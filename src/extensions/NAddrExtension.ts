@@ -72,7 +72,12 @@ export const NAddrExtension = Node.create({
         ({ commands }) => {
           const parts = naddr.split(':')
           const attrs = nip19.decode(parts[parts.length - 1])?.data as AddressPointer
-          return commands.insertContent({ type: this.name, attrs: { ...attrs, naddr } })
+          return commands.insertContent(
+            { type: this.name, attrs: { ...attrs, naddr } },
+            {
+              updateSelection: false,
+            },
+          )
         },
     }
   },

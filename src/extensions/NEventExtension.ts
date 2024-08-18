@@ -76,7 +76,12 @@ export const NEventExtension = Node.create({
         ({ commands }) => {
           const parts = nevent.split(':')
           const attrs = nip19.decode(parts[parts.length - 1])?.data as EventPointer
-          return commands.insertContent({ type: this.name, attrs: { ...attrs, nevent } })
+          return commands.insertContent(
+            { type: this.name, attrs: { ...attrs, nevent } },
+            {
+              updateSelection: false,
+            },
+          )
         },
     }
   },

@@ -1,4 +1,4 @@
-import { Node, nodePasteRule } from '@tiptap/core'
+import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import { nip19 } from 'nostr-tools'
 import type { ProfilePointer } from 'nostr-tools/nip19'
@@ -38,8 +38,8 @@ export const NProfileExtension = Node.create({
     }
   },
 
-  renderHTML() {
-    return ['span', { 'data-type': 'nprofile' }, '@']
+  renderHTML({ HTMLAttributes }) {
+    return ['span', mergeAttributes(HTMLAttributes, { 'data-type': 'nprofile' }), '@']
   },
 
   renderText(props) {
@@ -61,13 +61,13 @@ export const NProfileExtension = Node.create({
     return {
       insertNProfile:
         ({ nprofile }) =>
-        ({ commands }) => {
+        ({ chain }) => {
           const parts = nprofile.split(':')
           const attrs = nip19.decode(parts[parts.length - 1])?.data as ProfilePointer
-          return commands.insertContent([
-            { type: this.name, attrs: { ...attrs, nprofile } },
-            { type: 'text', text: ' ' },
-          ])
+          return chain()
+            .insertContent({ type: this.name, attrs: { ...attrs, nprofile } })
+            .insertContent(' ')
+            .run()
         },
     }
   },

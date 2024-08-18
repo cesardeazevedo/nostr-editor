@@ -7,6 +7,14 @@ import { createPasteRuleMatch } from '../helpers/utils'
 
 const LNBC_REGEX = /(lnbc[0-9a-z]{10,})/g
 
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    bolt11: {
+      insertBolt11: (options: { lnbc: string }) => ReturnType
+    }
+  }
+}
+
 export const Bolt11Extension = Node.create({
   name: 'bolt11',
 
@@ -33,6 +41,17 @@ export const Bolt11Extension = Node.create({
         },
         parse: {},
       },
+    }
+  },
+
+  addCommands() {
+    return {
+      insertBolt11:
+        ({ lnbc }) =>
+        ({ commands }) => {
+          const bolt11 = decode(lnbc)
+          return commands.insertContent({ type: this.name, attrs: { bolt11, lnbc } }, { updateSelection: false })
+        },
     }
   },
 
