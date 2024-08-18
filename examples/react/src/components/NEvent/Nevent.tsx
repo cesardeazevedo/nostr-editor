@@ -1,7 +1,7 @@
 import { Editor } from '@tiptap/core'
 import { Document } from '@tiptap/extension-document'
-import { Paragraph } from '@tiptap/extension-paragraph'
 import { HardBreak } from '@tiptap/extension-hard-break'
+import { Paragraph } from '@tiptap/extension-paragraph'
 import { Text } from '@tiptap/extension-text'
 import StarterKit from '@tiptap/starter-kit'
 import { DateTime } from 'luxon'
@@ -36,7 +36,7 @@ export function NEvent(props: Props) {
     if (event?.content) {
       const extensions =
         event.kind === 30023
-          ? [StarterKit, Markdown, NostrExtension.configure({ autolink: false })]
+          ? [StarterKit, Markdown, NostrExtension]
           : [Document, Paragraph, Text, HardBreak, NostrExtension]
       const editor = new Editor({ extensions })
       editor.commands.parseNote(event)
@@ -52,7 +52,7 @@ export function NEvent(props: Props) {
   }, [user])
 
   return (
-    <div className='relative px-6 py-4 my-2 border rounded-xl w-full'>
+    <div className='relative px-4 py-4 my-2 border rounded-xl w-full l'>
       {!event && 'Loading'}
       {event && (
         <>

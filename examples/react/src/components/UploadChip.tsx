@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react'
 
 type Props = {
   uploadUrl: string
-  uploadType: UploadParams['type']
   onChange: (type: UploadParams['type'], url: string) => void
 }
 
@@ -31,7 +30,6 @@ export function UploadChip(props: Props) {
         placement='bottom-end'
         visible={open}
         className='relative'
-        //zIndex={100000000000}
         onClickOutside={() => setOpen(false)}
         content={
           <div
@@ -63,12 +61,12 @@ export function UploadChip(props: Props) {
           </div>
         }>
         <button
-          className='flex flex-row justify-between py-1 px-2 rounded-full border border-white/20 bg-black text-white text-xs right-2 bottom-2 z-50'
+          className='py-1 px-2 rounded-full border border-white/20 bg-black text-white'
           onClick={(e) => {
             setOpen(!open)
             e.preventDefault()
           }}>
-          <span className='ml-0 text-sm flex flex-row items-center text-ellipsis overflow-hidden max-w-28'>
+          <span className='text-sm flex flex-row items-center text-ellipsis overflow-hidden max-w-28'>
             {service} <IconChevronDown size={16} />
           </span>
         </button>

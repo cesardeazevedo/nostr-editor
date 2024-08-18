@@ -15,7 +15,7 @@ export function Video(props: Props) {
       muted
       controls={controls}
       src={src}
-      className='mb-2 rounded-lg z-auto'
+      className='my-2 rounded-lg z-auto'
       style={{ maxHeight: 400 }}>
       <source src={src} type={`video/${extension === 'mov' ? 'mp4' : extension}`} />
     </video>

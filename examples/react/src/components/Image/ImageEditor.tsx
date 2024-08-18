@@ -1,4 +1,4 @@
-import { IconCheck } from '@tabler/icons-react'
+import { IconCheck, IconFileX } from '@tabler/icons-react'
 import type { NodeViewProps } from '@tiptap/core'
 import { NodeViewWrapper } from '@tiptap/react'
 import type { ImageAttributes } from 'nostr-editor'
@@ -10,7 +10,7 @@ import { UploadingProgress } from '../UploadingProgress'
 import { Image } from './Image'
 
 export function ImageEditor(props: NodeViewProps) {
-  const { src, alt, uploadUrl, uploadType, uploading, sha256 } = props.node.attrs as ImageAttributes
+  const { src, alt, uploadUrl, uploading, uploadError, sha256 } = props.node.attrs as ImageAttributes
   return (
     <NodeViewWrapper
       data-drag-handle=''
@@ -20,10 +20,9 @@ export function ImageEditor(props: NodeViewProps) {
       <UploadingProgress uploading={uploading} />
       <Image src={src} />
       <MediaFooter>
-        <AltButton value={alt} onChange={(alt) => props.updateAttributes({ alt })} />
+        {!sha256 ? <AltButton value={alt} onChange={(alt) => props.updateAttributes({ alt })} /> : <div />}
         {!sha256 && (
           <UploadChip
-            uploadType={uploadType}
             uploadUrl={uploadUrl}
             onChange={(uploadType, uploadUrl) => {
               props.updateAttributes({ uploadType, uploadUrl })
@@ -31,11 +30,22 @@ export function ImageEditor(props: NodeViewProps) {
           />
         )}
         {sha256 && (
-          <IconCheck
-            size={26}
-            strokeWidth='2.5'
-            className='p-1 flex flex-row justify-between rounded-full border border-white/20 bg-black text-green-300 text-xs right-2 bottom-2 z-50'
-          />
+          <span data-tooltip={src}>
+            <IconCheck
+              size={26}
+              strokeWidth='2.5'
+              className='p-1 flex flex-row justify-between rounded-full border border-white/20 bg-black text-green-300 text-xs right-2 bottom-2 z-50'
+            />
+          </span>
+        )}
+        {uploadError && (
+          <span data-tooltip={uploadError} className=''>
+            <IconFileX
+              size={28}
+              strokeWidth='1.5'
+              className='border border-white/20 bg-black rounded-full py-1 ml-1 text-red-500 relative top-0'
+            />
+          </span>
         )}
       </MediaFooter>
     </NodeViewWrapper>
