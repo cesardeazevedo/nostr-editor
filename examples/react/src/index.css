@@ -27,9 +27,6 @@
   ol {
     @apply list-decimal ml-4;
   }
-  img {
-    @apply rounded-xl;
-  }
   pre {
     @apply bg-gray-200 rounded-lg px-2;
   }
@@ -53,13 +50,9 @@ body,
 
 .tiptap {
   outline: none;
-  min-height: 100px;
-  border: 1px solid #d4d4d4;
-  padding: 18px;
-  font-size: 120%;
-  font-weight: 400;
-  border-radius: 0.75rem;
-  z-index: 20;
+  min-height: 200px;
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 [data-tooltip] {
@@ -73,7 +66,7 @@ body,
   pointer-events: none;
   display: 'inline-block';
   content: attr(data-tooltip);
-  left: 0;
+  left: -50%;
   top: calc(100% + 10px);
   border-radius: 8px;
   color: white;

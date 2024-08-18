@@ -1,8 +1,10 @@
+import type { Editor } from '@tiptap/core'
 import { PluginKey } from '@tiptap/pm/state'
 import type { AnyExtension } from '@tiptap/react'
 import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Suggestion from '@tiptap/suggestion'
+import type { NProfileAttributes } from 'nostr-editor'
 import { NostrExtension } from 'nostr-editor'
 import type { EventTemplate, NostrEvent } from 'nostr-tools'
 import { nip19 } from 'nostr-tools'
@@ -19,8 +21,10 @@ import { NEventEditor } from './components/NEvent/NEventEditor'
 import Suggestions from './components/Suggestions'
 import { TweetEditor } from './components/Tweet/TweetEditor'
 import { VideoEditor } from './components/Video/VideoEditor'
+import { YoutubeEditor } from './components/Youtube/YoutubeEditor'
+import { MenuButton } from './MenuButton'
 import { Sidebar } from './Sidebar'
-import { TestText } from './TestText'
+import { TEST_LNBC, TEST_NADDR, TEST_NEVENT_1, TEST_NPROFILE_1, TestText } from './TestText'
 import type { EditorExtensionSettings, EditorType } from './types'
 
 export type NostrExtension = {
@@ -31,7 +35,7 @@ function App() {
   const [raw, setRaw] = useState('')
   const [type, setType] = useState<EditorType>('text')
   const [snapshot, setSnapshot] = useState({})
-  const [settings, setSettings] = useState<EditorExtensionSettings>({
+  const [settings] = useState<EditorExtensionSettings>({
     nevent1: true,
     nprofile1: true,
     naddr1: true,
@@ -45,6 +49,8 @@ function App() {
     nsecReject: true,
     fileUpload: true,
   })
+
+  const [isPending, setPending] = useState<boolean>(false)
 
   const prevContent = useRef('')
 
@@ -64,7 +70,10 @@ function App() {
             blockquote: false,
           }),
         ]
-      : [MarkdownExtension, StarterKit]
+      : [
+          MarkdownExtension.configure({ linkify: true, transformCopiedText: true, transformPastedText: true }),
+          StarterKit,
+        ]
   }, [type]) as AnyExtension[]
 
   const editor = useEditor(
@@ -80,6 +89,7 @@ function App() {
             image: { addNodeView: () => ReactNodeViewRenderer(ImageEditor) },
             video: { addNodeView: () => ReactNodeViewRenderer(VideoEditor) },
             tweet: { addNodeView: () => ReactNodeViewRenderer(TweetEditor) },
+            youtube: { addNodeView: () => ReactNodeViewRenderer(YoutubeEditor) },
             nprofile: {
               addNodeView: () => ReactNodeViewRenderer(MentionEditor),
               addProseMirrorPlugins() {
@@ -98,11 +108,11 @@ function App() {
                         range.to += 1
                       }
 
-                      const attrs = {
+                      const attrs: Partial<NProfileAttributes> = {
                         pubkey: props.pubkey,
                         relays: ['wss://purplepag.es', 'wss://relay.nostr.band'],
                       }
-                      attrs.nprofile = 'nostr:' + nip19.nprofileEncode(attrs)
+                      attrs.nprofile = 'nostr:' + nip19.nprofileEncode(attrs as nip19.ProfilePointer)
 
                       editor
                         .chain()
@@ -126,7 +136,7 @@ function App() {
                           })
 
                           popover = tippy('body', {
-                            getReferenceClientRect: props.clientRect as () => DOMRect | ClientRect,
+                            getReferenceClientRect: props.clientRect as () => DOMRect,
                             appendTo: () => document.body,
                             content: component.element,
                             showOnCreate: true,
@@ -161,8 +171,9 @@ function App() {
               },
             },
           },
+          link: { autolink: type === 'markdown' },
           fileUpload: settings.fileUpload !== false && {
-            upload: async () => {},
+            immediateUpload: false,
             sign: async (event) => {
               if ('nostr' in window) {
                 const nostr = window.nostr as NostrExtension
@@ -171,6 +182,13 @@ function App() {
               console.error('No nostr extension found')
               return Promise.reject('No signer found, install a nostr browser extension')
             },
+            onDrop() {
+              setPending(true)
+            },
+            onComplete(currentEditor: Editor) {
+              console.log('Upload Completed', currentEditor.getText())
+              setPending(false)
+            },
           },
         }),
       ],
@@ -178,8 +196,8 @@ function App() {
         handleSnapshot()
       },
     },
-    [settings, baseExtensions],
-  )
+    [baseExtensions],
+  )!
 
   const handleSnapshot = useCallback(() => {
     if (editor) {
@@ -197,92 +215,71 @@ function App() {
   const handleChangeEditor = useCallback(
     (type: EditorType) => {
       setType(type)
+      setRaw('')
     },
     [type],
   )
 
-  const handleChangeExtensions = useCallback(
-    (name: string, value: boolean) => {
-      setSettings({
-        ...settings,
-        [name]: value,
-      })
-    },
-    [settings],
-  )
-
-  const handleInsertNevent = useCallback(() => {
-    editor
-      ?.chain()
-      .insertContent({ type: 'text', text: ' ' })
-      .insertNEvent({
-        nevent:
-          'nostr:nevent1qvzqqqqqqypzplnld0r0wvutw6alsrd5q2k7vk2nug9j7glxd6ycyp9k8nzz2wdrqyg8wumn8ghj7mn0wd68ytnhd9hx2qg5waehxw309aex2mrp0yhxgctdw4eju6t0qyxhwumn8ghj7mn0wvhxcmmvqqs9gg4thq8ng87z8377jxksjwhk9dl0f8su9c4kq335ydzp0ykmv5gqt3csa',
-      })
-      .run()
-    editor?.commands.focus('start')
-  }, [editor])
-
-  const handleInsertNProfile = useCallback(() => {
-    editor
-      ?.chain()
-      .insertNProfile({
-        nprofile:
-          'nostr:nprofile1qy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcprfmhxue69uhhyetvv9ujuem9w3skccne9e3k7mf0wccsqgxxvqas78x0a339m8qgkaf7fam5atmarne8dy3rzfd4l4x6w2qpncmfs8zh',
-      })
-      .focus()
-      .run()
-  }, [editor])
-
-  const handleInsertNAddr = useCallback(() => {
-    editor
-      ?.chain()
-      .insertContent({ type: 'text', text: ' ' })
-      .insertNAddr({
-        naddr:
-          'nostr:naddr1qqwysetjv5syxmmdv4ejqsnfw33k76twyp38jgznwp5hyctvqgsph3c2q9yt8uckmgelu0yf7glruudvfluesqn7cuftjpwdynm2gygrqsqqqa2w4ua43m',
-      })
-      .focus()
-      .run()
-    editor?.commands.focus('start')
-  }, [editor])
-
-  const handleInsertMedia = useCallback(() => {
-    editor?.chain().selectFile().run()
-  }, [editor])
-
-  const handleUpload = useCallback(() => {
-    editor?.chain().uploadFiles().run()
-    console.log(editor?.getText())
-  }, [editor])
-
   return (
     <div className='flex flex-row'>
-      <main className='fixed overflow-y-auto h-full w-1/2 p-4' style={{}}>
-        <h1>nostr-editor</h1>
-        <div className='mt-2'>
-          <button className='border rounded-lg p-2' onClick={handleInsertNevent}>
-            Add NEvent
-          </button>
-          <button className='border rounded-lg p-2 ml-2' onClick={handleInsertNProfile}>
-            Add NProfile
-          </button>
-          <button className='border rounded-lg p-2 ml-2' onClick={handleInsertNAddr}>
-            Add NAddr
-          </button>
-          <button className='border rounded-lg p-2 ml-2' onClick={handleInsertMedia}>
-            Add Media
-          </button>
-          <button className='border rounded-lg p-2 ml-2' onClick={handleUpload}>
-            Upload
-          </button>
+      <main className='fixed overflow-y-auto h-full w-1/2 p-4'>
+        <div className='bg-black text-white py-1 px-4 rounded-tl-lg rounded-tr-lg'>
+          <h4 className='bg-white/20 inline px-2 rounded-full pb-0.5'>nostr-editor</h4>
         </div>
-        <div className='my-2 z-20 relative'>
-          <EditorContent editor={editor} id='editor' />
+        <div className='mb-2 z-20 relative border border-gray-100 border-solid rounded-bl-2xl rounded-br-2xl p-8'>
+          <div className=''>
+            <div>
+              <MenuButton isActive={type === 'text'} onClick={() => handleChangeEditor('text')}>
+                Text
+              </MenuButton>
+              <MenuButton isActive={type === 'markdown'} onClick={() => handleChangeEditor('markdown')}>
+                Markdown
+              </MenuButton>
+            </div>
+            <MenuButton
+              onClick={() => {
+                editor.chain().insertContent({ type: 'text', text: ' ' }).insertNEvent({ nevent: TEST_NEVENT_1 }).run()
+              }}>
+              Add NEvent
+            </MenuButton>
+            <MenuButton
+              onClick={() => {
+                editor.chain().insertNProfile({ nprofile: TEST_NPROFILE_1 }).focus().run()
+              }}>
+              Add NProfile
+            </MenuButton>
+            <MenuButton
+              onClick={() => {
+                editor
+                  .chain()
+                  .insertContent({ type: 'text', text: ' ' })
+                  .insertNAddr({ naddr: TEST_NADDR })
+                  .focus()
+                  .run()
+              }}>
+              Add NAddr
+            </MenuButton>
+            <MenuButton
+              onClick={() =>
+                editor
+                  .chain()
+                  .insertContent({ type: 'text', text: ' ' })
+                  .insertBolt11({ lnbc: TEST_LNBC })
+                  .focus()
+                  .run()
+              }>
+              Add Bolt11
+            </MenuButton>
+            <MenuButton onClick={() => editor.chain().selectFile().run()}>Add Media</MenuButton>
+            <MenuButton onClick={() => editor.chain().uploadFiles().run()}>Upload</MenuButton>
+            <MenuButton disabled={isPending} onClick={() => {}}>
+              Sign
+            </MenuButton>
+          </div>
+          <EditorContent editor={editor} id='editor' className='text-lg font-normal' />
         </div>
         <TestText />
       </main>
-      {/* <Sidebar type={type} onChangeEditor={handleChangeEditor} onChangeExtensions={handleChangeExtensions} /> */}
       <Sidebar>
         {raw && (
           <>
