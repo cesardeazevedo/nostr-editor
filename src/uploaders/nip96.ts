@@ -22,8 +22,16 @@ export async function uploadNIP96(options: NIP96Options) {
       expiration: options.expiration?.toString() || '',
       content_type: options.file.type,
     })
-    return res
+    if (res.status === 'error') {
+      throw new Error(res.message)
+    }
+    const url = res.nip94_event?.tags.find((x) => x[0] === 'url')?.[1] || ''
+    const sha256 = res.nip94_event?.tags.find((x) => x[0] === 'x')?.[1] || ''
+    return {
+      url,
+      sha256,
+    }
   } catch (error) {
-    console.log('Error upload', error)
+    throw new Error(error as string)
   }
 }

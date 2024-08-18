@@ -1,5 +1,6 @@
 import { Node } from '@tiptap/core'
 import type { UploadParams } from '../types'
+import { defaultMarkdownSerializer } from 'prosemirror-markdown'
 
 export interface ImageOptions {
   inline: boolean
@@ -15,6 +16,7 @@ export interface ImageAttributes {
   file: File
   sha256: string
   uploading: boolean
+  uploadError: string
   uploadType: UploadParams['type']
   uploadUrl: string
 }
@@ -48,6 +50,15 @@ export const ImageExtension = Node.create<ImageOptions>({
     return this.options.inline ? 'inline' : 'block'
   },
 
+  addStorage() {
+    return {
+      markdown: {
+        serialize: defaultMarkdownSerializer.nodes.image,
+        parse: {},
+      },
+    }
+  },
+
   addAttributes() {
     return {
       src: { default: null },
@@ -56,6 +67,7 @@ export const ImageExtension = Node.create<ImageOptions>({
       file: { default: null },
       sha256: { default: null },
       uploading: { default: false },
+      uploadError: { default: null },
       uploadType: { default: this.options.defaultUploadType },
       uploadUrl: { default: this.options.defaultUploadUrl },
     }

@@ -1,5 +1,6 @@
 import { Node } from '@tiptap/core'
 import type { UploadParams } from '../types'
+import { defaultMarkdownSerializer } from 'prosemirror-markdown'
 
 export interface VideoAttributes {
   src: string
@@ -7,6 +8,7 @@ export interface VideoAttributes {
   sha256: string
   file: File
   uploading: boolean
+  uploadError: string
   uploadType: UploadParams['type']
   uploadUrl: UploadParams['url']
 }
@@ -31,6 +33,7 @@ export const VideoExtension = Node.create({
       file: { default: null },
       sha256: { default: null },
       uploading: { default: false },
+      uploadError: { default: null },
       uploadType: { default: 'nip96' },
       uploadUrl: { default: 'https://nostr.build' },
     }
@@ -42,5 +45,14 @@ export const VideoExtension = Node.create({
 
   renderHTML() {
     return ['video', {}]
+  },
+
+  addStorage() {
+    return {
+      markdown: {
+        serialize: defaultMarkdownSerializer.nodes.image,
+        parse: {},
+      },
+    }
   },
 })
