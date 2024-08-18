@@ -19,21 +19,21 @@ const extensions = [StarterKit.configure({ history: false }), NostrExtension]
 // We ideally want to have a single editor instance to parse markdown and user abouts,
 // But currently no ideal way to dynamically load extensions
 const test = base.extend<Fixtures>({
-  editor: ({}, use) => {
+  editor: ({ }, use) => {
     return use(new Editor({ extensions }))
   },
-  editorMarkdown: ({}, use) => {
+  editorMarkdown: ({ }, use) => {
     return use(
       new Editor({
         extensions: [
           StarterKit.configure({ history: false }),
-          NostrExtension.configure({ autolink: false }),
+          NostrExtension.configure(),
           MarkdownExtension.configure({ breaks: true }),
         ],
       }),
     )
   },
-  editorUserAbout: ({}, use) => {
+  editorUserAbout: ({ }, use) => {
     return use(
       new Editor({
         extensions: [
@@ -64,7 +64,10 @@ describe('parseNote()', () => {
                 "marks": [
                   {
                     "attrs": {
+                      "class": null,
                       "href": "https://github.com/cesardeazevedo/nostr-editor",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
                     },
                     "type": "link",
                   },
@@ -106,6 +109,7 @@ describe('parseNote()', () => {
               "hash": null,
               "sha256": null,
               "src": "http://host.com/image",
+              "uploadError": null,
               "uploadType": "nip96",
               "uploadUrl": "https://nostr.build",
               "uploading": false,
@@ -127,6 +131,7 @@ describe('parseNote()', () => {
               "file": null,
               "sha256": null,
               "src": "http://host.com/video",
+              "uploadError": null,
               "uploadType": "nip96",
               "uploadUrl": "https://nostr.build",
               "uploading": false,
@@ -143,7 +148,10 @@ describe('parseNote()', () => {
                 "marks": [
                   {
                     "attrs": {
+                      "class": null,
                       "href": "https://simplelink.com",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
                     },
                     "type": "link",
                   },
@@ -190,7 +198,10 @@ describe('parseNote()', () => {
                 "marks": [
                   {
                     "attrs": {
+                      "class": null,
                       "href": "https://nostr.com",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
                     },
                     "type": "link",
                   },
@@ -261,6 +272,7 @@ describe('parseNote()', () => {
               "hash": null,
               "sha256": null,
               "src": "https://nostr.com/img.jpg",
+              "uploadError": null,
               "uploadType": "nip96",
               "uploadUrl": "https://nostr.build",
               "uploading": false,
@@ -282,6 +294,7 @@ describe('parseNote()', () => {
               "file": null,
               "sha256": null,
               "src": "https://v.nostr.build/g6BQ.mp4",
+              "uploadError": null,
               "uploadType": "nip96",
               "uploadUrl": "https://nostr.build",
               "uploading": false,
@@ -416,7 +429,10 @@ text **bold** *italic* [link](https://nostr.com)`)
                 "marks": [
                   {
                     "attrs": {
+                      "class": null,
                       "href": "https://nostr.com",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
                     },
                     "type": "link",
                   },
@@ -508,6 +524,7 @@ https://host.com/2.jpeg
               "hash": null,
               "sha256": null,
               "src": "https://host.com/1.jpeg",
+              "uploadError": null,
               "uploadType": "nip96",
               "uploadUrl": "https://nostr.build",
               "uploading": false,
@@ -529,6 +546,7 @@ https://host.com/2.jpeg
               "hash": null,
               "sha256": null,
               "src": "https://host.com/2.jpeg",
+              "uploadError": null,
               "uploadType": "nip96",
               "uploadUrl": "https://nostr.build",
               "uploading": false,
@@ -570,7 +588,10 @@ https://host.com/2.jpeg
                 "marks": [
                   {
                     "attrs": {
-                      "href": "https://github.com/",
+                      "class": null,
+                      "href": "https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
                     },
                     "type": "link",
                   },
@@ -587,14 +608,32 @@ https://host.com/2.jpeg
                 "type": "nprofile",
               },
               {
-                "text": "/wrong/link/ text ",
+                "marks": [
+                  {
+                    "attrs": {
+                      "class": null,
+                      "href": "https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
+                    },
+                    "type": "link",
+                  },
+                ],
+                "text": "/wrong/link/",
+                "type": "text",
+              },
+              {
+                "text": " text ",
                 "type": "text",
               },
               {
                 "marks": [
                   {
                     "attrs": {
-                      "href": "https://github.com/",
+                      "class": null,
+                      "href": "https://github.com/nostr:nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp/error",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
                     },
                     "type": "link",
                   },
@@ -618,7 +657,22 @@ https://host.com/2.jpeg
           {
             "content": [
               {
-                "text": "/error link",
+                "marks": [
+                  {
+                    "attrs": {
+                      "class": null,
+                      "href": "https://github.com/nostr:nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp/error",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
+                    },
+                    "type": "link",
+                  },
+                ],
+                "text": "/error",
+                "type": "text",
+              },
+              {
+                "text": " link",
                 "type": "text",
               },
             ],
@@ -690,7 +744,10 @@ https://host.com/2.jpeg
                 "marks": [
                   {
                     "attrs": {
+                      "class": null,
                       "href": "http://nostr.com",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
                     },
                     "type": "link",
                   },
@@ -738,7 +795,10 @@ https://host.com/2.jpeg
                 "marks": [
                   {
                     "attrs": {
+                      "class": null,
                       "href": "https://image.nostr.build/87dbc55a6391d15bddda206561d53867a5679dd95e84fe8ed62bfe2e3adcadf3.jpg",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
                     },
                     "type": "link",
                   },
