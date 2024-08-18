@@ -1,3 +1,4 @@
+import { IconBrandGithubFilled } from '@tabler/icons-react'
 import type { Editor } from '@tiptap/core'
 import { PluginKey } from '@tiptap/pm/state'
 import type { AnyExtension } from '@tiptap/react'
@@ -55,25 +56,26 @@ function App() {
   const prevContent = useRef('')
 
   const baseExtensions = useMemo(() => {
-    return type === 'text'
-      ? [
-          StarterKit.configure({
-            heading: false,
-            bold: false,
-            italic: false,
-            strike: false,
-            listItem: false,
-            bulletList: false,
-            orderedList: false,
-            code: false,
-            codeBlock: false,
-            blockquote: false,
-          }),
-        ]
-      : [
-          MarkdownExtension.configure({ linkify: true, transformCopiedText: true, transformPastedText: true }),
-          StarterKit,
-        ]
+    if (type === 'text') {
+      return [
+        StarterKit.configure({
+          heading: false,
+          bold: false,
+          italic: false,
+          strike: false,
+          listItem: false,
+          bulletList: false,
+          orderedList: false,
+          code: false,
+          codeBlock: false,
+          blockquote: false,
+        }),
+      ]
+    }
+    return [
+      MarkdownExtension.configure({ linkify: true, transformCopiedText: true, transformPastedText: true }),
+      StarterKit,
+    ]
   }, [type]) as AnyExtension[]
 
   const editor = useEditor(
@@ -225,8 +227,14 @@ function App() {
   return (
     <div className='flex flex-row'>
       <main className='fixed overflow-y-auto h-full w-1/2 p-4'>
-        <div className='bg-black text-white py-1 px-4 rounded-tl-lg rounded-tr-lg'>
-          <h4 className='bg-white/20 inline px-2 rounded-full pb-0.5'>nostr-editor</h4>
+        <div className='flex flex-row items-center justify-between bg-black text-white py-1 px-4 rounded-tl-lg rounded-tr-lg'>
+          <h4 className='bg-white/20 inline px-2 rounded-full pb-0.5'>
+            nostr-editor
+          </h4>
+          <a href='https://github.com/cesardeazevedo/nostr-editor' target='_blank' rel='noopener noreferrer' className='flex flex-row items-center no-underline px-2 bg-white/20 rounded-full p-0.5 text-inherit'>
+            <IconBrandGithubFilled className='mr-1' size={20} strokeWidth='1.5' />
+            Github
+          </a>
         </div>
         <div className='mb-2 z-20 relative border border-gray-100 border-solid rounded-bl-2xl rounded-br-2xl p-8'>
           <div className=''>
@@ -274,7 +282,7 @@ function App() {
             </MenuButton>
             <MenuButton onClick={() => editor.chain().selectFile().run()}>Add Media</MenuButton>
             <MenuButton onClick={() => editor.chain().uploadFiles().run()}>Upload</MenuButton>
-            <MenuButton disabled={isPending} onClick={() => {}}>
+            <MenuButton disabled={isPending} onClick={() => { }} >
               Sign
             </MenuButton>
           </div>
