@@ -1,5 +1,6 @@
 import type { AnyExtension, MarkConfig, NodeConfig } from '@tiptap/core'
 import { Extension } from '@tiptap/core'
+import type { LinkOptions } from '@tiptap/extension-link'
 import type { YoutubeOptions } from '@tiptap/extension-youtube'
 import YoutubeExtension from '@tiptap/extension-youtube'
 import { type NostrEvent } from 'nostr-tools'
@@ -11,7 +12,9 @@ import type { ImageOptions } from './ImageExtension'
 import { ImageExtension } from './ImageExtension'
 import { LinkExtension } from './LinkExtension'
 import { NAddrExtension } from './NAddrExtension'
+import type { NEventAttributes } from './NEventExtension'
 import { NEventExtension } from './NEventExtension'
+import type { NProfileAttributes } from './NProfileExtension'
 import { NProfileExtension } from './NProfileExtension'
 import { NSecRejectExtension, type NSecRejectionOptions } from './NSecRejectExtension'
 import { TagExtension } from './TagExtension'
@@ -27,12 +30,11 @@ declare module '@tiptap/core' {
   }
 }
 
-export interface NostrParserOptions {
+export interface NostrOptions {
   extend?: {
     nprofile?: Partial<NodeConfig>
     nevent?: Partial<NodeConfig>
     naddr?: Partial<NodeConfig>
-    autolink?: Partial<NodeConfig>
     link?: Partial<MarkConfig>
     image?: Partial<NodeConfig>
     youtube?: Partial<NodeConfig>
@@ -46,11 +48,10 @@ export interface NostrParserOptions {
   nprofile?: boolean
   nevent?: boolean
   naddr?: boolean
-  autolink?: boolean
-  link?: boolean
   tweet?: boolean
   tag?: boolean
   bolt11?: boolean
+  link?: Partial<LinkOptions> | false
   image?: Partial<ImageOptions> | false
   video?: Partial<NodeConfig> | false
   youtube?: Partial<YoutubeOptions> | false
@@ -58,7 +59,15 @@ export interface NostrParserOptions {
   fileUpload?: Partial<FileUploadOptions> | false
 }
 
-export const NostrExtension = Extension.create<NostrParserOptions>({
+export interface NostrStorage {
+  imeta: IMetaTags | null
+  pending: boolean
+  setImeta: (imeta: IMetaTags) => void
+  getNprofiles: () => NProfileAttributes[]
+  getNevents: () => NEventAttributes[]
+}
+
+export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
   name: 'nostr',
 
   addExtensions() {
@@ -74,7 +83,7 @@ export const NostrExtension = Extension.create<NostrParserOptions>({
       extensions.push(NAddrExtension.extend(extend.naddr))
     }
     if (this.options.link !== false) {
-      extensions.push(LinkExtension.extend(extend.link))
+      extensions.push(LinkExtension.extend(extend.link).configure(this.options.link))
     }
     if (this.options.tag !== false) {
       extensions.push(TagExtension.extend(extend.tag))
@@ -83,7 +92,7 @@ export const NostrExtension = Extension.create<NostrParserOptions>({
       extensions.push(
         YoutubeExtension.extend({
           renderText: (p) => p.node.attrs.src,
-          ...this.options.youtube,
+          ...extend.youtube,
         }),
       )
     }
@@ -110,9 +119,37 @@ export const NostrExtension = Extension.create<NostrParserOptions>({
 
   addStorage() {
     return {
-      setImeta(imeta: IMetaTags) {
-        this.imeta = imeta
-      },
+      imeta: null,
+      pending: false,
+      setImeta: () => {},
+      getNprofiles: () => [],
+      getNevents: () => [],
+    }
+  },
+
+  onBeforeCreate() {
+    this.storage.setImeta = (imeta: IMetaTags) => {
+      this.storage.imeta = imeta
+    }
+
+    this.storage.getNprofiles = () => {
+      const nprofiles: NProfileAttributes[] = []
+      this.editor.state.doc.descendants((node) => {
+        if (node.type.name === 'nprofile') {
+          nprofiles.push(node.attrs as NProfileAttributes)
+        }
+      })
+      return nprofiles
+    }
+
+    this.storage.getNevents = () => {
+      const nevents: NEventAttributes[] = []
+      this.editor.state.doc.descendants((node) => {
+        if (node.type.name === 'nevents') {
+          nevents.push(node.attrs as NEventAttributes)
+        }
+      })
+      return nevents
     }
   },
 
