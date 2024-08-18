@@ -287,7 +287,7 @@ function App() {
               }>
               Add Bolt11
             </MenuButton>
-            <MenuButton onClick={() => editor.chain().selectFile().run()}>Add Media</MenuButton>
+            <MenuButton onClick={() => editor.chain().selectFiles().run()}>Add Media</MenuButton>
             <MenuButton onClick={() => editor.chain().uploadFiles().run()}>Upload</MenuButton>
             <MenuButton disabled={isPending} onClick={() => { }}>
               Sign

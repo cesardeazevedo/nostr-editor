@@ -11,7 +11,7 @@ import type { VideoAttributes } from './VideoExtension'
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     fileUpload: {
-      selectFile: () => ReturnType
+      selectFiles: () => ReturnType
       uploadFiles: () => ReturnType
     }
   }
@@ -50,14 +50,14 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
       async hash(file: File) {
         return bufferToHex(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()))
       },
-      onDrop() {},
-      onComplete() {},
+      onDrop() { },
+      onComplete() { },
     }
   },
 
   addCommands() {
     return {
-      selectFile: () => (props) => {
+      selectFiles: () => (props) => {
         props.tr.setMeta('selectFiles', true)
         return true
       },
@@ -80,7 +80,7 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
           apply(tr) {
             setTimeout(() => {
               if (tr.getMeta('selectFiles')) {
-                uploader.selectFile()
+                uploader.selectFiles()
                 tr.setMeta('selectFiles', null)
               } else if (tr.getMeta('uploadFiles')) {
                 uploader.uploadFiles()
@@ -104,7 +104,7 @@ class Uploader {
   constructor(
     public editor: Editor,
     private options: FileUploadOptions,
-  ) {}
+  ) { }
 
   get view() {
     return this.editor.view
@@ -201,7 +201,7 @@ class Uploader {
     }
   }
 
-  selectFile() {
+  selectFiles() {
     const input = document.createElement('input')
     input.type = 'file'
     input.multiple = true
