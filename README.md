@@ -333,14 +333,14 @@ Note: all `nostr:` prefixes are optional
 
 ## References
 
-[tiptap docs](https://tiptap.dev/docs/editor/getting-started/overview)
-[prosemirror docs](https://prosemirror.net/docs/guide/#intro)
-[tiptap-markdown](https://github.com/aguingand/tiptap-markdown)
-[svelte-tiptap](https://github.com/sibiraj-s/svelte-tiptap)
-[nip19 - bech32-encoded entities](https://github.com/nostr-protocol/nips/blob/master/19.md)
-[nip94 - File Integration](https://github.com/nostr-protocol/nips/blob/master/94.md)
-[nip96 - HTTP File Storage Integration](https://github.com/nostr-protocol/nips/blob/master/96.md)
-[blossom](https://github.com/hzrd149/blossom)
+- [tiptap docs](https://tiptap.dev/docs/editor/getting-started/overview)
+- [prosemirror docs](https://prosemirror.net/docs/guide/#intro)
+- [tiptap-markdown](https://github.com/aguingand/tiptap-markdown)
+- [svelte-tiptap](https://github.com/sibiraj-s/svelte-tiptap)
+- [nip19 - bech32-encoded entities](https://github.com/nostr-protocol/nips/blob/master/19.md)
+- [nip94 - File Integration](https://github.com/nostr-protocol/nips/blob/master/94.md)
+- [nip96 - HTTP File Storage Integration](https://github.com/nostr-protocol/nips/blob/master/96.md)
+- [blossom](https://github.com/hzrd149/blossom)
 
 ## License
 
