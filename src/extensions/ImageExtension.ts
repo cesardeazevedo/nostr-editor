@@ -1,6 +1,6 @@
-import { Node } from '@tiptap/core'
-import type { UploadParams } from '../types'
+import { Image } from '@tiptap/extension-image'
 import { defaultMarkdownSerializer } from 'prosemirror-markdown'
+import type { UploadParams } from '../types'
 
 export interface ImageOptions {
   inline: boolean
@@ -21,17 +21,7 @@ export interface ImageAttributes {
   uploadUrl: string
 }
 
-declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    image: {
-      setImage: (options: { src: string; alt?: string; title?: string }) => ReturnType
-    }
-  }
-}
-
-export const ImageExtension = Node.create<ImageOptions>({
-  name: 'image',
-
+export const ImageExtension = Image.extend<ImageOptions>({
   draggable: true,
 
   addOptions() {
@@ -83,18 +73,5 @@ export const ImageExtension = Node.create<ImageOptions>({
 
   renderHTML({ HTMLAttributes }) {
     return ['img', HTMLAttributes]
-  },
-
-  addCommands() {
-    return {
-      setImage:
-        (options) =>
-        ({ commands }) => {
-          return commands.insertContent({
-            type: this.name,
-            attrs: options,
-          })
-        },
-    }
   },
 })
