@@ -158,6 +158,8 @@ function App() {
                             popover[0].hide()
                             return true
                           }
+                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                          // @ts-ignore
                           return component.ref?.onKeyDown?.(props)
                         },
                         onExit() {
