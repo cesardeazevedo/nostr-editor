@@ -72,10 +72,7 @@ function App() {
         }),
       ]
     }
-    return [
-      MarkdownExtension.configure({ linkify: true, transformCopiedText: true, transformPastedText: true }),
-      StarterKit,
-    ]
+    return [StarterKit, MarkdownExtension.configure({ transformCopiedText: true, transformPastedText: true })]
   }, [type]) as AnyExtension[]
 
   const editor = useEditor(
@@ -176,6 +173,14 @@ function App() {
             },
           },
           link: { autolink: type === 'markdown' },
+          video: {
+            defaultUploadUrl: 'https://nostr.build',
+            defaultUploadType: 'nip96',
+          },
+          image: {
+            defaultUploadUrl: 'https://nostr.build',
+            defaultUploadType: 'nip96',
+          },
           fileUpload: settings.fileUpload !== false && {
             immediateUpload: false,
             sign: async (event) => {
@@ -228,10 +233,12 @@ function App() {
     <div className='flex flex-row'>
       <main className='fixed overflow-y-auto h-full w-1/2 p-4'>
         <div className='flex flex-row items-center justify-between bg-black text-white py-1 px-4 rounded-tl-lg rounded-tr-lg'>
-          <h4 className='bg-white/20 inline px-2 rounded-full pb-0.5'>
-            nostr-editor
-          </h4>
-          <a href='https://github.com/cesardeazevedo/nostr-editor' target='_blank' rel='noopener noreferrer' className='flex flex-row items-center no-underline px-2 bg-white/20 rounded-full p-0.5 text-inherit'>
+          <h4 className='bg-white/20 inline px-2 rounded-full pb-0.5'>nostr-editor</h4>
+          <a
+            href='https://github.com/cesardeazevedo/nostr-editor'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='flex flex-row items-center no-underline px-2 bg-white/20 rounded-full p-0.5 text-inherit'>
             <IconBrandGithubFilled className='mr-1' size={20} strokeWidth='1.5' />
             Github
           </a>
@@ -282,7 +289,7 @@ function App() {
             </MenuButton>
             <MenuButton onClick={() => editor.chain().selectFile().run()}>Add Media</MenuButton>
             <MenuButton onClick={() => editor.chain().uploadFiles().run()}>Upload</MenuButton>
-            <MenuButton disabled={isPending} onClick={() => { }} >
+            <MenuButton disabled={isPending} onClick={() => { }}>
               Sign
             </MenuButton>
           </div>

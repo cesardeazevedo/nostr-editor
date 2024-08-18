@@ -1,6 +1,5 @@
 # nostr-editor react example
 
-
 ### Install
 
 ```

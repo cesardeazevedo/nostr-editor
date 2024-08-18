@@ -21,6 +21,7 @@
         NostrExtension.configure({
           extend: {
             nprofile: {
+              // @ts-ignore
               addNodeView: () => SvelteNodeViewRenderer(MentionEditor),
             },
             nevent: {
