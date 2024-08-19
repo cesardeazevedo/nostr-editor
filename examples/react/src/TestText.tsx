@@ -31,14 +31,15 @@ export const TestText = () => {
         <span id='raw' className='text-xs break-words text-wrap relative'>
           Try copy & paste some of text below into the editor. <br />
           Hello {TEST_NPROFILE_1}
-          <br />
+          {' '}
           {TEST_NPROFILE_2}
-          <br />
+          {' '}
           {TEST_NPROFILE_3}
-          <br />
+          {' '}
           {TEST_NEVENT_1}
-          <br />
+          {' '}
           {TEST_NPUB}
+          {' '}
           <br />
           {TEST_NADDR}
           <br />
