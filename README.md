@@ -97,15 +97,17 @@ function MyEditor() {
 ### svelte
 
 ```svelte
-<script>
-  import { Editor, type JSONContent } from '@tiptap/core'
-  let editor: Editor
-  let contentText: string = ''
-  let contentSchema: JSONContent
+<script lang="ts">
+  import { onMount } from 'svelte'
+  import type { Readable } from 'svelte/store'
+  import { createEditor, type Editor, EditorContent, SvelteNodeViewRenderer } from 'svelte-tiptap'
+  import StarterKit from '@tiptap/starter-kit'
+  import { NostrExtension } from 'nostr-editor'
+
+  let editor: Readable<Editor>
 
   onMount(() => {
     editor = new Editor({
-      element: element,
       extensions: [
         StarterKit,
         NostrExtension.configure({
@@ -121,24 +123,15 @@ function MyEditor() {
       ],
       content: '',
       onUpdate: () => {
-        contentSchema = editor.getJSON()
-        contentText = editor.getText()
-      },
-      onTransaction: () => {
-        editor = editor
+        contentSchema = $editor.getJSON()
+        contentText = $editor.getText()
       },
     })
-  })
-
-  onDestroy(() => {
-    if (editor) {
-      editor.destroy()
-    }
   })
 </script>
 
 <main>
-  <div bind:this={element} />
+  <EditorContent editor={$editor} />
 </main>
 ```
 
