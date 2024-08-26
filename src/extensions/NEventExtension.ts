@@ -5,9 +5,9 @@ import type { EventPointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
 
-export const NOTE_REGEX = /(nostr:)?(note1[0-9a-z]+)/g
+export const NOTE_REGEX = /(?:^|\s)(nostr:)?(note1[0-9a-z]+)/g
 
-export const NEVENT_REGEX = /(nostr:)?(nevent1[0-9a-z]+)/g
+export const NEVENT_REGEX = /(?:^|\s)(nostr:)?(nevent1[0-9a-z]+)/g
 
 export interface NEventAttributes {
   nevent: string
