@@ -145,7 +145,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
     this.storage.getNevents = () => {
       const nevents: NEventAttributes[] = []
       this.editor.state.doc.descendants((node) => {
-        if (node.type.name === 'nevents') {
+        if (node.type.name === 'nevent') {
           nevents.push(node.attrs as NEventAttributes)
         }
       })
