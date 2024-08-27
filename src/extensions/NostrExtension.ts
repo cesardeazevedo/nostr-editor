@@ -162,7 +162,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
           // These metadata will trigger pasting rules on all other extensions
           .setMeta('parse', true)
           .setMeta('uiEvent', 'paste')
-          .setContent(event.kind === 1 ? event.content.replace(/(\n)+/g, '<br />') : event.content)
+          .setContent(event.kind === 1 ? event.content.replace(/(\n|\r)+/g, '<br />') : event.content)
         return true
       },
       setEventContentKind0: (event: NostrEvent) => (props) => {
