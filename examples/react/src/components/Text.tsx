@@ -24,7 +24,11 @@ function Text(props: Props) {
             case 'tag':
               return <a href='#'>{content}</a>
             case 'link':
-              return <a href={mark.attrs.href}>{content}</a>
+              return (
+                <a href={mark.attrs.href} target='_blank' rel='noopener noreferrer'>
+                  {content}
+                </a>
+              )
             default:
               return content
           }
