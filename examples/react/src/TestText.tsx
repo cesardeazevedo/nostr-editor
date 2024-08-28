@@ -30,17 +30,7 @@ export const TestText = () => {
       {open && (
         <span id='raw' className='text-xs break-words text-wrap relative'>
           Try copy & paste some of text below into the editor. <br />
-          Hello {TEST_NPROFILE_1}
-          {' '}
-          {TEST_NPROFILE_2}
-          {' '}
-          {TEST_NPROFILE_3}
-          {' '}
-          {TEST_NEVENT_1}
-          {' '}
-          {TEST_NPUB}
-          {' '}
-          <br />
+          Hello {TEST_NPROFILE_1} {TEST_NPROFILE_2} {TEST_NPROFILE_3} {TEST_NEVENT_1} {TEST_NPUB} <br />
           {TEST_NADDR}
           <br />
           {TEST_IMAGE}

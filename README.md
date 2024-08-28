@@ -4,16 +4,13 @@
 
 `nostr-editor` is a collection of [Tiptap](https://tiptap.dev/) extensions designed to enhance the user experience when creating and editing nostr notes. It also provides tools for parsing existing notes into a structured content schema.
 
-
 #### What is tiptap?
 
 Tiptap is a headless wrapper around ProseMirror, offering a more developer-friendly API for building rich text editors. nostr-editor uses Tiptap to simplify integration with frameworks like React and Svelte, making it easy to create customized nostr-compatible editors.
 
-
 #### What is prosemirror?
 
 ProseMirror is the underlying core framework that powers Tiptap and other WYSIWYG (what-you-see-is-what-you-get) editors.
-
 
 ## Features
 
@@ -34,7 +31,6 @@ https://cesardeazevedo.github.io/nostr-editor/
 - Svelte (WIP): [source-code](./examples/svelte)
 
 ## Installing
-
 
 To use nostr-editor, you'll need to install a few dependencies:
 
@@ -138,7 +134,6 @@ function MyEditor() {
 ## Rendering node views
 
 nostr-editor is framework-agnostic and **does not** ship with pre-built components (yet). You should provide your own React or Svelte components for each extension.
-
 
 ```ts
 NostrExtension.configure({
@@ -307,15 +302,15 @@ editor.commands.uploadFiles()
 This command returns `true` when the upload starts, not when the upload is completed. You can use `onComplete()` callback in the fileUpload extension options.
 
 ```ts
-  const editor = useEditor({
-    extensions: [
-      NostrExtension.configure({
-        fileUpload: {
-          onComplete: () => console.log('All files uploaded')
-        }
-      })
-    ]
-  })
+const editor = useEditor({
+  extensions: [
+    NostrExtension.configure({
+      fileUpload: {
+        onComplete: () => console.log('All files uploaded'),
+      },
+    }),
+  ],
+})
 ```
 
 Note: all `nostr:` prefixes are optional

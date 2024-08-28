@@ -289,7 +289,7 @@ function App() {
             </MenuButton>
             <MenuButton onClick={() => editor.chain().selectFiles().run()}>Add Media</MenuButton>
             <MenuButton onClick={() => editor.chain().uploadFiles().run()}>Upload</MenuButton>
-            <MenuButton disabled={isPending} onClick={() => { }}>
+            <MenuButton disabled={isPending} onClick={() => {}}>
               Sign
             </MenuButton>
           </div>

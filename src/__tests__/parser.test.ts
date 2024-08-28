@@ -19,10 +19,10 @@ const extensions = [StarterKit.configure({ history: false }), NostrExtension]
 // We ideally want to have a single editor instance to parse markdown and user abouts,
 // But currently no ideal way to dynamically load extensions
 const test = base.extend<Fixtures>({
-  editor: ({ }, use) => {
+  editor: ({}, use) => {
     return use(new Editor({ extensions }))
   },
-  editorMarkdown: ({ }, use) => {
+  editorMarkdown: ({}, use) => {
     return use(
       new Editor({
         extensions: [
@@ -33,7 +33,7 @@ const test = base.extend<Fixtures>({
       }),
     )
   },
-  editorUserAbout: ({ }, use) => {
+  editorUserAbout: ({}, use) => {
     return use(
       new Editor({
         extensions: [

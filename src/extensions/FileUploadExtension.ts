@@ -50,8 +50,8 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
       async hash(file: File) {
         return bufferToHex(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()))
       },
-      onDrop() { },
-      onComplete() { },
+      onDrop() {},
+      onComplete() {},
     }
   },
 
@@ -104,7 +104,7 @@ class Uploader {
   constructor(
     public editor: Editor,
     private options: FileUploadOptions,
-  ) { }
+  ) {}
 
   get view() {
     return this.editor.view
