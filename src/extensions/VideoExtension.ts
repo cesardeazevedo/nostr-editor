@@ -1,4 +1,4 @@
-import { Node } from '@tiptap/core'
+import { mergeAttributes, Node } from '@tiptap/core'
 import type { UploadParams } from '../types'
 import { defaultMarkdownSerializer } from 'prosemirror-markdown'
 
@@ -43,8 +43,12 @@ export const VideoExtension = Node.create({
     return props.node.attrs.src
   },
 
-  renderHTML() {
-    return ['video', {}]
+  renderHTML({ HTMLAttributes }) {
+    return ['video', mergeAttributes(HTMLAttributes, { 'data-type': this.name })]
+  },
+
+  parseHTML() {
+    return [{ tag: 'video' }]
   },
 
   addStorage() {

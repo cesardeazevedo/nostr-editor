@@ -1,5 +1,5 @@
 import type { PasteRuleMatch } from '@tiptap/core'
-import { Node, nodePasteRule } from '@tiptap/core'
+import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import { decode } from 'light-bolt11-decoder'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
@@ -34,7 +34,16 @@ export const Bolt11Extension = Node.create({
   addAttributes() {
     return {
       lnbc: { default: null },
-      bolt11: { default: null },
+      bolt11: {
+        default: null,
+        renderHTML(attrs) {
+          return { bolt11: JSON.stringify(attrs.bolt11 || {}) }
+        },
+        parseHTML(element) {
+          const bolt11 = element.getAttribute('bolt11')
+          return typeof bolt11 === 'string' ? JSON.parse(bolt11 || '{}') : bolt11
+        },
+      },
     }
   },
 
@@ -60,12 +69,16 @@ export const Bolt11Extension = Node.create({
     }
   },
 
-  renderHTML() {
-    return ['div', {}]
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': this.name })]
   },
 
   renderText(props) {
     return props.node.attrs.lnbc
+  },
+
+  parseHTML() {
+    return [{ tag: `div[data-type="${this.name}"]` }]
   },
 
   addPasteRules() {

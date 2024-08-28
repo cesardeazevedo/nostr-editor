@@ -22,6 +22,11 @@ export const createPasteRuleMatch = <T extends Record<string, unknown>>(
   data: T,
 ): PasteRuleMatch => ({ index: match.index!, replaceWith: match[2], text: match[0], match, data })
 
+export function parseRelayAttribute(element: HTMLElement) {
+  const relays = element.getAttribute('relays') || []
+  return typeof relays === 'string' ? relays.split(',') : relays
+}
+
 export type LinkKinds = 'text' | 'image' | 'video' | 'tweet' | 'youtube'
 
 const IMAGE_EXTENSIONS = /.(jpg|jpeg|gif|png|bmp|svg|webp)$/

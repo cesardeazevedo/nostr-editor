@@ -1,4 +1,4 @@
-import { Node } from '@tiptap/core'
+import { mergeAttributes, Node } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 
@@ -36,7 +36,11 @@ export const TweetExtension = Node.create({
     return props.node.attrs.src
   },
 
-  renderHTML() {
-    return ['div', {}]
+  renderHTML({ HTMLAttributes }) {
+    return ['div', mergeAttributes(HTMLAttributes, { 'data-type': this.name })]
+  },
+
+  parseHTML() {
+    return [{ tag: `div[data-type="${this.name}"]` }]
   },
 })
