@@ -1,5 +1,6 @@
 import type { ImageOptions } from '@tiptap/extension-image'
 import type { StarterKitOptions } from '@tiptap/starter-kit'
+import type { Bolt11Attributes } from './extensions/Bolt11Extension'
 import type { LinkAttributes } from './extensions/LinkExtension'
 import type { NAddrAttributes } from './extensions/NAddrExtension'
 import type { NEventAttributes } from './extensions/NEventExtension'
@@ -26,11 +27,11 @@ export type TextNode = {
   text: string
 }
 
-type HardBreak = {
+export type HardBreak = {
   type: Extensions<'hardBreak'>
 }
 
-type HorizontalRule = {
+export type HorizontalRule = {
   type: Extensions<'horizontalRule'>
 }
 
@@ -60,29 +61,34 @@ type StrikeMark = {
   type: 'strike'
 }
 
-type NProfileNode = {
+export type NProfileNode = {
   type: 'nprofile'
   attrs: NProfileAttributes
 }
 
-type NEventNode = {
+export type NEventNode = {
   type: 'nevent'
   attrs: NEventAttributes
 }
 
-type NAddrNode = {
+export type NAddrNode = {
   type: 'naddr'
   attrs: NAddrAttributes
 }
 
-type ImageNode = {
+export type ImageNode = {
   type: 'image'
   attrs: ImageOptions['HTMLAttributes']
 }
 
-type VideoNode = {
+export type VideoNode = {
   type: 'video'
   attrs: VideoAttributes
+}
+
+export type Bolt11Node = {
+  type: 'bolt11'
+  attrs: Bolt11Attributes
 }
 
 export type HeadingNode = {
@@ -159,6 +165,7 @@ export type Node =
   | BlockQuoteNode
   | TweetNode
   | YoutubeNode
+  | Bolt11Node
 
 export type ContentSchema = {
   type: 'doc'

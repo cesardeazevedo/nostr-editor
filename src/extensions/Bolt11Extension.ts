@@ -7,6 +7,11 @@ import { createPasteRuleMatch } from '../helpers/utils'
 
 const LNBC_REGEX = /(lnbc[0-9a-z]{10,})/g
 
+export interface Bolt11Attributes {
+  lnbc: string
+  bolt11: ReturnType<typeof decode>
+}
+
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     bolt11: {
