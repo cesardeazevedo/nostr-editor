@@ -1,6 +1,6 @@
 import { Image } from '@tiptap/extension-image'
 import { defaultMarkdownSerializer } from 'prosemirror-markdown'
-import type { UploadParams } from '../types'
+import type { UploadParams } from '../uploaders/types'
 
 export interface ImageOptions {
   inline: boolean

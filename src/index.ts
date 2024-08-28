@@ -10,4 +10,5 @@ export { NSecRejectExtension, type NSecRejectionOptions } from './extensions/NSe
 export { TagExtension, type TagAttributes } from './extensions/TagExtension'
 export { TweetExtension, type TweetAttributes } from './extensions/TweetExtension'
 export { VideoExtension, type VideoAttributes } from './extensions/VideoExtension'
+export * from './uploaders/types'
 export * from './types'

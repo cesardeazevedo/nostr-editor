@@ -1,5 +1,5 @@
 import { mergeAttributes, Node } from '@tiptap/core'
-import type { UploadParams } from '../types'
+import type { UploadParams } from '../uploaders/types'
 import { defaultMarkdownSerializer } from 'prosemirror-markdown'
 
 export interface VideoAttributes {
