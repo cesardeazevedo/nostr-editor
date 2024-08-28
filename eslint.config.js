@@ -11,6 +11,7 @@ export default [
   {
     rules: {
       'prettier/prettier': 0,
+      '@typescript-eslint/no-unused-vars': ['error', { caughtErrors: 'none' }],
       '@typescript-eslint/consistent-type-imports': 'error',
     },
   },
