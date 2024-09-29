@@ -1,11 +1,12 @@
-import { Mark, markPasteRule } from '@tiptap/core'
+import type { InputRuleMatch } from '@tiptap/core'
+import { Mark, markPasteRule, mergeAttributes } from '@tiptap/core'
 
 export interface TagAttributes {
   tag: string
 }
 
-const REGEX_TAG_PASTE = /(#[^\s]+)/g
-const REGEX_TAG_INPUT = /(#[^\s]+)$/g
+const REGEX_TAG_PASTE = /(#[^\W]+)/g
+const REGEX_TAG_INPUT = /(#[^\W]+)$/g
 
 export const TagExtension = Mark.create({
   name: 'tag',
@@ -35,7 +36,11 @@ export const TagExtension = Mark.create({
   },
 
   renderHTML(p) {
-    return ['a', { ...p.mark.attrs }, 0]
+    return ['a', mergeAttributes(p.HTMLAttributes, { 'data-type': this.name })]
+  },
+
+  parseHTML() {
+    return [{ tag: `a[data-type="${this.name}"]` }]
   },
 
   addAttributes() {
@@ -57,7 +62,19 @@ export const TagExtension = Mark.create({
   addInputRules() {
     return [
       {
-        find: REGEX_TAG_INPUT,
+        find: (text) => {
+          const match = text.match(REGEX_TAG_INPUT)
+          if (match) {
+            return {
+              index: match.index,
+              text: match[0],
+              replaceWith: text,
+              data: { tag: text },
+              match,
+            } as InputRuleMatch
+          }
+          return null
+        },
         handler: ({ state, range, match }) => {
           state.tr
             .delete(range.from, range.to)
