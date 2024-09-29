@@ -1,49 +1,7 @@
 // @vitest-environment happy-dom
-/* eslint-disable no-empty-pattern, */
-import { Editor } from '@tiptap/core'
-import StarterKit from '@tiptap/starter-kit'
 import { nip19 } from 'nostr-tools'
-import { Markdown as MarkdownExtension } from 'tiptap-markdown'
-import { test as base } from 'vitest'
-import { NostrExtension } from '../extensions/NostrExtension'
 import { fakeEvent } from './testUtils'
-
-type Fixtures = {
-  editor: Editor
-  editorMarkdown: Editor
-  editorUserAbout: Editor
-}
-
-const extensions = [StarterKit.configure({ history: false }), NostrExtension]
-
-// We ideally want to have a single editor instance to parse markdown and user abouts,
-// But currently no ideal way to dynamically load extensions
-const test = base.extend<Fixtures>({
-  editor: ({}, use) => {
-    return use(new Editor({ extensions }))
-  },
-  editorMarkdown: ({}, use) => {
-    return use(
-      new Editor({
-        extensions: [
-          StarterKit.configure({ history: false }),
-          NostrExtension.configure(),
-          MarkdownExtension.configure({ breaks: true }),
-        ],
-      }),
-    )
-  },
-  editorUserAbout: ({}, use) => {
-    return use(
-      new Editor({
-        extensions: [
-          StarterKit.configure({ history: false }),
-          NostrExtension.configure({ image: false, video: false }),
-        ],
-      }),
-    )
-  },
-})
+import { test } from './fixtures'
 
 describe('parseNote()', () => {
   test('Should assert simple text', ({ editor }) => {
@@ -804,6 +762,52 @@ https://host.com/2.jpeg
                   },
                 ],
                 "text": "https://image.nostr.build/87dbc55a6391d15bddda206561d53867a5679dd95e84fe8ed62bfe2e3adcadf3.jpg",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
+          },
+        ],
+        "type": "doc",
+      }
+    `)
+  })
+
+  test('hashtag before a breakline', ({ editor }) => {
+    const event = fakeEvent({
+      content: 'Lorem Ipsum #tag.\n\nNew Line ipsum',
+    })
+    editor.commands.setEventContent(event)
+    expect(editor.getJSON()).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "content": [
+              {
+                "text": "Lorem Ipsum ",
+                "type": "text",
+              },
+              {
+                "marks": [
+                  {
+                    "attrs": {
+                      "tag": "#tag",
+                    },
+                    "type": "tag",
+                  },
+                ],
+                "text": "#tag",
+                "type": "text",
+              },
+              {
+                "text": ".",
+                "type": "text",
+              },
+              {
+                "type": "hardBreak",
+              },
+              {
+                "text": "New Line ipsum",
                 "type": "text",
               },
             ],
