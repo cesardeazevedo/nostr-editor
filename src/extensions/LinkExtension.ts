@@ -1,7 +1,7 @@
 import type { PasteRuleMatch } from '@tiptap/core'
 import { Link } from '@tiptap/extension-link'
 import * as linkifyjs from 'linkifyjs'
-import { getLinkKind, isValidTLD } from '../helpers/utils'
+import { getLinkKind } from '../helpers/utils'
 
 export type LinkAttributes = {
   href: string
@@ -15,10 +15,7 @@ export const LinkExtension = Link.configure({ autolink: false }).extend({
       {
         find: (text) => {
           const matches = [] as PasteRuleMatch[]
-          for (const { start, value, href } of linkifyjs.find(text.replace(/\ufffc/g, ' ')) || []) {
-            if (!isValidTLD(href) && !href.startsWith('tel:')) {
-              continue
-            }
+          for (const { start, value, href } of linkifyjs.find(text.replace(/\ufffc/g, ' '))) {
             matches.push({
               index: start,
               text: value,

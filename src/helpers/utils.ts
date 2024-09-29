@@ -1,21 +1,5 @@
 import type { PasteRuleMatch } from '@tiptap/core'
-import extractDomain from 'extract-domain'
-import tlds from 'tlds'
 import type { IMetaTags } from './nip92.imeta'
-
-export function isValidTLD(str: string): boolean {
-  const domain = extractDomain(str)
-
-  if (domain === '') {
-    // Not a domain
-    return true
-  }
-
-  const parts = domain?.toString().split('.') || []
-  const tld = parts[parts.length - 1]
-
-  return tlds.includes(tld)
-}
 
 export const createPasteRuleMatch = <T extends Record<string, unknown>>(
   match: RegExpMatchArray,
