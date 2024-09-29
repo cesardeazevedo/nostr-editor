@@ -7,7 +7,7 @@ export type LinkAttributes = {
   href: string
 }
 
-export const inputRegex = /(?:^|\s)(!\[(.+|:?)]\((\S+)(?:(?:\s+)["'](\S+)["'])?\))$/
+linkifyjs.registerCustomProtocol('wss')
 
 export const LinkExtension = Link.configure({ autolink: false }).extend({
   addPasteRules() {
