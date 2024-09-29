@@ -11,12 +11,14 @@ import { FileUploadExtension } from './FileUploadExtension'
 import type { ImageOptions } from './ImageExtension'
 import { ImageExtension } from './ImageExtension'
 import { LinkExtension } from './LinkExtension'
+import type { NAddrAttributes } from './NAddrExtension'
 import { NAddrExtension } from './NAddrExtension'
 import type { NEventAttributes } from './NEventExtension'
 import { NEventExtension } from './NEventExtension'
 import type { NProfileAttributes } from './NProfileExtension'
 import { NProfileExtension } from './NProfileExtension'
 import { NSecRejectExtension, type NSecRejectionOptions } from './NSecRejectExtension'
+import type { TagAttributes } from './TagExtension'
 import { TagExtension } from './TagExtension'
 import { TweetExtension } from './TweetExtension'
 import { VideoExtension } from './VideoExtension'
@@ -63,8 +65,10 @@ export interface NostrStorage {
   imeta: IMetaTags | null
   pending: boolean
   setImeta: (imeta: IMetaTags) => void
+  getTags: () => TagAttributes[]
   getNprofiles: () => NProfileAttributes[]
   getNevents: () => NEventAttributes[]
+  getNaddress: () => NAddrAttributes[]
 }
 
 export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
@@ -122,6 +126,8 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
       imeta: null,
       pending: false,
       setImeta: () => {},
+      getTags: () => [],
+      getNaddress: () => [],
       getNprofiles: () => [],
       getNevents: () => [],
     }
@@ -130,6 +136,20 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
   onBeforeCreate() {
     this.storage.setImeta = (imeta: IMetaTags) => {
       this.storage.imeta = imeta
+    }
+
+    this.storage.getTags = () => {
+      const tags: TagAttributes[] = []
+      this.editor.state.doc.descendants((node) => {
+        if (node.type.name === 'text' && node.marks.length > 0) {
+          node.marks.forEach((mark) => {
+            if (mark.type.name === 'tag') {
+              tags.push(mark.attrs as TagAttributes)
+            }
+          })
+        }
+      })
+      return tags
     }
 
     this.storage.getNprofiles = () => {
@@ -150,6 +170,16 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
         }
       })
       return nevents
+    }
+
+    this.storage.getNaddress = () => {
+      const naddress: NAddrAttributes[] = []
+      this.editor.state.doc.descendants((node) => {
+        if (node.type.name === 'naddr') {
+          naddress.push(node.attrs as NAddrAttributes)
+        }
+      })
+      return naddress
     }
   },
 
