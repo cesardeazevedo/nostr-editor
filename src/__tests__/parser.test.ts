@@ -554,30 +554,7 @@ https://host.com/2.jpeg
                     "type": "link",
                   },
                 ],
-                "text": "https://github.com/",
-                "type": "text",
-              },
-              {
-                "attrs": {
-                  "nprofile": "nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c",
-                  "pubkey": "c6603b0f1ccfec625d9c08b753e4f774eaf7d1cf2769223125b5fd4da728019e",
-                  "relays": [],
-                },
-                "type": "nprofile",
-              },
-              {
-                "marks": [
-                  {
-                    "attrs": {
-                      "class": null,
-                      "href": "https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/",
-                      "rel": "noopener noreferrer nofollow",
-                      "target": "_blank",
-                    },
-                    "type": "link",
-                  },
-                ],
-                "text": "/wrong/link/",
+                "text": "https://github.com/nostr:npub1cesrkrcuelkxyhvupzm48e8hwn4005w0ya5jyvf9kh75mfegqx0q4kt37c/wrong/link/",
                 "type": "text",
               },
               {
@@ -596,37 +573,7 @@ https://host.com/2.jpeg
                     "type": "link",
                   },
                 ],
-                "text": "https://github.com/",
-                "type": "text",
-              },
-            ],
-            "type": "paragraph",
-          },
-          {
-            "attrs": {
-              "author": "0a5a87baeead12b08c0c026caa46c009bb533aae1bd1681f52d609dd2b6fd8bc",
-              "id": "2ceb90d42ab5a19b76dddfbda45687bc8011917a41286783edd14ca690fd86ee",
-              "kind": null,
-              "nevent": "nostr:nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp",
-              "relays": [],
-            },
-            "type": "nevent",
-          },
-          {
-            "content": [
-              {
-                "marks": [
-                  {
-                    "attrs": {
-                      "class": null,
-                      "href": "https://github.com/nostr:nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp/error",
-                      "rel": "noopener noreferrer nofollow",
-                      "target": "_blank",
-                    },
-                    "type": "link",
-                  },
-                ],
-                "text": "/error",
+                "text": "https://github.com/nostr:nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp/error",
                 "type": "text",
               },
               {

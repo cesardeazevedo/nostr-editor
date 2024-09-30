@@ -5,9 +5,9 @@ import type { ProfilePointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
 
-export const NPUB_REGEX = /(?:^|\s)(nostr:)?(npub1[0-9a-z]+)/g
+export const NPUB_REGEX = /(?<![\w./:?=])(nostr:)?(npub1[0-9a-z]+)/g
 
-export const NPROFILE_REGEX = /(?:^|\s)(nostr:)?(nprofile1[0-9a-z]+)/g
+export const NPROFILE_REGEX = /(?<![\w./:?=])(nostr:)?(nprofile1[0-9a-z]+)/g
 
 export type NProfileAttributes = {
   nprofile: string

@@ -5,7 +5,7 @@ import { decode } from 'light-bolt11-decoder'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch } from '../helpers/utils'
 
-const LNBC_REGEX = /(?:^|\s)(lnbc[0-9a-z]{10,})/g
+const LNBC_REGEX = /(?<![\w./:?=])(lnbc[0-9a-z]{10,})/g
 
 export interface Bolt11Attributes {
   lnbc: string
