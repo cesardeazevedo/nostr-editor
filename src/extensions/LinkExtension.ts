@@ -30,7 +30,7 @@ export const LinkExtension = Link.configure({ autolink: false }).extend({
           const { nodes, marks } = state.schema
           const imeta = this.editor.storage.nostr.imeta
           const url = match.data?.href
-          const kind = getLinkKind(url, url, imeta)
+          const kind = getLinkKind(url, imeta)
           if (kind !== 'text' && nodes[kind]) {
             state.tr.replaceWith(from, to, nodes[kind].create({ src: url }))
             return

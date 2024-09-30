@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import LiteYouTubeEmbed from 'react-lite-youtube-embed'
 import 'react-lite-youtube-embed/dist/LiteYouTubeEmbed.css'
 
-const REGEX_VIDEO_ID = /.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#&?]*).*/
+const REGEX_VIDEO_ID = /.*(?:youtu.be\/|v\/|u\/\w\/|shorts|embed\/|watch\?v=)([^#&?]*).*/
 
 type Props = {
   src: string
@@ -12,7 +12,7 @@ export function Youtube(props: Props) {
   const { src } = props
 
   const embedId = useMemo(() => {
-    return src.match(REGEX_VIDEO_ID)?.[1]
+    return src.match(REGEX_VIDEO_ID)?.[1].replace('/', '')
   }, [src])
 
   return (

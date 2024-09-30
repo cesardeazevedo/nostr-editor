@@ -13,22 +13,25 @@ export function parseRelayAttribute(element: HTMLElement) {
 
 export type LinkKinds = 'text' | 'image' | 'video' | 'tweet' | 'youtube'
 
-const IMAGE_EXTENSIONS = /.(jpg|jpeg|gif|png|bmp|svg|webp)$/
-const VIDEO_EXTENSIONS = /.(webm|mp4|ogg|mov)$/
+const IMAGE_EXTENSIONS = /\.(jpg|jpeg|gif|png|bmp|svg|webp)$/
+const VIDEO_EXTENSIONS = /\.(webm|mp4|ogg|mov)$/
+const YOUTUBE_EMBED =
+  /^(?:(?:https?:)?\/\/)?(?:(?:(?:www|m(?:usic)?)\.)?youtu(?:\.be|be\.com)\/(?:shorts\/|live\/|v\/|e(?:mbed)?\/|watch(?:\/|\?(?:\S+=\S+&)*v=)|oembed\?url=https?%3A\/\/(?:www|m(?:usic)?)\.youtube\.com\/watch\?(?:\S+=\S+&)*v%3D|attribution_link\?(?:\S+=\S+&)*u=(?:\/|%2F)watch(?:\?|%3F)v(?:=|%3D))?|www\.youtube-nocookie\.com\/embed\/)([\w-]{1})[?&#]?\S*$/
+const TWITTER_EMBED = /^https?:\/\/(twitter|x)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/
 
-export function getLinkKind(url: string, href: string, imeta?: IMetaTags): LinkKinds {
+export function getLinkKind(url: string, imeta?: IMetaTags): LinkKinds {
   const mimetype = imeta?.[url]?.m?.split?.('/')?.[0]
   if (mimetype === 'image') {
     return 'image'
   } else if (mimetype === 'video') {
     return 'video'
-  } else if (/youtube|youtu.be/.test(url)) {
+  } else if (YOUTUBE_EMBED.test(url)) {
     return 'youtube'
-  } else if (/^https?:\/\/(twitter|x)\.com\/(?:#!\/)?(\w+)\/status(es)?\/(\d+)/.test(url)) {
+  } else if (TWITTER_EMBED.test(url)) {
     return 'tweet'
   } else {
     try {
-      const { pathname } = new URL(href)
+      const { pathname } = new URL(url)
       return IMAGE_EXTENSIONS.test(pathname) ? 'image' : VIDEO_EXTENSIONS.test(pathname) ? 'video' : 'text'
     } catch (error) {
       console.log('url parser error', error)
