@@ -5,7 +5,7 @@ import type { AddressPointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
 
-export const NADDR_REGEX = /(nostr:)?(naddr1[0-9a-z]+)/g
+export const NADDR_REGEX = /(?<![\w./:?=])(nostr:)?(naddr1[0-9a-z]+)/g
 
 export interface NAddrAttributes {
   naddr: string
