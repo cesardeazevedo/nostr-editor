@@ -11,6 +11,7 @@ import type { VideoAttributes } from './VideoExtension'
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     fileUpload: {
+      addFile: (file: File, pos: number) => ReturnType
       selectFiles: () => ReturnType
       uploadFiles: () => ReturnType
     }
@@ -24,16 +25,19 @@ export interface FileUploadOptions {
   hash: (file: File) => Promise<string>
   sign?: (event: EventTemplate) => Promise<NostrEvent> | NostrEvent
   onDrop: (currentEditor: Editor, file: File, pos: number) => void
-  onComplete: (currentEditor: Editor) => void
+  onStart: (currentEditor: Editor) => void
+  onUpload: (currentEditor: Editor, file: UploadTask) => void
+  onComplete: (currentEditor: Editor, files: UploadTask[]) => void
 }
 
 interface UploadTask {
   url?: string
   sha256?: string
+  tags?: NostrEvent['tags']
   error?: string
 }
 
-function bufferToHex(buffer: ArrayBuffer) {
+export function bufferToHex(buffer: ArrayBuffer) {
   return Array.from(new Uint8Array(buffer))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
@@ -51,12 +55,18 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
         return bufferToHex(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()))
       },
       onDrop() {},
+      onStart() {},
+      onUpload() {},
       onComplete() {},
     }
   },
 
   addCommands() {
     return {
+      addFile: (file: File, pos: number) => (props) => {
+        props.tr.setMeta('addFile', [file, pos])
+        return true
+      },
       selectFiles: () => (props) => {
         props.tr.setMeta('selectFiles', true)
         return true
@@ -65,6 +75,12 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
         props.tr.setMeta('uploadFiles', true)
         return true
       },
+    }
+  },
+
+  addStorage() {
+    return {
+      files: [],
     }
   },
 
@@ -77,13 +93,21 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
           init() {
             return {}
           },
-          apply(tr) {
-            setTimeout(() => {
-              if (tr.getMeta('selectFiles')) {
+          apply: (tr) => {
+            setTimeout(async () => {
+              if (tr.getMeta('addFile')) {
+                const [file, pos] = tr.getMeta('addFile')
+                uploader.addFile(file, pos)
+              } else if (tr.getMeta('selectFiles')) {
                 uploader.selectFiles()
                 tr.setMeta('selectFiles', null)
               } else if (tr.getMeta('uploadFiles')) {
-                uploader.uploadFiles()
+                this.options.onStart(this.editor)
+                for await (const file of uploader.uploadFiles()) {
+                  this.storage.files.push(file)
+                  this.options.onUpload(this.editor, file)
+                }
+                this.options.onComplete(this.editor, this.storage.files)
                 tr.setMeta('uploadFiles', null)
               }
             })
@@ -169,19 +193,19 @@ class Uploader {
 
   async upload(node: Node, pos: number) {
     const { sign, hash, expiration } = this.options
-
     const { file, alt, uploadType, uploadUrl: serverUrl } = node.attrs as ImageAttributes | VideoAttributes
 
     this.updateNodeAttributes(pos, { uploading: true, uploadError: null })
 
     try {
+      let res
       if (uploadType === 'nip96') {
-        const res = await uploadNIP96({ file, alt, sign, serverUrl })
-        this.onUploadDone(node, res)
+        res = await uploadNIP96({ file, alt, sign, serverUrl })
       } else {
-        const res = await uploadBlossom({ file, serverUrl, hash, sign, expiration })
-        this.onUploadDone(node, res)
+        res = await uploadBlossom({ file, serverUrl, hash, sign, expiration })
       }
+      this.onUploadDone(node, res)
+      return res
     } catch (error) {
       const msg = error as string
       this.onUploadDone(node, { error: msg })
@@ -189,13 +213,14 @@ class Uploader {
     }
   }
 
-  async uploadFiles() {
+  async *uploadFiles() {
     const tasks = this.findNodes(false).map(([node, pos]) => {
       return this.upload(node, pos)
     })
     try {
-      await Promise.all(tasks)
-      this.options.onComplete(this.editor)
+      for await (const res of tasks) {
+        yield res
+      }
     } catch (error) {
       console.error(error)
     }
