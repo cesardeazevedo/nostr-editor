@@ -28,6 +28,7 @@ export interface FileUploadOptions {
   onDrop: (currentEditor: Editor, file: File, pos: number) => void
   onStart: (currentEditor: Editor) => void
   onUpload: (currentEditor: Editor, file: UploadTask) => void
+  onUploadError: (currentEditor: Editor, file: UploadTask) => void
   onComplete: (currentEditor: Editor, files: UploadTask[]) => void
 }
 
@@ -58,6 +59,7 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
       onDrop() {},
       onStart() {},
       onUpload() {},
+      onUploadError() {},
       onComplete() {},
     }
   },
@@ -119,12 +121,21 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
                 uploader.selectFiles()
                 tr.setMeta('selectFiles', null)
               } else if (tr.getMeta('uploadFiles')) {
+                let hasErrors = false
+                this.storage.files = []
                 this.options.onStart(this.editor)
                 for await (const file of uploader.uploadFiles()) {
                   this.storage.files.push(file)
-                  this.options.onUpload(this.editor, file)
+                  if ('error' in file) {
+                    hasErrors = true
+                    this.options.onUploadError(this.editor, file)
+                  } else {
+                    this.options.onUpload(this.editor, file)
+                  }
                 }
-                this.options.onComplete(this.editor, this.storage.files)
+                if (!hasErrors) {
+                  this.options.onComplete(this.editor, this.storage.files)
+                }
                 tr.setMeta('uploadFiles', null)
               }
             })
@@ -249,7 +260,7 @@ class Uploader {
     } catch (error) {
       const msg = error as string
       this.onUploadDone(node, { error: msg })
-      throw new Error(msg as string)
+      return { error: msg }
     }
   }
 
@@ -257,17 +268,11 @@ class Uploader {
     const tasks = this.findNodes(false).map(([node]) => {
       return this.upload(node)
     })
-
-    try {
-      this.editor.storage.fileUpload.loading = true
-      for await (const res of tasks) {
-        yield res
-      }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      this.editor.storage.fileUpload.loading = false
+    this.editor.storage.fileUpload.loading = true
+    for await (const res of tasks) {
+      yield res
     }
+    this.editor.storage.fileUpload.loading = false
   }
 
   selectFiles() {
