@@ -30,6 +30,7 @@ export async function uploadNIP96(options: NIP96Options) {
     return {
       url,
       sha256,
+      tags: res.nip94_event?.tags || [],
     }
   } catch (error) {
     throw new Error(error as string)
