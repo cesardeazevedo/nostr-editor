@@ -39,7 +39,6 @@ export async function uploadBlossom(options: BlossomOptions) {
       ['expiration', (now + (options.expiration || 60000)).toString()],
     ],
   })
-  await new Promise<void>((r) => setTimeout(() => r(), 1000))
   const data = JSON.stringify(event)
   const base64 = btoa(data)
   const authorization = `Nostr ${base64}`

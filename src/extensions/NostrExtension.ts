@@ -63,7 +63,6 @@ export interface NostrOptions {
 
 export interface NostrStorage {
   imeta: IMetaTags | null
-  pending: boolean
   setImeta: (imeta: IMetaTags) => void
   getTags: () => TagAttributes[]
   getNprofiles: () => NProfileAttributes[]
@@ -124,7 +123,6 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
   addStorage() {
     return {
       imeta: null,
-      pending: false,
       setImeta: () => {},
       getTags: () => [],
       getNaddress: () => [],
