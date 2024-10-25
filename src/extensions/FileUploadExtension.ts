@@ -14,6 +14,7 @@ declare module '@tiptap/core' {
       addFile: (file: File, pos: number) => ReturnType
       selectFiles: () => ReturnType
       uploadFiles: () => ReturnType
+      getMetaTags: () => string[][]
     }
   }
 }
@@ -75,11 +76,27 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
         props.tr.setMeta('uploadFiles', true)
         return true
       },
+      getMetaTags: () => (props: CommandProps) => {
+        const tags: string[][] = []
+        // make sure the file uploaded is still in the editor content
+        props.editor.state.doc.descendants((node) => {
+          if (!(node.type.name === 'image' || node.type.name === 'video')) {
+            return
+          }
+          const tag: string[] = props.editor.storage.fileUpload.tags.find((t) => t[1].includes(node.attrs.src))
+          if (tag) {
+            tags.push(tag)
+          }
+        })
+        return tags
+      },
     }
   },
 
   addStorage() {
     return {
+      loading: false,
+      tags: [] as string[][],
       files: [],
     }
   },
@@ -149,10 +166,22 @@ class Uploader {
     this.view.dispatch(tr)
 
     if (this.options.immediateUpload) {
-      this.upload(node, pos)
+      this.editor.storage.fileUpload.loading = true
+      this.upload(node).then(() => this.editor.storage.fileUpload.loading = false
     }
     this.options.onDrop(this.editor, file, pos)
     return true
+  }
+
+  findNodePosition(node: Node) {
+    let pos = -1
+    this.view.state.doc.descendants((n, p) => {
+      if (n === node) {
+        pos = p
+        return false
+      }
+    })
+    return pos
   }
 
   findNodes(uploading: boolean) {
@@ -172,16 +201,19 @@ class Uploader {
     return nodes
   }
 
-  updateNodeAttributes(pos: number, attrs: Record<string, unknown>) {
+  updateNodeAttributes(nodeRef: Node, attrs: Record<string, unknown>) {
     const { tr } = this.view.state
+
+    const pos = this.findNodePosition(nodeRef)
+    if (pos === -1) return
     Object.entries(attrs).forEach(([key, value]) => value !== undefined && tr.setNodeAttribute(pos, key, value))
     this.view.dispatch(tr)
   }
 
   onUploadDone(nodeRef: Node, response: UploadTask) {
-    this.findNodes(true).forEach(([node, pos]) => {
+    this.findNodes(true).forEach(([node]) => {
       if (node.attrs.src === nodeRef.attrs.src) {
-        this.updateNodeAttributes(pos, {
+        this.updateNodeAttributes(nodeRef, {
           uploading: false,
           src: response.url,
           sha256: response.sha256,
@@ -191,18 +223,26 @@ class Uploader {
     })
   }
 
-  async upload(node: Node, pos: number) {
+  async upload(node: Node) {
     const { sign, hash, expiration } = this.options
     const { file, alt, uploadType, uploadUrl: serverUrl } = node.attrs as ImageAttributes | VideoAttributes
 
-    this.updateNodeAttributes(pos, { uploading: true, uploadError: null })
+    this.updateNodeAttributes(node, { uploading: true, uploadError: null })
 
     try {
       let res
       if (uploadType === 'nip96') {
         res = await uploadNIP96({ file, alt, sign, serverUrl })
+        this.editor.storage.fileUpload.tags.push(['imeta', ...res.tags])
       } else {
         res = await uploadBlossom({ file, serverUrl, hash, sign, expiration })
+        this.editor.storage.fileUpload.tags.push([
+          'imeta',
+          `url ${res.size}`,
+          `size ${res.size}`,
+          `m ${res.type}`,
+          `x ${res.sha256}`,
+        ])
       }
       this.onUploadDone(node, res)
       return res
@@ -214,15 +254,19 @@ class Uploader {
   }
 
   async *uploadFiles() {
-    const tasks = this.findNodes(false).map(([node, pos]) => {
-      return this.upload(node, pos)
+    const tasks = this.findNodes(false).map(([node]) => {
+      return this.upload(node)
     })
+
     try {
+      this.editor.storage.fileUpload.loading = true
       for await (const res of tasks) {
         yield res
       }
     } catch (error) {
       console.error(error)
+    } finally {
+      this.editor.storage.fileUpload.loading = false
     }
   }
 
