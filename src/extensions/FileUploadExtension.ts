@@ -178,7 +178,7 @@ class Uploader {
 
     if (this.options.immediateUpload) {
       this.editor.storage.fileUpload.loading = true
-      this.upload(node).then(() => this.editor.storage.fileUpload.loading = false
+      this.upload(node).then(() => (this.editor.storage.fileUpload.loading = false))
     }
     this.options.onDrop(this.editor, file, pos)
     return true
