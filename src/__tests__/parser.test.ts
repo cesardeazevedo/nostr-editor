@@ -771,4 +771,42 @@ https://host.com/2.jpeg
       }
     `)
   })
+
+  test('assert tags in links', ({ editor }) => {
+    const event = fakeEvent({
+      content: 'test link https://nostr.com/#anchor',
+    })
+    editor.commands.setEventContent(event)
+    expect(editor.getJSON()).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "content": [
+              {
+                "text": "test link ",
+                "type": "text",
+              },
+              {
+                "marks": [
+                  {
+                    "attrs": {
+                      "class": null,
+                      "href": "https://nostr.com/#anchor",
+                      "rel": "noopener noreferrer nofollow",
+                      "target": "_blank",
+                    },
+                    "type": "link",
+                  },
+                ],
+                "text": "https://nostr.com/#anchor",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
+          },
+        ],
+        "type": "doc",
+      }
+    `)
+  })
 })
