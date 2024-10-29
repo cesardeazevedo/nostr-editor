@@ -5,8 +5,8 @@ export interface TagAttributes {
   tag: string
 }
 
-const REGEX_TAG_PASTE = /(#[^\W]+)/g
-const REGEX_TAG_INPUT = /(#[^\W]+)$/g
+const REGEX_TAG_PASTE = /(?<![\w./:?=])(#[^\W]+)/g
+const REGEX_TAG_INPUT = /(?<![\w./:?=])(#[^\W]+)$/g
 
 export const TagExtension = Mark.create({
   name: 'tag',
