@@ -1,5 +1,5 @@
 export { Bolt11Extension, type Bolt11Attributes } from './extensions/Bolt11Extension'
-export { FileUploadExtension } from './extensions/FileUploadExtension'
+export { FileUploadExtension, type FileUploadOptions, type FileUploadStorage } from './extensions/FileUploadExtension'
 export { ImageExtension, type ImageAttributes } from './extensions/ImageExtension'
 export { LinkExtension, type LinkAttributes } from './extensions/LinkExtension'
 export { NAddrExtension, type NAddrAttributes } from './extensions/NAddrExtension'

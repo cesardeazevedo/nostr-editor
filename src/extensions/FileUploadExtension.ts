@@ -1,4 +1,4 @@
-import type { CommandProps, Editor } from '@tiptap/core'
+import type { Editor } from '@tiptap/core'
 import { Extension } from '@tiptap/core'
 import type { EventTemplate, NostrEvent } from 'nostr-tools/core'
 import type { Node } from 'prosemirror-model'
@@ -31,11 +31,16 @@ export interface FileUploadOptions {
   onComplete: (currentEditor: Editor, files: UploadTask[]) => void
 }
 
+export interface FileUploadStorage {
+  uploader: Uploader | null
+  getFiles: () => void
+}
+
 interface UploadTask {
   url?: string
   sha256?: string
   tags?: NostrEvent['tags']
-  error?: string
+  uploadError?: string
 }
 
 export function bufferToHex(buffer: ArrayBuffer) {
@@ -44,7 +49,7 @@ export function bufferToHex(buffer: ArrayBuffer) {
     .join('')
 }
 
-export const FileUploadExtension = Extension.create<FileUploadOptions>({
+export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploadStorage>({
   name: 'fileUpload',
 
   addOptions() {
@@ -73,7 +78,7 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
         props.tr.setMeta('selectFiles', true)
         return true
       },
-      uploadFiles: () => (props: CommandProps) => {
+      uploadFiles: () => (props) => {
         props.tr.setMeta('uploadFiles', true)
         return true
       },
@@ -82,52 +87,53 @@ export const FileUploadExtension = Extension.create<FileUploadOptions>({
 
   addStorage() {
     return {
-      files: [],
+      uploader: null,
+      getFiles() {},
     }
   },
 
-  addProseMirrorPlugins() {
+  onBeforeCreate() {
     const uploader = new Uploader(this.editor, this.options)
+    this.storage.uploader = uploader
+    this.storage.getFiles = () => uploader.getFiles()
+  },
+
+  addProseMirrorPlugins() {
+    const uploader = this.storage.uploader!
     return [
       new Plugin({
         key: new PluginKey('fileUploadPlugin'),
         state: {
-          init() {
-            return {}
-          },
+          init: () => {},
           apply: (tr) => {
             setTimeout(async () => {
               if (tr.getMeta('addFile')) {
                 const [file, pos] = tr.getMeta('addFile')
                 uploader.addFile(file, pos)
+                tr.setMeta('addFile', null)
+                if (this.options.immediateUpload) {
+                  uploader.start()
+                }
               } else if (tr.getMeta('selectFiles')) {
-                uploader.selectFiles()
+                await uploader.selectFiles()
                 tr.setMeta('selectFiles', null)
+                if (this.options.immediateUpload) {
+                  uploader.start()
+                }
               } else if (tr.getMeta('uploadFiles')) {
-                let hasErrors = false
-                this.storage.files = []
-                this.options.onStart(this.editor)
-                for await (const file of uploader.uploadFiles()) {
-                  this.storage.files.push(file)
-                  if ('error' in file) {
-                    hasErrors = true
-                    this.options.onUploadError(this.editor, file)
-                  } else {
-                    this.options.onUpload(this.editor, file)
-                  }
-                }
-                if (!hasErrors) {
-                  this.options.onComplete(this.editor, this.storage.files)
-                }
+                uploader.start()
                 tr.setMeta('uploadFiles', null)
               }
             })
-            return {}
+            return tr
           },
         },
         props: {
           handleDrop: (_, event) => {
-            return uploader.handleDrop(event)
+            uploader.handleDrop(event)
+            if (this.options.immediateUpload) {
+              uploader.start()
+            }
           },
         },
       }),
@@ -159,97 +165,118 @@ class Uploader {
     tr.insert(pos, node)
     this.view.dispatch(tr)
 
-    if (this.options.immediateUpload) {
-      this.upload(node, pos)
-    }
     this.options.onDrop(this.editor, file, pos)
+
     return true
   }
 
-  findNodes(uploading: boolean) {
+  getFiles() {
+    return this.findNodes().map(([node]) => node.attrs as ImageAttributes | VideoAttributes)
+  }
+
+  private findNodes(uploaded?: boolean) {
     const nodes = [] as [Node, number][]
     this.view.state.doc.descendants((node, pos) => {
       if (!(node.type.name === 'image' || node.type.name === 'video')) {
         return
       }
-      if (node.attrs.sha256) {
-        return
-      }
-      if ((node.attrs.uploading || false) !== uploading) {
-        return
+      if (uploaded !== undefined) {
+        if (!!node.attrs.sha256 !== uploaded) {
+          return
+        }
       }
       nodes.push([node, pos])
     })
     return nodes
   }
 
-  updateNodeAttributes(pos: number, attrs: Record<string, unknown>) {
+  private updateNodeAttributes(pos: number, attrs: Record<string, unknown>) {
     const { tr } = this.view.state
     Object.entries(attrs).forEach(([key, value]) => value !== undefined && tr.setNodeAttribute(pos, key, value))
     this.view.dispatch(tr)
   }
 
-  onUploadDone(nodeRef: Node, response: UploadTask) {
-    this.findNodes(true).forEach(([node, pos]) => {
+  private onUploadDone(nodeRef: Node, response: UploadTask) {
+    this.findNodes(false).forEach(([node, pos]) => {
       if (node.attrs.src === nodeRef.attrs.src) {
         this.updateNodeAttributes(pos, {
           uploading: false,
+          tags: response.tags,
           src: response.url,
           sha256: response.sha256,
-          uploadError: response.error,
+          uploadError: response.uploadError,
         })
       }
     })
   }
 
-  async upload(node: Node, pos: number) {
+  private async upload(node: Node, pos: number) {
     const { sign, hash, expiration } = this.options
     const { file, alt, uploadType, uploadUrl: serverUrl } = node.attrs as ImageAttributes | VideoAttributes
 
     this.updateNodeAttributes(pos, { uploading: true, uploadError: null })
 
+    let res
     try {
-      let res
-      if (uploadType === 'nip96') {
-        res = await uploadNIP96({ file, alt, sign, serverUrl })
-      } else {
-        res = await uploadBlossom({ file, serverUrl, hash, sign, expiration })
-      }
-      this.onUploadDone(node, res)
-      return res
+      res =
+        uploadType === 'nip96'
+          ? await uploadNIP96({ file, alt, sign, serverUrl })
+          : await uploadBlossom({ file, serverUrl, hash, sign, expiration })
     } catch (error) {
-      const msg = error as string
-      this.onUploadDone(node, { error: msg })
-      return { error: msg }
+      const msg = error?.toString() as string
+      res = { uploadError: msg }
     }
+
+    this.onUploadDone(node, res)
+    return res
   }
 
-  async *uploadFiles() {
+  async start() {
+    this.options.onStart(this.editor)
+
     const tasks = this.findNodes(false).map(([node, pos]) => {
       return this.upload(node, pos)
     })
+
+    const errors = []
+
     for await (const res of tasks) {
-      yield res
+      if ('uploadError' in res) {
+        errors.push(res.uploadError)
+        this.options.onUploadError(this.editor, res)
+      } else {
+        this.options.onUpload(this.editor, res)
+      }
     }
+    if (errors.length === 0) {
+      const files = this.getFiles()
+      this.options.onComplete(this.editor, files)
+      return files
+    }
+
+    throw new Error(errors.join(','))
   }
 
   selectFiles() {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.multiple = true
-    input.accept = this.options.allowedMimeTypes.join(',')
-    input.onchange = (event) => {
-      const files = (event.target as HTMLInputElement).files
-      if (files) {
-        Array.from(files).forEach((file) => {
-          if (file) {
-            const pos = this.view.state.selection.from + 1
-            this.addFile(file, pos)
-          }
-        })
+    return new Promise((resolve) => {
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.multiple = true
+      input.accept = this.options.allowedMimeTypes.join(',')
+      input.onchange = (event) => {
+        const files = (event.target as HTMLInputElement).files
+        if (files) {
+          Array.from(files).forEach((file) => {
+            if (file) {
+              const pos = this.view.state.selection.from + 1
+              this.addFile(file, pos)
+            }
+          })
+        }
+        resolve(files)
       }
-    }
-    input.click()
+      input.click()
+    })
   }
 
   handleDrop(event: DragEvent) {
@@ -257,10 +284,10 @@ class Uploader {
 
     const pos = this.view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos
 
-    if (pos === undefined) return false
+    if (!pos) return
+    if (!event.dataTransfer) return
 
-    const file = event.dataTransfer?.files?.[0]
-    if (file) {
+    for (const file of event.dataTransfer.files) {
       this.addFile(file, pos)
     }
   }
