@@ -1,12 +1,14 @@
 import { mergeAttributes, Node } from '@tiptap/core'
-import type { UploadParams } from '../uploaders/types'
+import type { NostrEvent } from 'nostr-tools'
 import { defaultMarkdownSerializer } from 'prosemirror-markdown'
+import type { UploadParams } from '../uploaders/types'
 
 export interface VideoAttributes {
   src: string
   alt: string
   sha256: string
   file: File
+  tags: NostrEvent['tags']
   uploading: boolean
   uploadError: string
   uploadType: UploadParams['type']
@@ -31,6 +33,7 @@ export const VideoExtension = Node.create({
       src: { default: null },
       alt: { default: null },
       file: { default: null },
+      tags: { default: null },
       sha256: { default: null },
       uploading: { default: false },
       uploadError: { default: null },

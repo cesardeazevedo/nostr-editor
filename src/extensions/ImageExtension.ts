@@ -1,6 +1,7 @@
 import { Image } from '@tiptap/extension-image'
 import { defaultMarkdownSerializer } from 'prosemirror-markdown'
 import type { UploadParams } from '../uploaders/types'
+import type { NostrEvent } from 'nostr-tools'
 
 export interface ImageOptions {
   inline: boolean
@@ -14,6 +15,7 @@ export interface ImageAttributes {
   title: string
   hash: string
   file: File
+  tags: NostrEvent['tags']
   sha256: string
   uploading: boolean
   uploadError: string
@@ -55,6 +57,7 @@ export const ImageExtension = Image.extend<ImageOptions>({
       alt: { default: null },
       hash: { default: null },
       file: { default: null },
+      tags: { default: null },
       sha256: { default: null },
       uploading: { default: false },
       uploadError: { default: null },
