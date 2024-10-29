@@ -12,7 +12,7 @@ export interface NIP96Options {
 
 export async function uploadNIP96(options: NIP96Options) {
   if (!options.sign) {
-    return Promise.reject('No signer found')
+    throw new Error('No signer provided')
   }
   try {
     const server = await readServerConfig(options.serverUrl)
