@@ -14,12 +14,14 @@ const res1 = {
   url: `https://localhost:3000/${hash1}`,
   type: 'image/png',
   size: 21792,
+  tags: [],
 }
 const res2 = {
   sha256: hash2,
   url: `https://localhost:3000/${hash2}`,
   type: 'image/png',
   size: 16630,
+  tags: [],
 }
 
 const server = setupServer(
@@ -83,9 +85,9 @@ describe('FileUpload', () => {
 
     const schema2 = editor.getJSON()
     expect(schema2.content?.[1].attrs?.sha256).toStrictEqual(hash1)
-    expect(schema2.content?.[1].attrs?.src).toStrictEqual(`https://localhost:3000/${hash1}`)
+    expect(schema2.content?.[1].attrs?.src).toStrictEqual(`https://localhost:3000/${hash1}.png`)
     expect(schema2.content?.[2].attrs?.sha256).toStrictEqual(hash2)
-    expect(schema2.content?.[2].attrs?.src).toStrictEqual(`https://localhost:3000/${hash2}`)
+    expect(schema2.content?.[2].attrs?.src).toStrictEqual(`https://localhost:3000/${hash2}.png`)
 
     expect(spySign).toHaveBeenCalledTimes(2)
     expect(spyHash).toHaveBeenCalledTimes(2)
@@ -97,7 +99,7 @@ describe('FileUpload', () => {
     expect(spyComplete).toHaveBeenNthCalledWith(1, editor, files)
 
     expect(editor.getText({ blockSeparator: ' ' })).toStrictEqual(
-      `GM! https://localhost:3000/${hash1} https://localhost:3000/${hash2}`,
+      `GM! https://localhost:3000/${hash1}.png https://localhost:3000/${hash2}.png`,
     )
   })
 
@@ -115,10 +117,10 @@ describe('FileUpload', () => {
     await expect(editor.storage.fileUpload.uploader.start()).rejects.toStrictEqual(new Error('Error: Invalid file'))
 
     const schema2 = editor.getJSON()
-    expect(schema2.content?.[2].attrs?.sha256).toBeNull()
-    expect(schema2.content?.[2].attrs?.uploadError).toStrictEqual('Error: Invalid file')
     expect(schema2.content?.[1].attrs?.sha256).toStrictEqual(hash1)
     expect(schema2.content?.[1].attrs?.uploadError).toBeNull()
+    expect(schema2.content?.[2].attrs?.sha256).toBeNull()
+    expect(schema2.content?.[2].attrs?.uploadError).toStrictEqual('Error: Invalid file')
 
     expect(spyDrop).toHaveBeenCalledTimes(2)
     expect(spyUpload).toHaveBeenCalledOnce()

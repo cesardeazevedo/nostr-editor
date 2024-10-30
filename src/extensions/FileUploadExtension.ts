@@ -19,6 +19,8 @@ declare module '@tiptap/core' {
   }
 }
 
+type FileAttributes = ImageAttributes | VideoAttributes
+
 export interface FileUploadOptions {
   allowedMimeTypes: string[]
   expiration: number
@@ -29,7 +31,7 @@ export interface FileUploadOptions {
   onStart: (currentEditor: Editor) => void
   onUpload: (currentEditor: Editor, file: UploadTask) => void
   onUploadError: (currentEditor: Editor, file: UploadTask) => void
-  onComplete: (currentEditor: Editor, files: UploadTask[]) => void
+  onComplete: (currentEditor: Editor, files: FileAttributes[]) => void
 }
 
 export interface FileUploadStorage {
@@ -193,10 +195,18 @@ class Uploader {
   private onUploadDone(nodeRef: Node, response: UploadTask) {
     this.findNodes(false).forEach(([node, pos]) => {
       if (node.attrs.src === nodeRef.attrs.src) {
+        if (response.uploadError) {
+          this.updateNodeAttributes(pos, { uploading: false, uploadError: response.uploadError })
+          return
+        }
+        const file = nodeRef.attrs.file as File
+        const url = new URL(response.url)
+        const hasExtension = url.pathname.split('.').length === 2
         this.updateNodeAttributes(pos, {
           uploading: false,
           tags: response.tags,
-          src: response.url,
+          // always append file extension if missing
+          src: response.url + (hasExtension ? '' : '.' + file.type.split('/')[1]),
           sha256: response.sha256,
           uploadError: response.uploadError,
         })
@@ -218,7 +228,7 @@ class Uploader {
           : await uploadBlossom({ file, serverUrl, hash, sign, expiration })
     } catch (error) {
       const msg = error?.toString() as string
-      res = { uploadError: msg }
+      res = { uploadError: msg } as UploadTask
     }
 
     this.onUploadDone(node, res)

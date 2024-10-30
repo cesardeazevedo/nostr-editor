@@ -13,7 +13,6 @@ export interface ImageAttributes {
   src: string
   alt: string
   title: string
-  hash: string
   file: File
   tags: NostrEvent['tags']
   sha256: string
@@ -55,7 +54,6 @@ export const ImageExtension = Image.extend<ImageOptions>({
     return {
       src: { default: null },
       alt: { default: null },
-      hash: { default: null },
       file: { default: null },
       tags: { default: null },
       sha256: { default: null },

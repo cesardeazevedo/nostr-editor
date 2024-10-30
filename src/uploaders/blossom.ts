@@ -59,6 +59,6 @@ export async function uploadBlossom(options: BlossomOptions): Promise<UploadTask
   const json = data as BlossomResponse
   return {
     ...json,
-    tags: Array.from(Object.entries(json.nip94)),
+    tags: Array.from(Object.entries(json.nip94 || [])),
   }
 }

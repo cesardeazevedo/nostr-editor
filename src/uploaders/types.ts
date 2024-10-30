@@ -6,8 +6,8 @@ export type UploadParams = {
 }
 
 export interface UploadTask {
-  url?: string
-  sha256?: string
-  tags?: NostrEvent['tags']
+  url: string
+  sha256: string
+  tags: NostrEvent['tags']
   uploadError?: string
 }

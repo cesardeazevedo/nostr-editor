@@ -64,7 +64,6 @@ describe('parseNote()', () => {
             "attrs": {
               "alt": null,
               "file": null,
-              "hash": null,
               "sha256": null,
               "src": "http://host.com/image",
               "tags": null,
@@ -229,7 +228,6 @@ describe('parseNote()', () => {
             "attrs": {
               "alt": null,
               "file": null,
-              "hash": null,
               "sha256": null,
               "src": "https://nostr.com/img.jpg",
               "tags": null,
@@ -483,7 +481,6 @@ https://host.com/2.jpeg
             "attrs": {
               "alt": null,
               "file": null,
-              "hash": null,
               "sha256": null,
               "src": "https://host.com/1.jpeg",
               "tags": null,
@@ -506,7 +503,6 @@ https://host.com/2.jpeg
             "attrs": {
               "alt": null,
               "file": null,
-              "hash": null,
               "sha256": null,
               "src": "https://host.com/2.jpeg",
               "tags": null,
