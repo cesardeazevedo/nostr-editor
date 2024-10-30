@@ -1,6 +1,7 @@
 import type { EventTemplate, NostrEvent } from 'nostr-tools/core'
 import { readServerConfig, uploadFile } from 'nostr-tools/nip96'
 import { getToken } from 'nostr-tools/nip98'
+import type { UploadTask } from './types'
 
 export interface NIP96Options {
   file: File
@@ -10,7 +11,7 @@ export interface NIP96Options {
   sign?: (event: EventTemplate) => Promise<NostrEvent> | NostrEvent
 }
 
-export async function uploadNIP96(options: NIP96Options) {
+export async function uploadNIP96(options: NIP96Options): Promise<UploadTask> {
   if (!options.sign) {
     throw new Error('No signer provided')
   }

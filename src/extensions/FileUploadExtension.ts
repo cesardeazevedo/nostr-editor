@@ -5,6 +5,7 @@ import type { Node } from 'prosemirror-model'
 import { Plugin, PluginKey } from 'prosemirror-state'
 import { uploadBlossom } from '../uploaders/blossom'
 import { uploadNIP96 } from '../uploaders/nip96'
+import type { UploadTask } from '../uploaders/types'
 import type { ImageAttributes } from './ImageExtension'
 import type { VideoAttributes } from './VideoExtension'
 
@@ -34,13 +35,6 @@ export interface FileUploadOptions {
 export interface FileUploadStorage {
   uploader: Uploader | null
   getFiles: () => void
-}
-
-interface UploadTask {
-  url?: string
-  sha256?: string
-  tags?: NostrEvent['tags']
-  uploadError?: string
 }
 
 export function bufferToHex(buffer: ArrayBuffer) {
