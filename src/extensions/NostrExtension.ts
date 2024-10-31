@@ -6,7 +6,7 @@ import YoutubeExtension from '@tiptap/extension-youtube'
 import { type NostrEvent } from 'nostr-tools'
 import { parseImeta, type IMetaTags } from '../helpers/nip92.imeta'
 import { Bolt11Extension } from './Bolt11Extension'
-import type { FileUploadOptions } from './FileUploadExtension'
+import type { FileUploadOptions, FileUploadStorage } from './FileUploadExtension'
 import { FileUploadExtension } from './FileUploadExtension'
 import type { ImageOptions } from './ImageExtension'
 import { ImageExtension } from './ImageExtension'
@@ -68,6 +68,12 @@ export interface NostrStorage {
   getNprofiles: () => NProfileAttributes[]
   getNevents: () => NEventAttributes[]
   getNaddress: () => NAddrAttributes[]
+  getTtags: () => NostrEvent['tags']
+  getImetaTags: () => NostrEvent['tags']
+  getPtags: (hints?: boolean) => NostrEvent['tags']
+  getQtags: (hints?: boolean) => NostrEvent['tags']
+  getAtags: (hints?: boolean) => NostrEvent['tags']
+  getEditorTags: (hints?: boolean) => NostrEvent['tags']
 }
 
 export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
@@ -128,6 +134,12 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
       getNaddress: () => [],
       getNprofiles: () => [],
       getNevents: () => [],
+      getPtags: () => [],
+      getQtags: () => [],
+      getAtags: () => [],
+      getTtags: () => [],
+      getImetaTags: () => [],
+      getEditorTags: () => [],
     }
   },
 
@@ -178,6 +190,49 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
         }
       })
       return naddress
+    }
+
+    this.storage.getTtags = () => {
+      return this.storage.getTags().map(({ tag }) => ['t', tag])
+    }
+
+    this.storage.getPtags = (hints = true) => {
+      return this.storage
+        .getNprofiles()
+        .map((nprofile) => ['p', nprofile.pubkey, hints && nprofile.relays[0]].filter((x) => x !== false))
+    }
+
+    this.storage.getQtags = (hints = true) => {
+      return this.storage
+        .getNevents()
+        .map((nevent) => ['q', nevent.id, hints ? nevent.relays[0] || '' : '', nevent.author])
+    }
+
+    this.storage.getAtags = (hints = true) => {
+      return this.storage.getNaddress().map((naddr) => {
+        const address = `${naddr.kind}:${naddr.pubkey}:${naddr.identifier}`
+        return ['a', address, hints && (naddr.relays?.[0] || false)].filter((x) => x !== false)
+      })
+    }
+
+    this.storage.getImetaTags = () => {
+      const uploader = this.editor.storage.fileUpload.uploader as FileUploadStorage
+      return (
+        uploader
+          .getFiles()
+          .filter((x) => !!x.sha256)
+          .map((x) => ['imeta', ...x.tags.map(([key, value]) => `${key} ${value}`)]) || []
+      )
+    }
+
+    this.storage.getEditorTags = (hints = true) => {
+      return [
+        ...this.storage.getPtags(hints),
+        ...this.storage.getQtags(hints),
+        ...this.storage.getAtags(hints),
+        ...this.storage.getImetaTags(),
+        ...this.storage.getTtags(),
+      ] as NostrEvent['tags']
     }
   },
 

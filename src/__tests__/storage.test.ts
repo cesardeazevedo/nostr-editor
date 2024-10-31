@@ -2,6 +2,8 @@ import { nip19 } from 'nostr-tools'
 import type { NostrStorage } from '../extensions/NostrExtension'
 import { test } from './fixtures'
 import { fakeEvent } from './testUtils'
+import type { FileUploadStorage } from '../extensions/FileUploadExtension'
+import { mockBlossomServer, hash1, hash2 } from './mockBlossom'
 
 describe('Storage', () => {
   test('assert getTags()', ({ editor }) => {
@@ -39,5 +41,64 @@ describe('Storage', () => {
     editor.commands.setEventContent(event)
     const storage = editor.storage.nostr as NostrStorage
     expect(storage.getNaddress()).toEqual([{ ...decoded, naddr }])
+  })
+
+  describe('with upload', () => {
+    beforeAll(() => {
+      mockBlossomServer.listen()
+    })
+
+    afterAll(() => {
+      mockBlossomServer.close()
+    })
+
+    afterEach(() => {
+      mockBlossomServer.resetHandlers()
+    })
+
+    test('assert getEventTags()', async ({ editor, getFile }) => {
+      const nostr = editor.storage.nostr as NostrStorage
+      const fileUpload = editor.storage.fileUpload as FileUploadStorage
+      const ref = fakeEvent()
+      const file = await getFile('test_upload.png')
+      const file2 = await getFile('test_upload2.png')
+      const nprofile = nip19.nprofileEncode({ pubkey: ref.pubkey, relays: ['relay1'] })
+      const nevent = nip19.neventEncode({ id: ref.id, author: ref.pubkey, kind: ref.kind, relays: ['relay1'] })
+      const naddr = nip19.naddrEncode({
+        kind: ref.kind,
+        identifier: 'identifier',
+        relays: ['relay1'],
+        pubkey: ref.pubkey,
+      })
+      const event = fakeEvent({ content: `GM! ${nprofile} ${naddr} ${nevent} #asknostr` })
+
+      editor.commands.setEventContent(event)
+      fileUpload.uploader?.addFile(file, editor.$doc.size - 2)
+      fileUpload.uploader?.addFile(file2, editor.$doc.size - 2)
+
+      await fileUpload.uploader?.start()
+
+      expect(editor.getText({ blockSeparator: ' ' })).toStrictEqual(
+        `GM! ${nprofile}  ${naddr}   ${nevent}  #asknostr https://localhost:3000/6c36995913e97b73d5365f93a7b524a9e45edc68e4f11b78060154987c53602c.png https://localhost:3000/008a2224c4d2a513ab2a4add09a2ac20c2d9cec1144b5111bc1317edb2366eac.png`,
+      )
+      expect(nostr.getEditorTags()).toStrictEqual([
+        ['p', ref.pubkey, 'relay1'],
+        ['q', ref.id, 'relay1', ref.pubkey],
+        ['a', `1:${ref.pubkey}:identifier`, 'relay1'],
+        ['imeta', `url https://localhost:3000/${hash1}.png`, 'size 21792', `x ${hash1}`, 'm image/png', 'dim 500x500'],
+        ['imeta', `url https://localhost:3000/${hash2}.png`, 'size 16630', `x ${hash2}`, 'm image/png', 'dim 500x500'],
+        ['t', '#asknostr'],
+      ])
+
+      // assert without relay hints
+      expect(nostr.getEditorTags(false)).toStrictEqual([
+        ['p', ref.pubkey],
+        ['q', ref.id, '', ref.pubkey],
+        ['a', `1:${ref.pubkey}:identifier`],
+        ['imeta', `url https://localhost:3000/${hash1}.png`, 'size 21792', `x ${hash1}`, 'm image/png', 'dim 500x500'],
+        ['imeta', `url https://localhost:3000/${hash2}.png`, 'size 16630', `x ${hash2}`, 'm image/png', 'dim 500x500'],
+        ['t', '#asknostr'],
+      ])
+    })
   })
 })
