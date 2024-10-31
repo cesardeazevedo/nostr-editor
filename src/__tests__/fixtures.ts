@@ -25,11 +25,13 @@ const extensions = [
   }),
 ]
 
+type TEST_FILE_NAMES = 'test_upload.png' | 'test_upload2.png' | 'test_upload_error.png'
+
 type Fixtures = {
   editor: Editor
   editorMarkdown: Editor
   editorUserAbout: Editor
-  getFile: (filaneme: string) => Promise<File>
+  getFile: (filaneme: TEST_FILE_NAMES) => Promise<File>
   fileUploadExtension: (editor: Editor) => typeof FileUploadExtension
   fileUploadSpies: (editor: Editor) => {
     spySign: Mock
@@ -70,8 +72,8 @@ export const test = base.extend<Fixtures>({
     )
   },
   getFile: ({}, use) => {
-    return use(async (filename: string) => {
-      const buffer = await readFile(join(__dirname, filename))
+    return use(async (filename: TEST_FILE_NAMES) => {
+      const buffer = await readFile(join(__dirname, 'test_files', filename))
       return new File([buffer], filename, { type: 'image/png' })
     })
   },

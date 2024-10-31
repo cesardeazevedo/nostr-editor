@@ -1,60 +1,37 @@
-import crypto from 'crypto'
-import { HttpResponse, http } from 'msw'
-import { setupServer } from 'msw/node'
-import { bufferToHex } from '../extensions/FileUploadExtension'
+import { hash1, hash2, responses, mockBlossomServer } from './mockBlossom'
 import { test } from './fixtures'
 
-const hash1 = '6c36995913e97b73d5365f93a7b524a9e45edc68e4f11b78060154987c53602c'
-const hash2 = '008a2224c4d2a513ab2a4add09a2ac20c2d9cec1144b5111bc1317edb2366eac'
-// error hash
-const hash3 = '94f4e40be68952422f78f5bf5ff63cddd2490bfdb7fa92351c3a38317043426c'
-
-const res1 = {
-  sha256: hash1,
-  url: `https://localhost:3000/${hash1}`,
-  type: 'image/png',
-  size: 21792,
-  tags: [],
-}
-const res2 = {
-  sha256: hash2,
-  url: `https://localhost:3000/${hash2}`,
-  type: 'image/png',
-  size: 16630,
-  tags: [],
+function getReponse(hash: typeof hash1 | typeof hash2) {
+  const res = responses[hash]
+  return {
+    sha256: res.sha256,
+    type: res.type,
+    size: res.size,
+    url: res.url + '.png',
+    tags: [
+      ['url', res.url + '.png'],
+      ['size', res.size],
+      ['x', res.sha256],
+      ['m', res.type],
+      ['dim', '500x500'],
+    ],
+  }
 }
 
-const server = setupServer(
-  http.put('https://localhost:3000/upload', async (info) => {
-    const contentType = info.request.headers.get('content-type')
-    const buffer = (await info.request.body?.getReader().read())?.value
-    if (buffer) {
-      const sha256 = bufferToHex(await crypto.subtle.digest('SHA-256', buffer.buffer))
-      // Test error file
-      if (sha256 === hash3) {
-        return HttpResponse.json({ message: 'Invalid file' }, { status: 401 })
-      }
-      return HttpResponse.json({
-        sha256,
-        url: `https://localhost:3000/${sha256}`,
-        type: contentType,
-        size: buffer?.buffer.byteLength,
-      })
-    }
-  }),
-)
+const res1 = getReponse(hash1)
+const res2 = getReponse(hash2)
 
 describe('FileUpload', () => {
   beforeAll(() => {
-    server.listen()
+    mockBlossomServer.listen()
   })
 
   afterAll(() => {
-    server.close()
+    mockBlossomServer.close()
   })
 
   afterEach(() => {
-    server.resetHandlers()
+    mockBlossomServer.resetHandlers()
   })
 
   test('assert 2 successfully file uploads', async ({ editor, getFile, fileUploadSpies }) => {
@@ -64,10 +41,9 @@ describe('FileUpload', () => {
     const file2 = await getFile('test_upload2.png')
 
     editor.commands.setContent('GM!')
-    editor.commands.addFile(file2, editor.$doc.size - 2)
-    editor.commands.addFile(file, editor.$doc.size - 2)
+    editor.storage.fileUpload.uploader.addFile(file, editor.$doc.size - 2)
+    editor.storage.fileUpload.uploader.addFile(file2, editor.$doc.size - 2)
 
-    await new Promise<void>((resolve) => setTimeout(() => resolve()))
     const schema = editor.getJSON()
 
     expect(schema.content).toHaveLength(3)
@@ -110,10 +86,9 @@ describe('FileUpload', () => {
     const file2 = await getFile('test_upload_error.png')
 
     editor.commands.setContent('GM!')
-    editor.commands.addFile(file2, editor.$doc.size - 2)
-    editor.commands.addFile(file, editor.$doc.size - 2)
+    editor.storage.fileUpload.uploader.addFile(file, editor.$doc.size - 2)
+    editor.storage.fileUpload.uploader.addFile(file2, editor.$doc.size - 2)
 
-    await new Promise<void>((resolve) => setTimeout(() => resolve()))
     await expect(editor.storage.fileUpload.uploader.start()).rejects.toStrictEqual(new Error('Error: Invalid file'))
 
     const schema2 = editor.getJSON()
