@@ -15,25 +15,18 @@ export async function uploadNIP96(options: NIP96Options): Promise<UploadTask> {
   if (!options.sign) {
     throw new Error('No signer provided')
   }
-  try {
-    const server = await readServerConfig(options.serverUrl)
-    const authorization = await getToken(server.api_url, 'POST', options.sign, true)
-    const res = await uploadFile(options.file, server.api_url, authorization, {
-      alt: options.alt || '',
-      expiration: options.expiration?.toString() || '',
-      content_type: options.file.type,
-    })
-    if (res.status === 'error') {
-      throw new Error(res.message)
-    }
-    const url = res.nip94_event?.tags.find((x) => x[0] === 'url')?.[1] || ''
-    const sha256 = res.nip94_event?.tags.find((x) => x[0] === 'x')?.[1] || ''
-    return {
-      url,
-      sha256,
-      tags: res.nip94_event?.tags || [],
-    }
-  } catch (error) {
-    throw new Error(error as string)
+  const server = await readServerConfig(options.serverUrl)
+  const authorization = await getToken(server.api_url, 'POST', options.sign, true)
+  const res = await uploadFile(options.file, server.api_url, authorization, {
+    alt: options.alt || '',
+    expiration: options.expiration?.toString() || '',
+    content_type: options.file.type,
+  })
+  const url = res.nip94_event?.tags.find((x) => x[0] === 'url')?.[1] || ''
+  const sha256 = res.nip94_event?.tags.find((x) => x[0] === 'x')?.[1] || ''
+  return {
+    url,
+    sha256,
+    tags: res.nip94_event?.tags || [],
   }
 }

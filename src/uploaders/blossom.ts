@@ -56,9 +56,15 @@ export async function uploadBlossom(options: BlossomOptions): Promise<UploadTask
   if (res.status !== 200) {
     throw new Error((data as BlossomResponseError).message)
   }
-  const json = data as BlossomResponse
+  const { nip94, ...json } = data as BlossomResponse
+  // Always append file extension if missing
+  const { pathname } = new URL(json.url)
+  const hasExtension = pathname.split('.').length === 2
+  const extension = '.' + options.file.type.split('/')[1]
+  const url = json.url + (hasExtension ? '' : extension)
   return {
     ...json,
-    tags: Array.from(Object.entries(json.nip94 || [])),
+    url,
+    tags: Array.from(Object.entries(nip94 || [])).map((tag) => (tag[0] === 'url' ? [tag[0], url] : tag)),
   }
 }

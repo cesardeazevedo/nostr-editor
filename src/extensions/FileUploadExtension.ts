@@ -36,7 +36,7 @@ export interface FileUploadOptions {
 
 export interface FileUploadStorage {
   uploader: Uploader | null
-  getFiles: () => void
+  getFiles: () => FileAttributes[]
 }
 
 export function bufferToHex(buffer: ArrayBuffer) {
@@ -84,7 +84,7 @@ export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploa
   addStorage() {
     return {
       uploader: null,
-      getFiles() {},
+      getFiles: () => [],
     }
   },
 
@@ -167,7 +167,7 @@ class Uploader {
   }
 
   getFiles() {
-    return this.findNodes().map(([node]) => node.attrs as ImageAttributes | VideoAttributes)
+    return this.findNodes().map(([node]) => node.attrs as FileAttributes)
   }
 
   private findNodes(uploaded?: boolean) {
@@ -195,20 +195,10 @@ class Uploader {
   private onUploadDone(nodeRef: Node, response: UploadTask) {
     this.findNodes(false).forEach(([node, pos]) => {
       if (node.attrs.src === nodeRef.attrs.src) {
-        if (response.uploadError) {
-          this.updateNodeAttributes(pos, { uploading: false, uploadError: response.uploadError })
-          return
-        }
-        const file = nodeRef.attrs.file as File
-        const url = new URL(response.url)
-        const hasExtension = url.pathname.split('.').length === 2
         this.updateNodeAttributes(pos, {
+          ...response,
+          src: response.url,
           uploading: false,
-          tags: response.tags,
-          // always append file extension if missing
-          src: response.url + (hasExtension ? '' : '.' + file.type.split('/')[1]),
-          sha256: response.sha256,
-          uploadError: response.uploadError,
         })
       }
     })
