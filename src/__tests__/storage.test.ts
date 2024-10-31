@@ -56,7 +56,7 @@ describe('Storage', () => {
       mockBlossomServer.resetHandlers()
     })
 
-    test('assert getEventTags()', async ({ editor, getFile }) => {
+    test('assert getEditorTags()', async ({ editor, getFile }) => {
       const nostr = editor.storage.nostr as NostrStorage
       const fileUpload = editor.storage.fileUpload as FileUploadStorage
       const ref = fakeEvent()
