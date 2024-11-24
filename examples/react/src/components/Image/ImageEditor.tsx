@@ -10,7 +10,8 @@ import { UploadingProgress } from '../UploadingProgress'
 import { Image } from './Image'
 
 export function ImageEditor(props: NodeViewProps) {
-  const { src, alt, uploadUrl, uploading, uploadError, sha256 } = props.node.attrs as ImageAttributes
+  const { src, alt, uploadUrl, uploading, uploadError } = props.node.attrs as ImageAttributes
+  const isUploaded = !src.startsWith('blob://http')
   return (
     <NodeViewWrapper
       data-drag-handle=''
@@ -20,8 +21,8 @@ export function ImageEditor(props: NodeViewProps) {
       <UploadingProgress uploading={uploading} />
       <Image src={src} />
       <MediaFooter>
-        {!sha256 ? <AltButton value={alt} onChange={(alt) => props.updateAttributes({ alt })} /> : <div />}
-        {!sha256 && (
+        {!isUploaded && <AltButton value={alt} onChange={(alt) => props.updateAttributes({ alt })} />}
+        {!isUploaded && (
           <UploadChip
             uploadUrl={uploadUrl}
             onChange={(uploadType, uploadUrl) => {
@@ -29,7 +30,7 @@ export function ImageEditor(props: NodeViewProps) {
             }}
           />
         )}
-        {sha256 && (
+        {isUploaded && (
           <span data-tooltip={src}>
             <IconCheck
               size={26}

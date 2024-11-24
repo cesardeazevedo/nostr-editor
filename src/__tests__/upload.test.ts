@@ -1,5 +1,6 @@
 import { hash1, hash2, responses, mockBlossomServer } from './mockBlossom'
 import { test } from './fixtures'
+import { fakeEvent } from './testUtils'
 
 function getReponse(hash: typeof hash1 | typeof hash2) {
   const res = responses[hash]
@@ -128,5 +129,34 @@ describe('FileUpload', () => {
     expect(spyUpload).toHaveBeenCalledOnce()
     expect(spyUploadError).not.toHaveBeenCalled()
     expect(spyComplete).toHaveBeenCalledOnce()
+  })
+
+  test('assert blob urls as pending uploads and real urls as uploaded', async ({
+    editor,
+    getFile,
+    fileUploadExtension,
+  }) => {
+    const fileUpload = fileUploadExtension(editor)
+    editor.commands.setEventContent(fakeEvent({ content: 'test link https://nostr.com/image.jpg' }))
+    await expect(editor.storage.fileUpload.uploader.start()).resolves.toEqual([
+      {
+        alt: null,
+        file: null,
+        sha256: null,
+        src: 'https://nostr.com/image.jpg',
+        tags: null,
+        uploadError: null,
+        uploadType: 'blossom',
+        uploadUrl: 'https://localhost:3000',
+        uploading: false,
+      },
+    ])
+    editor.commands.clearContent()
+    const file = await getFile('test_upload.png')
+    editor.commands.addFile(file, editor.$doc.size - 2)
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 100))
+    const found = fileUpload.storage.uploader?.['findNodes'](false)
+    expect(found).toHaveLength(1)
+    expect(found?.[0][0].type.name).toBe('image')
   })
 })

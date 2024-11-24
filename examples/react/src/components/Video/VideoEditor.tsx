@@ -10,7 +10,8 @@ import { UploadingProgress } from '../UploadingProgress'
 import { Video } from './Video'
 
 export function VideoEditor(props: NodeViewProps) {
-  const { src, alt, sha256, uploadError, uploadUrl, uploading } = props.node.attrs as VideoAttributes
+  const { src, alt, uploadError, uploadUrl, uploading } = props.node.attrs as VideoAttributes
+  const isUploaded = !src.startsWith('blob://http')
   return (
     <NodeViewWrapper
       data-drag-handle=''
@@ -20,14 +21,14 @@ export function VideoEditor(props: NodeViewProps) {
       <UploadingProgress uploading={uploading} />
       <Video controls={false} src={src} />
       <MediaFooter>
-        {!sha256 ? <AltButton value={alt} onChange={(alt) => props.updateAttributes({ alt })} /> : <div />}
-        {!sha256 && (
+        {!isUploaded ? <AltButton value={alt} onChange={(alt) => props.updateAttributes({ alt })} /> : <div />}
+        {!isUploaded && (
           <UploadChip
             uploadUrl={uploadUrl}
             onChange={(uploadType, uploadUrl) => props.updateAttributes({ uploadType, uploadUrl })}
           />
         )}
-        {sha256 && (
+        {isUploaded && (
           <span data-tooltip={src}>
             <IconCheck
               size={26}

@@ -177,7 +177,8 @@ class Uploader {
         return
       }
       if (uploaded !== undefined) {
-        if (!!node.attrs.sha256 !== uploaded) {
+        const isUploaded = !node.attrs.src.startsWith('blob:')
+        if (isUploaded !== uploaded) {
           return
         }
       }
