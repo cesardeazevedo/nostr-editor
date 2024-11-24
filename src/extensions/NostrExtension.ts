@@ -258,7 +258,11 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
         } catch (error) {
           return false
         }
-        props.chain().setMeta('parse', true).setMeta('uiEvent', 'paste').setContent(content.about, true)
+        props
+          .chain()
+          .setMeta('parse', true)
+          .setMeta('uiEvent', 'paste')
+          .setContent(content.about?.replace(/(\n|\r)+/g, '<br />'), true)
         return true
       },
     }
