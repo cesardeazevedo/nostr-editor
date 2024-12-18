@@ -7,6 +7,7 @@
   import StarterKit from '@tiptap/starter-kit'
   import { SvelteNodeViewRenderer } from 'svelte-tiptap'
   import MentionEditor from './lib/Mention/MentionEditor.svelte'
+  import NEventEditor from './lib/NEvent/NEventEditor.svelte'
 
   let element: HTMLDivElement
   let editor: Editor
@@ -21,12 +22,12 @@
         NostrExtension.configure({
           extend: {
             nprofile: {
-              // @ts-ignore
               addNodeView: () => SvelteNodeViewRenderer(MentionEditor),
             },
             nevent: {
-              // TODO
-              // addNodeView: () => SvelteNodeViewRenderer(NEventEditor),
+              inline: true,
+              group: "inline",
+              addNodeView: () => SvelteNodeViewRenderer(NEventEditor),
             },
           },
         }),
