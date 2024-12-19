@@ -9,8 +9,7 @@
     "url": "https://github.com/cesardeazevedo/nostr-editor"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "main": "./dist/nostr-editor.umd.cjs",
   "module": "./dist/nostr-editor.js",
@@ -28,8 +27,7 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest",
-    "preview": "vite preview",
-    "prepare": "npm run build"
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
