@@ -17,7 +17,7 @@ import type { NEventAttributes } from './NEventExtension'
 import { NEventExtension } from './NEventExtension'
 import type { NProfileAttributes } from './NProfileExtension'
 import { NProfileExtension } from './NProfileExtension'
-import { NSecRejectExtension, type NSecRejectionOptions } from './NSecRejectExtension'
+import { NSecRejectExtension, type NSecRejectOptions } from './NSecRejectExtension'
 import type { TagAttributes } from './TagExtension'
 import { TagExtension } from './TagExtension'
 import { TweetExtension } from './TweetExtension'
@@ -44,7 +44,7 @@ export interface NostrOptions {
     video?: Partial<NodeConfig>
     tag?: Partial<MarkConfig>
     bolt11?: Partial<NodeConfig>
-    nsecReject?: Partial<NSecRejectionOptions>
+    nsecReject?: Partial<NSecRejectOptions>
     fileUpload?: Partial<FileUploadOptions>
   }
   nprofile?: boolean
@@ -57,7 +57,7 @@ export interface NostrOptions {
   image?: Partial<ImageOptions> | false
   video?: Partial<NodeConfig> | false
   youtube?: Partial<YoutubeOptions> | false
-  nsecReject?: Partial<NSecRejectionOptions> | false
+  nsecReject?: Partial<NSecRejectOptions> | false
   fileUpload?: Partial<FileUploadOptions> | false
 }
 
