@@ -2,11 +2,11 @@ import { Extension } from '@tiptap/core'
 
 const NSEC_REGEX = /(nsec1[0-9a-z]+)/g
 
-export type NSecRejectionOptions = {
+export type NSecRejectOptions = {
   onError?: (props: unknown) => void
 }
 
-export const NSecRejectExtension = Extension.create<NSecRejectionOptions>({
+export const NSecRejectExtension = Extension.create<NSecRejectOptions>({
   name: 'nsecReject',
 
   addOptions() {
