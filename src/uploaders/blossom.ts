@@ -40,6 +40,7 @@ export async function uploadBlossom(options: BlossomOptions): Promise<UploadTask
       ['method', 'PUT'],
       ['t', 'upload'],
       ['x', hash],
+      ["size", options.file.size.toString()],
       ['expiration', Math.floor(now + (options.expiration || 60000)).toString()],
     ],
   })

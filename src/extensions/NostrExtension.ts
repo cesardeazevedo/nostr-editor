@@ -221,7 +221,21 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
         uploader
           .getFiles()
           .filter((x) => !!x.sha256)
-          .map((x) => ['imeta', ...x.tags.map(([key, value]) => `${key} ${value}`)]) || []
+          .map((x) => {
+            // Provide default imeta based on what we know
+            const meta: Record<string, string> = {
+              url: x.src,
+              x: x.sha256,
+              m: x.file.type,
+            }
+
+            // Add imeta based on tags returned by our uploader
+            for (const [k, v] of x.tags) {
+              meta[k] = v
+            }
+
+            return ['imeta', ...Object.entries(meta).map(kv => kv.join(' ')).sort()]
+          })
       )
     }
 

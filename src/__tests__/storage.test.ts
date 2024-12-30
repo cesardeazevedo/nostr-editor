@@ -85,8 +85,8 @@ describe('Storage', () => {
         ['p', ref.pubkey, 'relay1'],
         ['q', ref.id, 'relay1', ref.pubkey],
         ['a', `1:${ref.pubkey}:identifier`, 'relay1'],
-        ['imeta', `url https://localhost:3000/${hash1}.png`, 'size 21792', `x ${hash1}`, 'm image/png', 'dim 500x500'],
-        ['imeta', `url https://localhost:3000/${hash2}.png`, 'size 16630', `x ${hash2}`, 'm image/png', 'dim 500x500'],
+        ['imeta', 'dim 500x500', 'm image/png', 'size 21792', `url https://localhost:3000/${hash1}.png`, `x ${hash1}`],
+        ['imeta', 'dim 500x500', 'm image/png', 'size 16630', `url https://localhost:3000/${hash2}.png`, `x ${hash2}`],
         ['t', '#asknostr'],
       ])
 
@@ -95,8 +95,8 @@ describe('Storage', () => {
         ['p', ref.pubkey],
         ['q', ref.id, '', ref.pubkey],
         ['a', `1:${ref.pubkey}:identifier`],
-        ['imeta', `url https://localhost:3000/${hash1}.png`, 'size 21792', `x ${hash1}`, 'm image/png', 'dim 500x500'],
-        ['imeta', `url https://localhost:3000/${hash2}.png`, 'size 16630', `x ${hash2}`, 'm image/png', 'dim 500x500'],
+        ['imeta', 'dim 500x500', 'm image/png', 'size 21792', `url https://localhost:3000/${hash1}.png`, `x ${hash1}`],
+        ['imeta', 'dim 500x500', 'm image/png', 'size 16630', `url https://localhost:3000/${hash2}.png`, `x ${hash2}`],
         ['t', '#asknostr'],
       ])
     })
