@@ -10,5 +10,6 @@ export { NSecRejectExtension, type NSecRejectOptions } from './extensions/NSecRe
 export { TagExtension, type TagAttributes } from './extensions/TagExtension'
 export { TweetExtension, type TweetAttributes } from './extensions/TweetExtension'
 export { VideoExtension, type VideoAttributes } from './extensions/VideoExtension'
-export * from './uploaders/types'
+export { type IMetaTags } from './helpers/nip92.imeta'
 export * from './types'
+export * from './uploaders/types'
