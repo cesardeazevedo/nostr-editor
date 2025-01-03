@@ -1,6 +1,6 @@
 {
   "name": "nostr-editor",
-  "version": "0.0.3",
+  "version": "0.0.4-pre.1",
   "type": "module",
   "homepage": "https://cesardeazevedo.github.io/nostr-editor/",
   "license": "MIT",
@@ -74,4 +74,3 @@
     "light-bolt11-decoder": "^3.1.1"
   }
 }
-
