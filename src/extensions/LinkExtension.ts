@@ -3,7 +3,7 @@ import { Link, type LinkOptions } from '@tiptap/extension-link'
 import * as linkifyjs from 'linkifyjs'
 import { getLinkKind } from '../helpers/utils'
 
-export {LinkOptions}
+export { LinkOptions }
 
 export type LinkAttributes = {
   href: string
