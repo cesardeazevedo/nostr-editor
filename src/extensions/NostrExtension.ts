@@ -27,7 +27,7 @@ import { VideoExtension } from './VideoExtension'
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     nostr: {
-      setEventContent: (event: UnsignedEvent) => ReturnType
+      setEventContent: (event: UnsignedEvent, imeta?: IMetaTags) => ReturnType
       setEventContentKind0: (event: UnsignedEvent) => ReturnType
     }
   }
