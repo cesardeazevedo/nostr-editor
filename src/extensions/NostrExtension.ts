@@ -3,6 +3,7 @@ import { Extension } from '@tiptap/core'
 import type { LinkOptions } from '@tiptap/extension-link'
 import type { YoutubeOptions } from '@tiptap/extension-youtube'
 import YoutubeExtension from '@tiptap/extension-youtube'
+import type { UnsignedEvent } from 'nostr-tools'
 import { type NostrEvent } from 'nostr-tools'
 import { parseImeta, type IMetaTags } from '../helpers/nip92.imeta'
 import { Bolt11Extension } from './Bolt11Extension'
@@ -26,8 +27,8 @@ import { VideoExtension } from './VideoExtension'
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     nostr: {
-      setEventContent: (event: NostrEvent) => ReturnType
-      setEventContentKind0: (event: NostrEvent) => ReturnType
+      setEventContent: (event: UnsignedEvent) => ReturnType
+      setEventContentKind0: (event: UnsignedEvent) => ReturnType
     }
   }
 }
@@ -255,7 +256,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
 
   addCommands() {
     return {
-      setEventContent: (event: NostrEvent, imeta?: IMetaTags) => (props) => {
+      setEventContent: (event: UnsignedEvent, imeta?: IMetaTags) => (props) => {
         this.storage.setImeta(imeta || parseImeta(event.tags))
         props
           .chain()
@@ -265,7 +266,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
           .setContent(event.kind === 1 ? event.content.replace(/(\n|\r)+/g, '<br />') : event.content)
         return true
       },
-      setEventContentKind0: (event: NostrEvent) => (props) => {
+      setEventContentKind0: (event: UnsignedEvent) => (props) => {
         if (event.kind !== 0) {
           return false
         }
