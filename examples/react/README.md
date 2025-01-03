@@ -4,6 +4,7 @@
 
 ```
 pnpm install
+pnpm link ../../
 ```
 
 ### Run
