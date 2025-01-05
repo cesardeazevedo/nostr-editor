@@ -23,6 +23,7 @@ import type { TagAttributes } from './TagExtension'
 import { TagExtension } from './TagExtension'
 import { TweetExtension } from './TweetExtension'
 import { VideoExtension } from './VideoExtension'
+import { replaceTextContent } from '../helpers/utils'
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -263,7 +264,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
           // These metadata will trigger pasting rules on all other extensions
           .setMeta('parse', true)
           .setMeta('uiEvent', 'paste')
-          .setContent(event.kind === 1 ? event.content.replace(/(\n|\r)+/g, '<br />') : event.content)
+          .setContent(event.kind === 1 ? replaceTextContent(event.content) : event.content)
         return true
       },
       setEventContentKind0: (event: UnsignedEvent) => (props) => {
@@ -276,11 +277,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
         } catch (error) {
           return false
         }
-        props
-          .chain()
-          .setMeta('parse', true)
-          .setMeta('uiEvent', 'paste')
-          .setContent(content.about?.replace(/(\n|\r)+/g, '<br />'), true)
+        props.chain().setMeta('parse', true).setMeta('uiEvent', 'paste').setContent(replaceTextContent(content.about))
         return true
       },
     }

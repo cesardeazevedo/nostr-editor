@@ -39,3 +39,10 @@ export function getLinkKind(url: string, imeta?: IMetaTags): LinkKinds {
     }
   }
 }
+
+export function replaceTextContent(content: string): string {
+  return content
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/(\n|\r)+/g, '<br />')
+}

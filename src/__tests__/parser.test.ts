@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { nip19 } from 'nostr-tools'
-import { fakeEvent } from './testUtils'
 import { test } from './fixtures'
+import { fakeEvent } from './testUtils'
 
 describe('parseNote()', () => {
   test('Should assert simple text', ({ editor }) => {
@@ -795,6 +795,36 @@ https://host.com/2.jpeg
                   },
                 ],
                 "text": "https://nostr.com/#anchor",
+                "type": "text",
+              },
+            ],
+            "type": "paragraph",
+          },
+        ],
+        "type": "doc",
+      }
+    `)
+  })
+
+  test('assert html tags in text', ({ editor }) => {
+    const event = fakeEvent({
+      content: 'MAKE HTML GREAT AGAIN \n\n bring back <mark> <blink> <marquee>',
+    })
+    editor.commands.setEventContent(event)
+    expect(editor.getJSON()).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "content": [
+              {
+                "text": "MAKE HTML GREAT AGAIN ",
+                "type": "text",
+              },
+              {
+                "type": "hardBreak",
+              },
+              {
+                "text": "bring back <mark> <blink> <marquee>",
                 "type": "text",
               },
             ],
