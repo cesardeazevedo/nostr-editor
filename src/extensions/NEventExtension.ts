@@ -2,12 +2,14 @@ import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
-import type { EventPointer } from '../helpers/nostr'
+import type { EventPointer, PointerOptions } from '../helpers/nostr'
 import { entityToPointer } from '../helpers/nostr'
 
 export const EVENT_REGEX = /(?<![\w./:?=])(nostr:)?(n(ote|event)1[0-9a-z]+)/g
 
 export type NEventAttributes = EventPointer
+
+export type NEventOptions = PointerOptions<EventPointer>
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -17,7 +19,7 @@ declare module '@tiptap/core' {
   }
 }
 
-export const NEventExtension = Node.create({
+export const NEventExtension = Node.create<NEventOptions>({
   name: 'nevent',
 
   group: 'block',
@@ -68,7 +70,7 @@ export const NEventExtension = Node.create({
         ({ entity }) =>
         ({ chain }) =>
           chain()
-            .insertContent({ type: this.name, attrs: entityToPointer(entity) })
+            .insertContent({ type: this.name, attrs: entityToPointer(entity, this.options) })
             .insertContent(' ')
             .run(),
     }
@@ -84,7 +86,7 @@ export const NEventExtension = Node.create({
 
           for (const match of text.matchAll(EVENT_REGEX)) {
             try {
-              matches.push(createPasteRuleMatch(match, entityToPointer(match[2])))
+              matches.push(createPasteRuleMatch(match, entityToPointer(match[2], this.options)))
             } catch (e) {
               continue
             }

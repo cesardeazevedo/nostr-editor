@@ -2,12 +2,14 @@ import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
-import type { ProfilePointer } from '../helpers/nostr'
+import type { ProfilePointer, PointerOptions } from '../helpers/nostr'
 import { entityToPointer } from '../helpers/nostr'
 
 export const PROFILE_REGEX = /(?<![\w./:?=])(nostr:)?(np(ub|rofile)1[0-9a-z]+)/g
 
 export type NProfileAttributes = ProfilePointer
+
+export type NProfileOptions = PointerOptions<ProfilePointer>
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -17,7 +19,7 @@ declare module '@tiptap/core' {
   }
 }
 
-export const NProfileExtension = Node.create({
+export const NProfileExtension = Node.create<NProfileOptions>({
   name: 'nprofile',
   atom: true,
   inline: true,
@@ -62,7 +64,7 @@ export const NProfileExtension = Node.create({
         ({ entity }) =>
         ({ chain }) =>
           chain()
-            .insertContent({ type: this.name, attrs: entityToPointer(entity) })
+            .insertContent({ type: this.name, attrs: entityToPointer(entity, this.options) })
             .insertContent(' ')
             .run(),
     }
@@ -78,7 +80,7 @@ export const NProfileExtension = Node.create({
 
           for (const match of text.matchAll(PROFILE_REGEX)) {
             try {
-              matches.push(createPasteRuleMatch(match, entityToPointer(match[2])))
+              matches.push(createPasteRuleMatch(match, entityToPointer(match[2], this.options)))
             } catch (e) {
               continue
             }

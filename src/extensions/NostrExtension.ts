@@ -12,11 +12,11 @@ import { FileUploadExtension } from './FileUploadExtension'
 import type { ImageOptions } from './ImageExtension'
 import { ImageExtension } from './ImageExtension'
 import { LinkExtension } from './LinkExtension'
-import type { NAddrAttributes } from './NAddrExtension'
+import type { NAddrAttributes, NAddrOptions } from './NAddrExtension'
 import { NAddrExtension } from './NAddrExtension'
-import type { NEventAttributes } from './NEventExtension'
+import type { NEventAttributes, NEventOptions } from './NEventExtension'
 import { NEventExtension } from './NEventExtension'
-import type { NProfileAttributes } from './NProfileExtension'
+import type { NProfileAttributes, NProfileOptions } from './NProfileExtension'
 import { NProfileExtension } from './NProfileExtension'
 import { NSecRejectExtension, type NSecRejectOptions } from './NSecRejectExtension'
 import type { TagAttributes } from './TagExtension'
@@ -49,9 +49,6 @@ export interface NostrOptions {
     nsecReject?: Partial<NSecRejectOptions>
     fileUpload?: Partial<FileUploadOptions>
   }
-  nprofile?: boolean
-  nevent?: boolean
-  naddr?: boolean
   tweet?: boolean
   tag?: boolean
   bolt11?: boolean
@@ -61,6 +58,9 @@ export interface NostrOptions {
   youtube?: Partial<YoutubeOptions> | false
   nsecReject?: Partial<NSecRejectOptions> | false
   fileUpload?: Partial<FileUploadOptions> | false
+  nprofile?: Partial<NProfileOptions> | false
+  nevent?: Partial<NEventOptions> | false
+  naddr?: Partial<NAddrOptions> | false
 }
 
 export interface NostrStorage {

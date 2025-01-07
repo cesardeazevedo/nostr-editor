@@ -38,10 +38,19 @@ export const translateEntityData = (type: string, data: any) => {
   }
 }
 
-export const entityToPointer = (entity: string): NostrEntityPointer => {
+export type PointerOptions<T extends NostrEntityPointer> = {
+  getRelayHints?: (pointer: T) => string[]
+}
+
+export const entityToPointer = (entity: string, options: PointerOptions<any>): NostrEntityPointer => {
   const {type, data} = (decode as any)(entity.split(':').slice(-1))
   const relays = data.relays?.length > 0 ? data.relays : []
   const attrs = translateEntityData(type, data)
 
-  return { type, entity, relays, ...attrs }
+  let pointer = { type, entity, relays, ...attrs } as NostrEntityPointer
+  if (options.getRelayHints) {
+    pointer.relays = Array.from(new Set([...relays, ...options.getRelayHints(pointer)]))
+  }
+
+  return pointer
 }

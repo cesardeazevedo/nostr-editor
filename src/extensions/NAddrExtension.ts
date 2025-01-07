@@ -2,12 +2,14 @@ import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
-import type { AddressPointer } from '../helpers/nostr'
+import type { AddressPointer, PointerOptions } from '../helpers/nostr'
 import { entityToPointer } from '../helpers/nostr'
 
 export const NADDR_REGEX = /(?<![\w./:?=])(nostr:)?(naddr1[0-9a-z]+)/g
 
 export type NAddrAttributes = AddressPointer
+
+export type NAddrOptions = PointerOptions<AddressPointer>
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -17,7 +19,7 @@ declare module '@tiptap/core' {
   }
 }
 
-export const NAddrExtension = Node.create({
+export const NAddrExtension = Node.create<NAddrOptions>({
   name: 'naddr',
 
   group: 'block',
@@ -70,7 +72,7 @@ export const NAddrExtension = Node.create({
         ({ entity }) =>
         ({ chain }) =>
           chain()
-            .insertContent({ type: this.name, attrs: entityToPointer(entity) })
+            .insertContent({ type: this.name, attrs: entityToPointer(entity, this.options) })
             .insertContent(' ')
             .run(),
     }
@@ -86,7 +88,7 @@ export const NAddrExtension = Node.create({
 
           for (const match of text.matchAll(NADDR_REGEX)) {
             try {
-              matches.push(createPasteRuleMatch(match, entityToPointer(match[2])))
+              matches.push(createPasteRuleMatch(match, entityToPointer(match[2], this.options)))
             } catch (e) {
               continue
             }
