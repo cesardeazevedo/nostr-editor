@@ -69,7 +69,7 @@ export interface NostrStorage {
   getTags: () => TagAttributes[]
   getNprofiles: () => NProfileAttributes[]
   getNevents: () => NEventAttributes[]
-  getNaddress: () => NAddrAttributes[]
+  getNaddrs: () => NAddrAttributes[]
   getTtags: () => NostrEvent['tags']
   getImetaTags: () => NostrEvent['tags']
   getPtags: (hints?: boolean) => NostrEvent['tags']
@@ -133,7 +133,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
       imeta: null,
       setImeta: () => {},
       getTags: () => [],
-      getNaddress: () => [],
+      getNaddrs: () => [],
       getNprofiles: () => [],
       getNevents: () => [],
       getPtags: () => [],
@@ -184,7 +184,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
       return nevents
     }
 
-    this.storage.getNaddress = () => {
+    this.storage.getNaddrs = () => {
       const naddress: NAddrAttributes[] = []
       this.editor.state.doc.descendants((node) => {
         if (node.type.name === 'naddr') {
@@ -201,20 +201,47 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
     this.storage.getPtags = (hints = true) => {
       return this.storage
         .getNprofiles()
-        .map((nprofile) => ['p', nprofile.pubkey, hints && nprofile.relays[0]].filter((x) => x !== false))
+        .map(({pubkey, relays}) => {
+          const tag = ['p', pubkey]
+
+          if (hints) {
+            tag.push(relays[0] || '')
+          }
+
+          return tag
+        })
     }
 
     this.storage.getQtags = (hints = true) => {
       return this.storage
         .getNevents()
-        .map((nevent) => ['q', nevent.id, hints ? nevent.relays[0] || '' : '', nevent.author])
+        .map(({id, author, relays}) => {
+          const tag = ['q', id]
+
+          if (hints) {
+            tag.push(relays[0] || '')
+
+            if (author) {
+              tag.push(author)
+            }
+          }
+
+          return tag
+        })
     }
 
     this.storage.getAtags = (hints = true) => {
-      return this.storage.getNaddress().map((naddr) => {
-        const address = `${naddr.kind}:${naddr.pubkey}:${naddr.identifier}`
-        return ['a', address, hints && (naddr.relays?.[0] || false)].filter((x) => x !== false)
-      })
+      return this.storage
+        .getNaddrs()
+        .map(({kind, pubkey, identifier, relays}) => {
+          const tag = ['a', `${kind}:${pubkey}:${identifier}`]
+
+          if (hints) {
+            tag.push(relays[0] || '')
+          }
+
+          return tag
+        })
     }
 
     this.storage.getImetaTags = () => {

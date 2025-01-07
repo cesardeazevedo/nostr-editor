@@ -1,24 +1,18 @@
 import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
-import { nip19 } from 'nostr-tools'
-import type { AddressPointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
+import type { AddressPointer } from '../helpers/nostr'
+import { entityToPointer } from '../helpers/nostr'
 
 export const NADDR_REGEX = /(?<![\w./:?=])(nostr:)?(naddr1[0-9a-z]+)/g
 
-export interface NAddrAttributes {
-  naddr: string
-  kind: number
-  pubkey: string
-  relays?: string[]
-  identifier: string
-}
+export type NAddrAttributes = AddressPointer
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     naddr: {
-      insertNAddr: (options: { naddr: string }) => ReturnType
+      insertNAddr: (options: { entity: string }) => ReturnType
     }
   }
 }
@@ -38,7 +32,8 @@ export const NAddrExtension = Node.create({
 
   addAttributes() {
     return {
-      naddr: { default: null },
+      type: { default: null },
+      entity: { default: null },
       identifier: { default: null },
       pubkey: { default: null },
       kind: { default: null },
@@ -51,7 +46,7 @@ export const NAddrExtension = Node.create({
   },
 
   renderText(props) {
-    return props.node.attrs.naddr
+    return props.node.attrs.entity
   },
 
   parseHTML() {
@@ -62,7 +57,7 @@ export const NAddrExtension = Node.create({
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.attrs.naddr)
+          state.write(node.attrs.entity)
         },
         parse: {},
       },
@@ -72,17 +67,12 @@ export const NAddrExtension = Node.create({
   addCommands() {
     return {
       insertNAddr:
-        ({ naddr }) =>
-        ({ commands }) => {
-          const parts = naddr.split(':')
-          const attrs = nip19.decode(parts[parts.length - 1])?.data as AddressPointer
-          return commands.insertContent(
-            { type: this.name, attrs: { ...attrs, naddr } },
-            {
-              updateSelection: false,
-            },
-          )
-        },
+        ({ entity }) =>
+        ({ chain }) =>
+          chain()
+            .insertContent({ type: this.name, attrs: entityToPointer(entity) })
+            .insertContent(' ')
+            .run(),
     }
   },
 
@@ -96,10 +86,7 @@ export const NAddrExtension = Node.create({
 
           for (const match of text.matchAll(NADDR_REGEX)) {
             try {
-              const naddr = match[0]
-              const data = nip19.decode(match[2]).data as AddressPointer
-
-              matches.push(createPasteRuleMatch(match, { ...data, naddr }))
+              matches.push(createPasteRuleMatch(match, entityToPointer(match[2])))
             } catch (e) {
               continue
             }

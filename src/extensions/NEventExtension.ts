@@ -1,26 +1,18 @@
 import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
-import { nip19 } from 'nostr-tools'
-import type { EventPointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
+import type { EventPointer } from '../helpers/nostr'
+import { entityToPointer } from '../helpers/nostr'
 
-export const NOTE_REGEX = /(?<![\w./:?=])(nostr:)?(note1[0-9a-z]+)/g
+export const EVENT_REGEX = /(?<![\w./:?=])(nostr:)?(n(ote|event)1[0-9a-z]+)/g
 
-export const NEVENT_REGEX = /(?<![\w./:?=])(nostr:)?(nevent1[0-9a-z]+)/g
-
-export interface NEventAttributes {
-  nevent: string
-  id: string
-  kind: number
-  author: string
-  relays: string[]
-}
+export type NEventAttributes = EventPointer
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     nevent: {
-      insertNEvent: (options: { nevent: string }) => ReturnType
+      insertNEvent: (options: { entity: string }) => ReturnType
     }
   }
 }
@@ -38,10 +30,11 @@ export const NEventExtension = Node.create({
 
   addAttributes() {
     return {
+      type: { default: null },
       id: { default: null },
       kind: { default: null },
       author: { default: null },
-      nevent: { default: null },
+      entity: { default: null },
       relays: { default: [], parseHTML: parseRelayAttribute },
     }
   },
@@ -51,7 +44,7 @@ export const NEventExtension = Node.create({
   },
 
   renderText(props) {
-    return props.node.attrs.nevent
+    return props.node.attrs.entity
   },
 
   parseHTML() {
@@ -62,7 +55,7 @@ export const NEventExtension = Node.create({
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.attrs.nevent)
+          state.write(node.attrs.entity)
         },
         parse: {},
       },
@@ -72,17 +65,12 @@ export const NEventExtension = Node.create({
   addCommands() {
     return {
       insertNEvent:
-        ({ nevent }) =>
-        ({ commands }) => {
-          const parts = nevent.split(':')
-          const attrs = nip19.decode(parts[parts.length - 1])?.data as EventPointer
-          return commands.insertContent(
-            { type: this.name, attrs: { ...attrs, nevent } },
-            {
-              updateSelection: false,
-            },
-          )
-        },
+        ({ entity }) =>
+        ({ chain }) =>
+          chain()
+            .insertContent({ type: this.name, attrs: entityToPointer(entity) })
+            .insertContent(' ')
+            .run(),
     }
   },
 
@@ -94,23 +82,9 @@ export const NEventExtension = Node.create({
         find: (text) => {
           const matches = []
 
-          for (const match of text.matchAll(NOTE_REGEX)) {
+          for (const match of text.matchAll(EVENT_REGEX)) {
             try {
-              const id = nip19.decode(match[2]).data as string
-              const nevent = match[0]
-
-              matches.push(createPasteRuleMatch(match, { id, nevent }))
-            } catch (e) {
-              continue
-            }
-          }
-
-          for (const match of text.matchAll(NEVENT_REGEX)) {
-            try {
-              const data = nip19.decode(match[2]).data as EventPointer
-              const nevent = match[0]
-
-              matches.push(createPasteRuleMatch(match, { ...data, nevent }))
+              matches.push(createPasteRuleMatch(match, entityToPointer(match[2])))
             } catch (e) {
               continue
             }

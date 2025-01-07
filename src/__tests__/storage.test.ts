@@ -40,7 +40,7 @@ describe('Storage', () => {
     const event = fakeEvent({ content: `${naddr}` })
     editor.commands.setEventContent(event)
     const storage = editor.storage.nostr as NostrStorage
-    expect(storage.getNaddress()).toEqual([{ ...decoded, naddr }])
+    expect(storage.getNaddrs()).toEqual([{ ...decoded, naddr }])
   })
 
   describe('with upload', () => {
