@@ -14,7 +14,7 @@ export type NProfileOptions = PointerOptions<ProfilePointer>
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     nprofile: {
-      insertNProfile: (options: { entity: string }) => ReturnType
+      insertNProfile: (options: { bech32: string }) => ReturnType
     }
   }
 }
@@ -26,10 +26,17 @@ export const NProfileExtension = Node.create<NProfileOptions>({
   group: 'inline',
   priority: 1000,
 
+  addOptions() {
+    return {
+      allowedTypes: ["nprofile", "npub"],
+      getRelayHints: () => [],
+    }
+  },
+
   addAttributes() {
     return {
       type: { default: null },
-      entity: { default: null },
+      bech32: { default: null },
       pubkey: { default: null },
       relays: { default: [], parseHTML: parseRelayAttribute },
     }
@@ -44,14 +51,14 @@ export const NProfileExtension = Node.create<NProfileOptions>({
   },
 
   renderText(props) {
-    return props.node.attrs.entity
+    return 'nostr:' + props.node.attrs.bech32
   },
 
   addStorage() {
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.attrs.entity)
+          state.write('nostr:' + node.attrs.bech32)
         },
         parse: {},
       },
@@ -61,10 +68,10 @@ export const NProfileExtension = Node.create<NProfileOptions>({
   addCommands() {
     return {
       insertNProfile:
-        ({ entity }) =>
+        ({ bech32 }) =>
         ({ chain }) =>
           chain()
-            .insertContent({ type: this.name, attrs: entityToPointer(entity, this.options) })
+            .insertContent({ type: this.name, attrs: entityToPointer(bech32, this.options) })
             .insertContent(' ')
             .run(),
     }

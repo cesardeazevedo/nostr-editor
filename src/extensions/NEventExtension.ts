@@ -14,7 +14,7 @@ export type NEventOptions = PointerOptions<EventPointer>
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     nevent: {
-      insertNEvent: (options: { entity: string }) => ReturnType
+      insertNEvent: (options: { bech32: string }) => ReturnType
     }
   }
 }
@@ -30,13 +30,20 @@ export const NEventExtension = Node.create<NEventOptions>({
 
   priority: 1000,
 
+  addOptions() {
+    return {
+      allowedTypes: ["nevent", "note"],
+      getRelayHints: () => [],
+    }
+  },
+
   addAttributes() {
     return {
       type: { default: null },
       id: { default: null },
       kind: { default: null },
       author: { default: null },
-      entity: { default: null },
+      bech32: { default: null },
       relays: { default: [], parseHTML: parseRelayAttribute },
     }
   },
@@ -46,7 +53,7 @@ export const NEventExtension = Node.create<NEventOptions>({
   },
 
   renderText(props) {
-    return props.node.attrs.entity
+    return 'nostr:' + props.node.attrs.bech32
   },
 
   parseHTML() {
@@ -57,7 +64,7 @@ export const NEventExtension = Node.create<NEventOptions>({
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.attrs.entity)
+          state.write('nostr:' + node.attrs.bech32)
         },
         parse: {},
       },
@@ -67,10 +74,10 @@ export const NEventExtension = Node.create<NEventOptions>({
   addCommands() {
     return {
       insertNEvent:
-        ({ entity }) =>
+        ({ bech32 }) =>
         ({ chain }) =>
           chain()
-            .insertContent({ type: this.name, attrs: entityToPointer(entity, this.options) })
+            .insertContent({ type: this.name, attrs: entityToPointer(bech32, this.options) })
             .insertContent(' ')
             .run(),
     }

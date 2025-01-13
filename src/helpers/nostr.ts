@@ -1,7 +1,8 @@
+/* eslint @typescript-eslint/no-explicit-any: 0 */
 import { decode } from 'nostr-tools/nip19'
 
 export type BasePointer = {
-  entity: string
+  bech32: string
   relays: string[]
 }
 
@@ -39,15 +40,21 @@ export const translateEntityData = (type: string, data: any) => {
 }
 
 export type PointerOptions<T extends NostrEntityPointer> = {
+  allowedTypes: string[]
   getRelayHints?: (pointer: T) => string[]
 }
 
-export const entityToPointer = (entity: string, options: PointerOptions<any>): NostrEntityPointer => {
-  const {type, data} = (decode as any)(entity.split(':').slice(-1))
+export const entityToPointer = <T extends NostrEntityPointer>(bech32: string, options: PointerOptions<T>): T => {
+  const {type, data} = (decode as any)(bech32.split(':').slice(-1)[0])
+
+  if (!options.allowedTypes.includes(type)) {
+    throw new Error(`Invalid nostr entity type for this context: ${type}`)
+  }
+
   const relays = data.relays?.length > 0 ? data.relays : []
   const attrs = translateEntityData(type, data)
+  const pointer = { type, bech32, relays, ...attrs } as T
 
-  let pointer = { type, entity, relays, ...attrs } as NostrEntityPointer
   if (options.getRelayHints) {
     pointer.relays = Array.from(new Set([...relays, ...options.getRelayHints(pointer)]))
   }

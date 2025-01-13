@@ -14,7 +14,7 @@ export type NAddrOptions = PointerOptions<AddressPointer>
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     naddr: {
-      insertNAddr: (options: { entity: string }) => ReturnType
+      insertNAddr: (options: { bech32: string }) => ReturnType
     }
   }
 }
@@ -32,10 +32,17 @@ export const NAddrExtension = Node.create<NAddrOptions>({
 
   priority: 1000,
 
+  addOptions() {
+    return {
+      allowedTypes: ["naddr"],
+      getRelayHints: () => [],
+    }
+  },
+
   addAttributes() {
     return {
       type: { default: null },
-      entity: { default: null },
+      bech32: { default: null },
       identifier: { default: null },
       pubkey: { default: null },
       kind: { default: null },
@@ -48,7 +55,7 @@ export const NAddrExtension = Node.create<NAddrOptions>({
   },
 
   renderText(props) {
-    return props.node.attrs.entity
+    return 'nostr:' + props.node.attrs.bech32
   },
 
   parseHTML() {
@@ -59,7 +66,7 @@ export const NAddrExtension = Node.create<NAddrOptions>({
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.attrs.entity)
+          state.write('nostr:' + node.attrs.bech32)
         },
         parse: {},
       },
@@ -69,10 +76,10 @@ export const NAddrExtension = Node.create<NAddrOptions>({
   addCommands() {
     return {
       insertNAddr:
-        ({ entity }) =>
+        ({ bech32 }) =>
         ({ chain }) =>
           chain()
-            .insertContent({ type: this.name, attrs: entityToPointer(entity, this.options) })
+            .insertContent({ type: this.name, attrs: entityToPointer(bech32, this.options) })
             .insertContent(' ')
             .run(),
     }
