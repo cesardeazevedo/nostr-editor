@@ -273,11 +273,13 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
         }
         let content
         try {
-          content = JSON.parse(event.content)
+          content = JSON.parse(event.content) as { about?: string }
         } catch (error) {
           return false
         }
-        props.chain().setMeta('parse', true).setMeta('uiEvent', 'paste').setContent(replaceTextContent(content.about))
+        if (content.about) {
+          props.chain().setMeta('parse', true).setMeta('uiEvent', 'paste').setContent(replaceTextContent(content.about))
+        }
         return true
       },
     }
