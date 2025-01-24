@@ -77,11 +77,12 @@ export const NAddrExtension = Node.create<NAddrOptions>({
     return {
       insertNAddr:
         ({ bech32 }) =>
-        ({ chain }) =>
-          chain()
-            .insertContent({ type: this.name, attrs: entityToPointer(bech32, this.options) })
-            .insertContent(' ')
-            .run(),
+        ({ commands }) => {
+          commands.insertContent({ type: this.name, attrs: entityToPointer(bech32, this.options) })
+          commands.insertContent(' ')
+
+          return true
+        },
     }
   },
 
