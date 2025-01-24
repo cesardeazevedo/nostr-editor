@@ -196,7 +196,7 @@ describe('parseNote()', () => {
               "author": "0a5a87baeead12b08c0c026caa46c009bb533aae1bd1681f52d609dd2b6fd8bc",
               "id": "2ceb90d42ab5a19b76dddfbda45687bc8011917a41286783edd14ca690fd86ee",
               "kind": null,
-              "nevent": "nostr:nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp",
+              "nevent": "nevent1qgsq5k58hth26y4s3sxqym92gmqqnw6n82hph5tgrafdvzwa9dha30qqyqkwhyx59266rxmkmh0mmfzks77gqyv30fqjseurahg5ef5slkrwuzwpwzp",
               "relays": [],
             },
             "type": "nevent",
@@ -209,7 +209,7 @@ describe('parseNote()', () => {
               },
               {
                 "attrs": {
-                  "nprofile": "nostr:nprofile1qy28wumn8ghj7un9d3shjtnyv9kh2uewd9hsqgq2t2rm4m4dz2cgcrqzdj4ydsqfhdfn4tsm695p75kkp8wjkm7chsuhqyfh",
+                  "nprofile": "nprofile1qy28wumn8ghj7un9d3shjtnyv9kh2uewd9hsqgq2t2rm4m4dz2cgcrqzdj4ydsqfhdfn4tsm695p75kkp8wjkm7chsuhqyfh",
                   "pubkey": "0a5a87baeead12b08c0c026caa46c009bb533aae1bd1681f52d609dd2b6fd8bc",
                   "relays": [
                     "wss://relay.damus.io",
@@ -433,7 +433,7 @@ text **bold** *italic* [link](https://nostr.com)`)
               },
               {
                 "attrs": {
-                  "nprofile": "nostr:nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj",
+                  "nprofile": "nprofile1qqsvvcpmpuwvlmrztkwq3d6nunmhf6hh688jw6fzxyjmtl2d5u5qr8spz3mhxue69uhhyetvv9ujuerpd46hxtnfdufzkeuj",
                   "pubkey": "c6603b0f1ccfec625d9c08b753e4f774eaf7d1cf2769223125b5fd4da728019e",
                   "relays": [
                     "wss://relay.damus.io",
@@ -614,7 +614,7 @@ https://host.com/2.jpeg
             "attrs": {
               "identifier": "Here Comes Bitcoin by Spiral",
               "kind": 30030,
-              "naddr": "nostr:naddr1qqwysetjv5syxmmdv4ejqsnfw33k76twyp38jgznwp5hyctvqgsph3c2q9yt8uckmgelu0yf7glruudvfluesqn7cuftjpwdynm2gygrqsqqqa2w4ua43m",
+              "naddr": "naddr1qqwysetjv5syxmmdv4ejqsnfw33k76twyp38jgznwp5hyctvqgsph3c2q9yt8uckmgelu0yf7glruudvfluesqn7cuftjpwdynm2gygrqsqqqa2w4ua43m",
               "pubkey": "1bc70a0148b3f316da33fe3c89f23e3e71ac4ff998027ec712b905cd24f6a411",
               "relays": [],
             },
@@ -684,7 +684,7 @@ https://host.com/2.jpeg
               },
               {
                 "attrs": {
-                  "nprofile": "nostr:nprofile1qy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcprfmhxue69uhhyetvv9ujuem9w3skccne9e3k7mf0wccsqgxxvqas78x0a339m8qgkaf7fam5atmarne8dy3rzfd4l4x6w2qpncmfs8zh",
+                  "nprofile": "nprofile1qy88wumn8ghj7mn0wvhxcmmv9uq32amnwvaz7tmjv4kxz7fwv3sk6atn9e5k7tcprfmhxue69uhhyetvv9ujuem9w3skccne9e3k7mf0wccsqgxxvqas78x0a339m8qgkaf7fam5atmarne8dy3rzfd4l4x6w2qpncmfs8zh",
                   "pubkey": "c6603b0f1ccfec625d9c08b753e4f774eaf7d1cf2769223125b5fd4da728019e",
                   "relays": [
                     "wss://nos.lol/",

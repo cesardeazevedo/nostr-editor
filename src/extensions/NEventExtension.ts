@@ -5,9 +5,20 @@ import type { EventPointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
 
-export const NOTE_REGEX = /(?<![\w./:?=])(nostr:)?(note1[0-9a-z]+)/g
+const decodeNEvent = (nevent: string) => {
+  const {type, data} = nip19.decode(nevent.replace(/^nostr:/, ''))
 
-export const NEVENT_REGEX = /(?<![\w./:?=])(nostr:)?(nevent1[0-9a-z]+)/g
+  if (type === 'note') {
+    console.warn("Passing note1 entities to nevent extension is deprecated")
+    return {id: data}
+  } else if (type !== 'nevent') {
+    throw new Error(`Invalid nevent ${nevent}`)
+  }
+
+  return data as EventPointer
+}
+
+export const NEVENT_REGEX = /(?<![\w./:?=])(nostr:)?(n(ote|event)1[0-9a-z]+)/g
 
 export interface NEventAttributes {
   nevent: string
@@ -51,7 +62,7 @@ export const NEventExtension = Node.create({
   },
 
   renderText(props) {
-    return props.node.attrs.nevent
+    return 'nostr:' + props.node.attrs.nevent
   },
 
   parseHTML() {
@@ -62,7 +73,7 @@ export const NEventExtension = Node.create({
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.attrs.nevent)
+          state.write('nostr:' + node.attrs.nevent)
         },
         parse: {},
       },
@@ -73,16 +84,11 @@ export const NEventExtension = Node.create({
     return {
       insertNEvent:
         ({ nevent }) =>
-        ({ commands }) => {
-          const parts = nevent.split(':')
-          const attrs = nip19.decode(parts[parts.length - 1])?.data as EventPointer
-          return commands.insertContent(
-            { type: this.name, attrs: { ...attrs, nevent } },
-            {
-              updateSelection: false,
-            },
-          )
-        },
+        ({ chain }) =>
+          chain()
+            .insertContent({type: this.name, attrs: {nevent, ...decodeNEvent(nevent)}})
+            .insertContent(' ')
+            .run(),
     }
   },
 
@@ -94,21 +100,10 @@ export const NEventExtension = Node.create({
         find: (text) => {
           const matches = []
 
-          for (const match of text.matchAll(NOTE_REGEX)) {
-            try {
-              const id = nip19.decode(match[2]).data as string
-              const nevent = match[0]
-
-              matches.push(createPasteRuleMatch(match, { id, nevent }))
-            } catch (e) {
-              continue
-            }
-          }
-
           for (const match of text.matchAll(NEVENT_REGEX)) {
             try {
-              const data = nip19.decode(match[2]).data as EventPointer
-              const nevent = match[0]
+              const nevent = match[2]
+              const data = decodeNEvent(nevent)
 
               matches.push(createPasteRuleMatch(match, { ...data, nevent }))
             } catch (e) {

@@ -5,6 +5,16 @@ import type { AddressPointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
 
+const decodeNAddr = (naddr: string) => {
+  const {type, data} = nip19.decode(naddr.replace(/^nostr:/, ''))
+
+  if (type !== 'naddr') {
+    throw new Error(`Invalid naddr ${naddr}`)
+  }
+
+  return data as AddressPointer
+}
+
 export const NADDR_REGEX = /(?<![\w./:?=])(nostr:)?(naddr1[0-9a-z]+)/g
 
 export interface NAddrAttributes {
@@ -51,7 +61,7 @@ export const NAddrExtension = Node.create({
   },
 
   renderText(props) {
-    return props.node.attrs.naddr
+    return 'nostr:' + props.node.attrs.naddr
   },
 
   parseHTML() {
@@ -62,7 +72,7 @@ export const NAddrExtension = Node.create({
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.attrs.naddr)
+          state.write('nostr:' + node.attrs.naddr)
         },
         parse: {},
       },
@@ -73,16 +83,11 @@ export const NAddrExtension = Node.create({
     return {
       insertNAddr:
         ({ naddr }) =>
-        ({ commands }) => {
-          const parts = naddr.split(':')
-          const attrs = nip19.decode(parts[parts.length - 1])?.data as AddressPointer
-          return commands.insertContent(
-            { type: this.name, attrs: { ...attrs, naddr } },
-            {
-              updateSelection: false,
-            },
-          )
-        },
+        ({ chain }) =>
+          chain()
+            .insertContent({type: this.name, attrs: {naddr, ...decodeNAddr(naddr)}})
+            .insertContent(' ')
+            .run(),
     }
   },
 
@@ -96,8 +101,8 @@ export const NAddrExtension = Node.create({
 
           for (const match of text.matchAll(NADDR_REGEX)) {
             try {
-              const naddr = match[0]
-              const data = nip19.decode(match[2]).data as AddressPointer
+              const naddr = match[2]
+              const data = decodeNAddr(naddr)
 
               matches.push(createPasteRuleMatch(match, { ...data, naddr }))
             } catch (e) {

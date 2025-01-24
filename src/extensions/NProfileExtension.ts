@@ -5,9 +5,19 @@ import type { ProfilePointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
 
-export const NPUB_REGEX = /(?<![\w./:?=])(nostr:)?(npub1[0-9a-z]+)/g
+const decodeNProfile = (nprofile: string) => {
+  const {type, data} = nip19.decode(nprofile.replace(/^nostr:/, ''))
 
-export const NPROFILE_REGEX = /(?<![\w./:?=])(nostr:)?(nprofile1[0-9a-z]+)/g
+  if (type === 'npub') {
+    return {pubkey: data}
+  } else if (type !== 'nprofile') {
+    throw new Error(`Invalid nprofile ${nprofile}`)
+  }
+
+  return data as ProfilePointer
+}
+
+export const NPROFILE_REGEX = /(?<![\w./:?=])(nostr:)?(np(ub|rofile)1[0-9a-z]+)/g
 
 export type NProfileAttributes = {
   nprofile: string
@@ -47,14 +57,14 @@ export const NProfileExtension = Node.create({
   },
 
   renderText(props) {
-    return props.node.attrs.nprofile
+    return 'nostr:' + props.node.attrs.nprofile
   },
 
   addStorage() {
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.attrs.nprofile)
+          state.write('nostr:' + node.attrs.nprofile)
         },
         parse: {},
       },
@@ -65,14 +75,11 @@ export const NProfileExtension = Node.create({
     return {
       insertNProfile:
         ({ nprofile }) =>
-        ({ chain }) => {
-          const parts = nprofile.split(':')
-          const attrs = nip19.decode(parts[parts.length - 1])?.data as ProfilePointer
-          return chain()
-            .insertContent({ type: this.name, attrs: { ...attrs, nprofile } })
+        ({ chain }) =>
+          chain()
+            .insertContent({type: this.name, attrs: {nprofile, ...decodeNProfile(nprofile)}})
             .insertContent(' ')
-            .run()
-        },
+            .run(),
     }
   },
 
@@ -84,21 +91,10 @@ export const NProfileExtension = Node.create({
         find: (text) => {
           const matches = []
 
-          for (const match of text.matchAll(NPUB_REGEX)) {
-            try {
-              const nprofile = match[0]
-              const pubkey = nip19.decode(match[2]).data as string
-
-              matches.push(createPasteRuleMatch(match, { pubkey, nprofile }))
-            } catch (e) {
-              continue
-            }
-          }
-
           for (const match of text.matchAll(NPROFILE_REGEX)) {
             try {
-              const nprofile = match[0]
-              const data = nip19.decode(match[2]).data as ProfilePointer
+              const nprofile = match[2]
+              const data = decodeNProfile(nprofile)
 
               matches.push(createPasteRuleMatch(match, { ...data, nprofile }))
             } catch (e) {
