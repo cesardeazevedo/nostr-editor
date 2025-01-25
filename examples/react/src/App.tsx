@@ -255,13 +255,13 @@ function App() {
             </div>
             <MenuButton
               onClick={() => {
-                editor.chain().insertContent({ type: 'text', text: ' ' }).insertNEvent({ nevent: TEST_NEVENT_1 }).run()
+                editor.chain().insertContent({ type: 'text', text: ' ' }).insertNEvent({ bech32: TEST_NEVENT_1 }).run()
               }}>
               Add NEvent
             </MenuButton>
             <MenuButton
               onClick={() => {
-                editor.chain().insertNProfile({ nprofile: TEST_NPROFILE_1 }).focus().run()
+                editor.chain().insertNProfile({ bech32: TEST_NPROFILE_1 }).focus().run()
               }}>
               Add NProfile
             </MenuButton>
@@ -270,7 +270,7 @@ function App() {
                 editor
                   .chain()
                   .insertContent({ type: 'text', text: ' ' })
-                  .insertNAddr({ naddr: TEST_NADDR })
+                  .insertNAddr({ bech32: TEST_NADDR })
                   .focus()
                   .run()
               }}>
