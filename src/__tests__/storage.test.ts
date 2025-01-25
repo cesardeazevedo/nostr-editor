@@ -20,7 +20,7 @@ describe('Storage', () => {
     const event = fakeEvent({ content: `${nprofile}` })
     editor.commands.setEventContent(event)
     const storage = editor.storage.nostr as NostrStorage
-    expect(storage.getNprofiles()).toEqual([{ ...decoded, nprofile }])
+    expect(storage.getNprofiles()).toEqual([{ ...decoded, bech32: nprofile, type: "nprofile" }])
   })
 
   test('assert getNevents()', ({ editor }) => {
@@ -30,7 +30,7 @@ describe('Storage', () => {
     const event = fakeEvent({ content: `${nevent}` })
     editor.commands.setEventContent(event)
     const storage = editor.storage.nostr as NostrStorage
-    expect(storage.getNevents()).toEqual([{ ...decoded, nevent }])
+    expect(storage.getNevents()).toEqual([{ ...decoded, bech32: nevent, type: "nevent" }])
   })
 
   test('assert getNAddress()', ({ editor }) => {
@@ -40,7 +40,7 @@ describe('Storage', () => {
     const event = fakeEvent({ content: `${naddr}` })
     editor.commands.setEventContent(event)
     const storage = editor.storage.nostr as NostrStorage
-    expect(storage.getNaddress()).toEqual([{ ...decoded, naddr }])
+    expect(storage.getNaddrs()).toEqual([{ ...decoded, bech32: naddr, type: "naddr" }])
   })
 
   describe('with upload', () => {
@@ -79,7 +79,7 @@ describe('Storage', () => {
       await fileUpload.uploader?.start()
 
       expect(editor.getText({ blockSeparator: ' ' })).toStrictEqual(
-        `GM! ${nprofile}  ${naddr}   ${nevent}  #asknostr https://localhost:3000/6c36995913e97b73d5365f93a7b524a9e45edc68e4f11b78060154987c53602c.png https://localhost:3000/008a2224c4d2a513ab2a4add09a2ac20c2d9cec1144b5111bc1317edb2366eac.png`,
+        `GM! nostr:${nprofile}  nostr:${naddr}   nostr:${nevent}  #asknostr https://localhost:3000/6c36995913e97b73d5365f93a7b524a9e45edc68e4f11b78060154987c53602c.png https://localhost:3000/008a2224c4d2a513ab2a4add09a2ac20c2d9cec1144b5111bc1317edb2366eac.png`,
       )
       expect(nostr.getEditorTags()).toStrictEqual([
         ['p', ref.pubkey, 'relay1'],
@@ -93,7 +93,7 @@ describe('Storage', () => {
       // assert without relay hints
       expect(nostr.getEditorTags(false)).toStrictEqual([
         ['p', ref.pubkey],
-        ['q', ref.id, '', ref.pubkey],
+        ['q', ref.id],
         ['a', `1:${ref.pubkey}:identifier`],
         ['imeta', 'dim 500x500', 'm image/png', 'size 21792', `url https://localhost:3000/${hash1}.png`, `x ${hash1}`],
         ['imeta', 'dim 500x500', 'm image/png', 'size 16630', `url https://localhost:3000/${hash2}.png`, `x ${hash2}`],

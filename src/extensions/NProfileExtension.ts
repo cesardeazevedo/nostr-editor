@@ -1,38 +1,42 @@
 import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
-import { nip19 } from 'nostr-tools'
-import type { ProfilePointer } from 'nostr-tools/nip19'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
+import type { ProfilePointer, PointerOptions } from '../helpers/nostr'
+import { entityToPointer } from '../helpers/nostr'
 
-export const NPUB_REGEX = /(?<![\w./:?=])(nostr:)?(npub1[0-9a-z]+)/g
+export const PROFILE_REGEX = /(?<![\w./:?=])(nostr:)?(np(ub|rofile)1[0-9a-z]+)/g
 
-export const NPROFILE_REGEX = /(?<![\w./:?=])(nostr:)?(nprofile1[0-9a-z]+)/g
+export type NProfileAttributes = ProfilePointer
 
-export type NProfileAttributes = {
-  nprofile: string
-  pubkey: string
-  relays: string[]
-}
+export type NProfileOptions = PointerOptions<ProfilePointer>
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     nprofile: {
-      insertNProfile: (options: { nprofile: string }) => ReturnType
+      insertNProfile: (options: { bech32: string }) => ReturnType
     }
   }
 }
 
-export const NProfileExtension = Node.create({
+export const NProfileExtension = Node.create<NProfileOptions>({
   name: 'nprofile',
+  atom: true,
   inline: true,
   group: 'inline',
-  atom: true,
   priority: 1000,
+
+  addOptions() {
+    return {
+      allowedTypes: ["nprofile", "npub"],
+      getRelayHints: () => [],
+    }
+  },
 
   addAttributes() {
     return {
-      nprofile: { default: null },
+      type: { default: null },
+      bech32: { default: null },
       pubkey: { default: null },
       relays: { default: [], parseHTML: parseRelayAttribute },
     }
@@ -47,14 +51,14 @@ export const NProfileExtension = Node.create({
   },
 
   renderText(props) {
-    return props.node.attrs.nprofile
+    return 'nostr:' + props.node.attrs.bech32
   },
 
   addStorage() {
     return {
       markdown: {
         serialize(state: MarkdownSerializerState, node: ProsemirrorNode) {
-          state.write(node.attrs.nprofile)
+          state.write('nostr:' + node.attrs.bech32)
         },
         parse: {},
       },
@@ -64,15 +68,12 @@ export const NProfileExtension = Node.create({
   addCommands() {
     return {
       insertNProfile:
-        ({ nprofile }) =>
-        ({ chain }) => {
-          const parts = nprofile.split(':')
-          const attrs = nip19.decode(parts[parts.length - 1])?.data as ProfilePointer
-          return chain()
-            .insertContent({ type: this.name, attrs: { ...attrs, nprofile } })
-            .insertContent(' ')
-            .run()
-        },
+        ({ bech32 }) =>
+        ({ commands }) =>
+          commands.insertContent(
+            { type: this.name, attrs: entityToPointer(bech32, this.options) },
+            { updateSelection: false }
+          ),
     }
   },
 
@@ -84,23 +85,9 @@ export const NProfileExtension = Node.create({
         find: (text) => {
           const matches = []
 
-          for (const match of text.matchAll(NPUB_REGEX)) {
+          for (const match of text.matchAll(PROFILE_REGEX)) {
             try {
-              const nprofile = match[0]
-              const pubkey = nip19.decode(match[2]).data as string
-
-              matches.push(createPasteRuleMatch(match, { pubkey, nprofile }))
-            } catch (e) {
-              continue
-            }
-          }
-
-          for (const match of text.matchAll(NPROFILE_REGEX)) {
-            try {
-              const nprofile = match[0]
-              const data = nip19.decode(match[2]).data as ProfilePointer
-
-              matches.push(createPasteRuleMatch(match, { ...data, nprofile }))
+              matches.push(createPasteRuleMatch(match, entityToPointer(match[2], this.options)))
             } catch (e) {
               continue
             }

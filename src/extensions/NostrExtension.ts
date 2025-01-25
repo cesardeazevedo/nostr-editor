@@ -12,11 +12,11 @@ import { FileUploadExtension } from './FileUploadExtension'
 import type { ImageOptions } from './ImageExtension'
 import { ImageExtension } from './ImageExtension'
 import { LinkExtension } from './LinkExtension'
-import type { NAddrAttributes } from './NAddrExtension'
+import type { NAddrAttributes, NAddrOptions } from './NAddrExtension'
 import { NAddrExtension } from './NAddrExtension'
-import type { NEventAttributes } from './NEventExtension'
+import type { NEventAttributes, NEventOptions } from './NEventExtension'
 import { NEventExtension } from './NEventExtension'
-import type { NProfileAttributes } from './NProfileExtension'
+import type { NProfileAttributes, NProfileOptions } from './NProfileExtension'
 import { NProfileExtension } from './NProfileExtension'
 import { NSecRejectExtension, type NSecRejectOptions } from './NSecRejectExtension'
 import type { TagAttributes } from './TagExtension'
@@ -49,9 +49,6 @@ export interface NostrOptions {
     nsecReject?: Partial<NSecRejectOptions>
     fileUpload?: Partial<FileUploadOptions>
   }
-  nprofile?: boolean
-  nevent?: boolean
-  naddr?: boolean
   tweet?: boolean
   tag?: boolean
   bolt11?: boolean
@@ -61,6 +58,9 @@ export interface NostrOptions {
   youtube?: Partial<YoutubeOptions> | false
   nsecReject?: Partial<NSecRejectOptions> | false
   fileUpload?: Partial<FileUploadOptions> | false
+  nprofile?: Partial<NProfileOptions> | false
+  nevent?: Partial<NEventOptions> | false
+  naddr?: Partial<NAddrOptions> | false
 }
 
 export interface NostrStorage {
@@ -69,7 +69,7 @@ export interface NostrStorage {
   getTags: () => TagAttributes[]
   getNprofiles: () => NProfileAttributes[]
   getNevents: () => NEventAttributes[]
-  getNaddress: () => NAddrAttributes[]
+  getNaddrs: () => NAddrAttributes[]
   getTtags: () => NostrEvent['tags']
   getImetaTags: () => NostrEvent['tags']
   getPtags: (hints?: boolean) => NostrEvent['tags']
@@ -133,7 +133,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
       imeta: null,
       setImeta: () => {},
       getTags: () => [],
-      getNaddress: () => [],
+      getNaddrs: () => [],
       getNprofiles: () => [],
       getNevents: () => [],
       getPtags: () => [],
@@ -184,7 +184,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
       return nevents
     }
 
-    this.storage.getNaddress = () => {
+    this.storage.getNaddrs = () => {
       const naddress: NAddrAttributes[] = []
       this.editor.state.doc.descendants((node) => {
         if (node.type.name === 'naddr') {
@@ -201,20 +201,47 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
     this.storage.getPtags = (hints = true) => {
       return this.storage
         .getNprofiles()
-        .map((nprofile) => ['p', nprofile.pubkey, hints && nprofile.relays[0]].filter((x) => x !== false))
+        .map(({pubkey, relays}) => {
+          const tag = ['p', pubkey]
+
+          if (hints) {
+            tag.push(relays[0] || '')
+          }
+
+          return tag
+        })
     }
 
     this.storage.getQtags = (hints = true) => {
       return this.storage
         .getNevents()
-        .map((nevent) => ['q', nevent.id, hints ? nevent.relays[0] || '' : '', nevent.author])
+        .map(({id, author, relays}) => {
+          const tag = ['q', id]
+
+          if (hints) {
+            tag.push(relays[0] || '')
+
+            if (author) {
+              tag.push(author)
+            }
+          }
+
+          return tag
+        })
     }
 
     this.storage.getAtags = (hints = true) => {
-      return this.storage.getNaddress().map((naddr) => {
-        const address = `${naddr.kind}:${naddr.pubkey}:${naddr.identifier}`
-        return ['a', address, hints && (naddr.relays?.[0] || false)].filter((x) => x !== false)
-      })
+      return this.storage
+        .getNaddrs()
+        .map(({kind, pubkey, identifier, relays}) => {
+          const tag = ['a', `${kind}:${pubkey}:${identifier}`]
+
+          if (hints) {
+            tag.push(relays[0] || '')
+          }
+
+          return tag
+        })
     }
 
     this.storage.getImetaTags = () => {
