@@ -45,7 +45,7 @@ export type PointerOptions<T extends NostrEntityPointer> = {
 }
 
 export const entityToPointer = <T extends NostrEntityPointer>(bech32: string, options: PointerOptions<T>): T => {
-  const {type, data} = (decode as any)(bech32.split(':').slice(-1)[0])
+  const {type, data} = (decode as any)(bech32.replace(/^nostr:/, ''))
 
   if (!options.allowedTypes.includes(type)) {
     throw new Error(`Invalid nostr entity type for this context: ${type}`)

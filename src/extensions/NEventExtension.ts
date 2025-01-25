@@ -75,12 +75,11 @@ export const NEventExtension = Node.create<NEventOptions>({
     return {
       insertNEvent:
         ({ bech32 }) =>
-        ({ commands }) => {
-          commands.insertContent({ type: this.name, attrs: entityToPointer(bech32, this.options) })
-          commands.insertContent(' ')
-
-          return true
-        },
+        ({ commands }) =>
+          commands.insertContent(
+            { type: this.name, attrs: entityToPointer(bech32, this.options) },
+            { updateSelection: false }
+          ),
     }
   },
 

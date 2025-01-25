@@ -262,19 +262,19 @@ nostr-editor provides several commands to insert various types of content and ma
 #### insertNevent
 
 ```ts
-editor.commands.insertNEvent({ nevent: 'nostr:nevent1...' })
+editor.commands.insertNEvent({ bech32: 'nostr:nevent1...' })
 ```
 
 #### insertNprofile
 
 ```ts
-editor.commands.insertNProfile({ nprofile: 'nostr:nprofile1...' })
+editor.commands.insertNProfile({ bech32: 'nostr:nprofile1...' })
 ```
 
 #### insertNAddr
 
 ```ts
-editor.commands.insertNAddr({ naddr: 'nostr:naddr1...' })
+editor.commands.insertNAddr({ bech32 'nostr:naddr1...' })
 ```
 
 #### insertBolt11
