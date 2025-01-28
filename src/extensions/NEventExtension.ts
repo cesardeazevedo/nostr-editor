@@ -16,8 +16,9 @@ export type NEventAttributes = {
   author?: string
 }
 
-export const makeNEventAttrs = (bech32: string, options?: Nip19Options): NEventAttributes => {
-  const { type, data } = decode(bech32.replace(/^nostr:/, ''))
+export const makeNEventAttrs = (input: string, options?: Nip19Options): NEventAttributes => {
+  const bech32 = input.replace(/^nostr:/, '')
+  const { type, data } = decode(bech32)
   const relays = getNip19Relays({ type, data } as unknown as DecodeResult, options)
 
   switch (type) {

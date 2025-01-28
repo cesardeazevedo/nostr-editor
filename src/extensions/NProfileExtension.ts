@@ -14,8 +14,9 @@ export type NProfileAttributes = {
   relays: string[]
 }
 
-export const makeNProfileAttrs = (bech32: string, options: Nip19Options): NProfileAttributes => {
-  const { type, data } = decode(bech32.replace(/^nostr:/, ''))
+export const makeNProfileAttrs = (input: string, options: Nip19Options): NProfileAttributes => {
+  const bech32 = input.replace(/^nostr:/, '')
+  const { type, data } = decode(bech32)
   const relays = getNip19Relays({ type, data } as unknown as DecodeResult, options)
 
   switch (type) {
