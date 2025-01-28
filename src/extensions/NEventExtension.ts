@@ -5,6 +5,10 @@ import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
 import type { EventPointer, PointerOptions } from '../helpers/nostr'
 import { entityToPointer } from '../helpers/nostr'
 
+export function parseNEventBech32(bech32: string, options: NEventOptions): EventPointer {
+  return entityToPointer(bech32, options)
+}
+
 export const EVENT_REGEX = /(?<![\w./:?=])(nostr:)?(n(ote|event)1[0-9a-z]+)/g
 
 export type NEventAttributes = EventPointer
@@ -76,10 +80,9 @@ export const NEventExtension = Node.create<NEventOptions>({
       insertNEvent:
         ({ bech32 }) =>
         ({ commands }) =>
-          commands.insertContent(
+          commands.insertContent([
             { type: this.name, attrs: entityToPointer(bech32, this.options) },
-            { updateSelection: false }
-          ),
+          ], { updateSelection: false }),
     }
   },
 

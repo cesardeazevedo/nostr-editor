@@ -255,7 +255,7 @@ function App() {
             </div>
             <MenuButton
               onClick={() => {
-                editor.chain().insertContent({ type: 'text', text: ' ' }).insertNEvent({ bech32: TEST_NEVENT_1 }).run()
+                editor.chain().insertNEvent({ bech32: TEST_NEVENT_1 }).focus().run()
               }}>
               Add NEvent
             </MenuButton>
@@ -267,23 +267,13 @@ function App() {
             </MenuButton>
             <MenuButton
               onClick={() => {
-                editor
-                  .chain()
-                  .insertContent({ type: 'text', text: ' ' })
-                  .insertNAddr({ bech32: TEST_NADDR })
-                  .focus()
-                  .run()
+                editor.chain().insertNAddr({ bech32: TEST_NADDR }).focus().run()
               }}>
               Add NAddr
             </MenuButton>
             <MenuButton
               onClick={() =>
-                editor
-                  .chain()
-                  .insertContent({ type: 'text', text: ' ' })
-                  .insertBolt11({ lnbc: TEST_LNBC })
-                  .focus()
-                  .run()
+                editor.chain().insertBolt11({ lnbc: TEST_LNBC }).focus().run()
               }>
               Add Bolt11
             </MenuButton>

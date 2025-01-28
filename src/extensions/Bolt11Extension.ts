@@ -62,10 +62,10 @@ export const Bolt11Extension = Node.create({
     return {
       insertBolt11:
         ({ lnbc }) =>
-        ({ commands }) => {
-          const bolt11 = decode(lnbc)
-          return commands.insertContent({ type: this.name, attrs: { bolt11, lnbc } }, { updateSelection: false })
-        },
+        ({ commands }) =>
+          commands.insertContent([
+            { type: this.name, attrs: { bolt11: decode(lnbc), lnbc } },
+          ], { updateSelection: false }),
     }
   },
 

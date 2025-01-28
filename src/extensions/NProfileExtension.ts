@@ -70,10 +70,9 @@ export const NProfileExtension = Node.create<NProfileOptions>({
       insertNProfile:
         ({ bech32 }) =>
         ({ commands }) =>
-          commands.insertContent(
+          commands.insertContent([
             { type: this.name, attrs: entityToPointer(bech32, this.options) },
-            { updateSelection: false }
-          ),
+          ], { updateSelection: false }),
     }
   },
 
