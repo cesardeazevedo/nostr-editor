@@ -7,6 +7,10 @@ import { createPasteRuleMatch } from '../helpers/utils'
 
 const LNBC_REGEX = /(?<![\w./:?=])(lnbc[0-9a-z]{10,})/g
 
+export const makeBolt11Attrs = (lnbc: string) => ({ bolt11: decode(lnbc), lnbc })
+
+export const makeBolt11Node = (lnbc: string) => ({ type: 'bolt11', attrs: makeBolt11Attrs(lnbc) })
+
 export interface Bolt11Attributes {
   lnbc: string
   bolt11: ReturnType<typeof decode>
@@ -62,10 +66,8 @@ export const Bolt11Extension = Node.create({
     return {
       insertBolt11:
         ({ lnbc }) =>
-        ({ commands }) => {
-          const bolt11 = decode(lnbc)
-          return commands.insertContent({ type: this.name, attrs: { bolt11, lnbc } }, { updateSelection: false })
-        },
+        ({ commands }) =>
+          commands.insertContent(makeBolt11Node(lnbc), { updateSelection: false }),
     }
   },
 
@@ -88,10 +90,11 @@ export const Bolt11Extension = Node.create({
         getAttributes: (match) => match.data,
         find: (text) => {
           const matches = [] as PasteRuleMatch[]
+
           for (const match of text.matchAll(LNBC_REGEX)) {
-            const bolt11 = decode(match[0])
-            matches.push(createPasteRuleMatch(match, { bolt11, lnbc: match[0] }))
+            matches.push(createPasteRuleMatch(match, makeBolt11Attrs(match[0])))
           }
+
           return matches
         },
       }),

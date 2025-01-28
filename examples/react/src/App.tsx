@@ -6,7 +6,7 @@ import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '
 import StarterKit from '@tiptap/starter-kit'
 import Suggestion from '@tiptap/suggestion'
 import type { NProfileAttributes } from 'nostr-editor'
-import { NostrExtension } from 'nostr-editor'
+import { NostrExtension, makeNEventNode, makeNAddrNode, makeNProfileNode, makeBolt11Node } from 'nostr-editor'
 import type { EventTemplate, NostrEvent } from 'nostr-tools'
 import { nip19 } from 'nostr-tools'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -255,13 +255,21 @@ function App() {
             </div>
             <MenuButton
               onClick={() => {
-                editor.chain().insertContent({ type: 'text', text: ' ' }).insertNEvent({ bech32: TEST_NEVENT_1 }).run()
+                editor
+                  .chain()
+                  .insertContent([makeNEventNode(TEST_NEVENT_1), { type: 'text', text: ' ' }])
+                  .focus()
+                  .run()
               }}>
               Add NEvent
             </MenuButton>
             <MenuButton
               onClick={() => {
-                editor.chain().insertNProfile({ bech32: TEST_NPROFILE_1 }).focus().run()
+                editor
+                  .chain()
+                  .insertContent([makeNProfileNode(TEST_NPROFILE_1), { type: 'text', text: ' ' }])
+                  .focus()
+                  .run()
               }}>
               Add NProfile
             </MenuButton>
@@ -269,8 +277,7 @@ function App() {
               onClick={() => {
                 editor
                   .chain()
-                  .insertContent({ type: 'text', text: ' ' })
-                  .insertNAddr({ bech32: TEST_NADDR })
+                  .insertContent([makeNAddrNode(TEST_NADDR), { type: 'text', text: ' ' }])
                   .focus()
                   .run()
               }}>
@@ -280,8 +287,7 @@ function App() {
               onClick={() =>
                 editor
                   .chain()
-                  .insertContent({ type: 'text', text: ' ' })
-                  .insertBolt11({ lnbc: TEST_LNBC })
+                  .insertContent([makeBolt11Node(TEST_LNBC), { type: 'text', text: ' ' }])
                   .focus()
                   .run()
               }>

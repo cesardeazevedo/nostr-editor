@@ -199,49 +199,43 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
     }
 
     this.storage.getPtags = (hints = true) => {
-      return this.storage
-        .getNprofiles()
-        .map(({pubkey, relays}) => {
-          const tag = ['p', pubkey]
+      return this.storage.getNprofiles().map(({ pubkey, relays }) => {
+        const tag = ['p', pubkey]
 
-          if (hints) {
-            tag.push(relays[0] || '')
-          }
+        if (hints) {
+          tag.push(relays[0] || '')
+        }
 
-          return tag
-        })
+        return tag
+      })
     }
 
     this.storage.getQtags = (hints = true) => {
-      return this.storage
-        .getNevents()
-        .map(({id, author, relays}) => {
-          const tag = ['q', id]
+      return this.storage.getNevents().map(({ id, author, relays }) => {
+        const tag = ['q', id]
 
-          if (hints) {
-            tag.push(relays[0] || '')
+        if (hints) {
+          tag.push(relays[0] || '')
 
-            if (author) {
-              tag.push(author)
-            }
+          if (author) {
+            tag.push(author)
           }
+        }
 
-          return tag
-        })
+        return tag
+      })
     }
 
     this.storage.getAtags = (hints = true) => {
-      return this.storage
-        .getNaddrs()
-        .map(({kind, pubkey, identifier, relays}) => {
-          const tag = ['a', `${kind}:${pubkey}:${identifier}`]
+      return this.storage.getNaddrs().map(({ kind, pubkey, identifier, relays }) => {
+        const tag = ['a', `${kind}:${pubkey}:${identifier}`]
 
-          if (hints) {
-            tag.push(relays[0] || '')
-          }
+        if (hints) {
+          tag.push(relays[0] || '')
+        }
 
-          return tag
-        })
+        return tag
+      })
     }
 
     this.storage.getImetaTags = () => {
