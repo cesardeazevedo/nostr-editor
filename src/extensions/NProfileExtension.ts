@@ -14,7 +14,7 @@ export type NProfileAttributes = {
   relays: string[]
 }
 
-export const makeNProfileAttrs = (input: string, options: Nip19Options): NProfileAttributes => {
+export const makeNProfileAttrs = (input: string, options?: Nip19Options): NProfileAttributes => {
   const bech32 = input.replace(/^nostr:/, '')
   const { type, data } = decode(bech32)
   const relays = getNip19Relays({ type, data } as unknown as DecodeResult, options)
@@ -29,7 +29,7 @@ export const makeNProfileAttrs = (input: string, options: Nip19Options): NProfil
   }
 }
 
-export const makeNProfileNode = (bech32: string, options: Nip19Options) => ({
+export const makeNProfileNode = (bech32: string, options?: Nip19Options) => ({
   type: 'nprofile',
   attrs: makeNProfileAttrs(bech32, options),
 })

@@ -16,7 +16,7 @@ export type NAddrAttributes = {
   relays: string[]
 }
 
-export const makeNAddrAttrs = (input: string, options: Nip19Options): NAddrAttributes => {
+export const makeNAddrAttrs = (input: string, options?: Nip19Options): NAddrAttributes => {
   const bech32 = input.replace(/^nostr:/, '')
   const { type, data } = decode(bech32)
   const relays = getNip19Relays({ type, data } as unknown as DecodeResult, options)
@@ -29,7 +29,7 @@ export const makeNAddrAttrs = (input: string, options: Nip19Options): NAddrAttri
   }
 }
 
-export const makeNAddrNode = (bech32: string, options: Nip19Options) => ({
+export const makeNAddrNode = (bech32: string, options?: Nip19Options) => ({
   type: 'naddr',
   attrs: makeNAddrAttrs(bech32, options),
 })
