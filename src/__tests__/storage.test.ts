@@ -20,7 +20,7 @@ describe('Storage', () => {
     const event = fakeEvent({ content: `${nprofile}` })
     editor.commands.setEventContent(event)
     const storage = editor.storage.nostr as NostrStorage
-    expect(storage.getNprofiles()).toEqual([{ ...decoded, bech32: nprofile, type: "nprofile" }])
+    expect(storage.getNprofiles()).toEqual([{ ...decoded, bech32: nprofile, type: 'nprofile' }])
   })
 
   test('assert getNevents()', ({ editor }) => {
@@ -30,7 +30,7 @@ describe('Storage', () => {
     const event = fakeEvent({ content: `${nevent}` })
     editor.commands.setEventContent(event)
     const storage = editor.storage.nostr as NostrStorage
-    expect(storage.getNevents()).toEqual([{ ...decoded, bech32: nevent, type: "nevent" }])
+    expect(storage.getNevents()).toEqual([{ ...decoded, bech32: nevent, type: 'nevent' }])
   })
 
   test('assert getNAddress()', ({ editor }) => {
@@ -40,7 +40,7 @@ describe('Storage', () => {
     const event = fakeEvent({ content: `${naddr}` })
     editor.commands.setEventContent(event)
     const storage = editor.storage.nostr as NostrStorage
-    expect(storage.getNaddrs()).toEqual([{ ...decoded, bech32: naddr, type: "naddr" }])
+    expect(storage.getNaddrs()).toEqual([{ ...decoded, bech32: naddr, type: 'naddr' }])
   })
 
   describe('with upload', () => {

@@ -132,8 +132,7 @@ export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploa
             }
           },
           handlePaste(_, event) {
-            uploader.handlePaste(event)
-            return true
+            return uploader.handlePaste(event)
           },
         },
       }),
@@ -293,20 +292,25 @@ class Uploader {
 
   handlePaste(event: ClipboardEvent) {
     const data = event.clipboardData
+
     if (data) {
       const items = data.items
 
+      let handled = false
       for (let i = 0; i < items.length; i++) {
         const item = items[i]
 
         if (item.kind === 'file' && this.options.allowedMimeTypes.includes(item.type)) {
           const file = item.getAsFile()
+
           if (file) {
-            const pos = this.view.state.selection.from + 1
-            this.addFile(file, pos)
+            this.addFile(file, this.view.state.selection.from + 1)
+            handled = true
           }
         }
       }
+
+      return handled
     }
   }
 }

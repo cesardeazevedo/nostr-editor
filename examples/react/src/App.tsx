@@ -6,7 +6,7 @@ import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '
 import StarterKit from '@tiptap/starter-kit'
 import Suggestion from '@tiptap/suggestion'
 import type { NProfileAttributes } from 'nostr-editor'
-import { NostrExtension } from 'nostr-editor'
+import { NostrExtension, makeNEventNode, makeNAddrNode, makeNProfileNode, makeBolt11Node } from 'nostr-editor'
 import type { EventTemplate, NostrEvent } from 'nostr-tools'
 import { nip19 } from 'nostr-tools'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -255,25 +255,41 @@ function App() {
             </div>
             <MenuButton
               onClick={() => {
-                editor.chain().insertNEvent({ bech32: TEST_NEVENT_1 }).focus().run()
+                editor
+                  .chain()
+                  .insertContent([makeNEventNode(TEST_NEVENT_1), { type: 'text', text: ' ' }])
+                  .focus()
+                  .run()
               }}>
               Add NEvent
             </MenuButton>
             <MenuButton
               onClick={() => {
-                editor.chain().insertNProfile({ bech32: TEST_NPROFILE_1 }).focus().run()
+                editor
+                  .chain()
+                  .insertContent([makeNProfileNode(TEST_NPROFILE_1), { type: 'text', text: ' ' }])
+                  .focus()
+                  .run()
               }}>
               Add NProfile
             </MenuButton>
             <MenuButton
               onClick={() => {
-                editor.chain().insertNAddr({ bech32: TEST_NADDR }).focus().run()
+                editor
+                  .chain()
+                  .insertContent([makeNAddrNode(TEST_NADDR), { type: 'text', text: ' ' }])
+                  .focus()
+                  .run()
               }}>
               Add NAddr
             </MenuButton>
             <MenuButton
               onClick={() =>
-                editor.chain().insertBolt11({ lnbc: TEST_LNBC }).focus().run()
+                editor
+                  .chain()
+                  .insertContent([makeBolt11Node(TEST_LNBC), { type: 'text', text: ' ' }])
+                  .focus()
+                  .run()
               }>
               Add Bolt11
             </MenuButton>

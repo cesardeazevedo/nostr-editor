@@ -1,19 +1,43 @@
+import { decode } from 'nostr-tools/nip19'
+import type { DecodeResult } from 'nostr-tools/nip19'
 import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
 import { createPasteRuleMatch, parseRelayAttribute } from '../helpers/utils'
-import type { EventPointer, PointerOptions } from '../helpers/nostr'
-import { entityToPointer } from '../helpers/nostr'
+import { getNip19Relays } from '../helpers/nostr'
+import type { Nip19Options } from '../helpers/nostr'
 
-export function parseNEventBech32(bech32: string, options: NEventOptions): EventPointer {
-  return entityToPointer(bech32, options)
+export type NEventAttributes = {
+  type: 'nevent' | 'note'
+  bech32: string
+  relays: string[]
+  id: string
+  kind?: number
+  author?: string
 }
+
+export const makeNEventAttrs = (bech32: string, options?: Nip19Options): NEventAttributes => {
+  const { type, data } = decode(bech32.replace(/^nostr:/, ''))
+  const relays = getNip19Relays({ type, data } as unknown as DecodeResult, options)
+
+  switch (type) {
+    case 'note':
+      return { type, bech32, relays, id: data }
+    case 'nevent':
+      return { type, bech32, relays, id: data.id, kind: data.kind, author: data.author }
+    default:
+      throw new Error(`Invalid nostr entity type for this context: ${type}`)
+  }
+}
+
+export const makeNEventNode = (bech32: string, options?: Nip19Options) => ({
+  type: 'nevent',
+  attrs: makeNEventAttrs(bech32, options),
+})
 
 export const EVENT_REGEX = /(?<![\w./:?=])(nostr:)?(n(ote|event)1[0-9a-z]+)/g
 
-export type NEventAttributes = EventPointer
-
-export type NEventOptions = PointerOptions<EventPointer>
+export type NEventOptions = Nip19Options
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -36,7 +60,6 @@ export const NEventExtension = Node.create<NEventOptions>({
 
   addOptions() {
     return {
-      allowedTypes: ["nevent", "note"],
       getRelayHints: () => [],
     }
   },
@@ -80,9 +103,7 @@ export const NEventExtension = Node.create<NEventOptions>({
       insertNEvent:
         ({ bech32 }) =>
         ({ commands }) =>
-          commands.insertContent([
-            { type: this.name, attrs: entityToPointer(bech32, this.options) },
-          ], { updateSelection: false }),
+          commands.insertContent(makeNEventNode(bech32, this.options), { updateSelection: false }),
     }
   },
 
@@ -96,7 +117,7 @@ export const NEventExtension = Node.create<NEventOptions>({
 
           for (const match of text.matchAll(EVENT_REGEX)) {
             try {
-              matches.push(createPasteRuleMatch(match, entityToPointer(match[2], this.options)))
+              matches.push(createPasteRuleMatch(match, makeNEventAttrs(match[2], this.options)))
             } catch (e) {
               continue
             }
