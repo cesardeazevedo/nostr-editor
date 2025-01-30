@@ -195,7 +195,12 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
     }
 
     this.storage.getTtags = () => {
-      return this.storage.getTags().map(({ tag }) => ['t', tag])
+      const tags: string[][] = [];
+      this.storage.getTags().forEach(({ tag }) => {
+        const s = tag.slice(1).toLocaleLowerCase();
+        if (!tags.some((t) => t[1] === s)) tags.push(['t',s]);
+      });
+      return tags
     }
 
     this.storage.getPtags = (hints = true) => {
