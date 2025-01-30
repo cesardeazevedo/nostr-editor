@@ -70,7 +70,7 @@ describe('Storage', () => {
         relays: ['relay1'],
         pubkey: ref.pubkey,
       })
-      const event = fakeEvent({ content: `GM! ${nprofile} ${naddr} ${nevent} #asknostr` })
+      const event = fakeEvent({ content: `GM! ${nprofile} ${naddr} ${nevent} #asknostr #Photography` })
 
       editor.commands.setEventContent(event)
       fileUpload.uploader?.addFile(file, editor.$doc.size - 2)
@@ -79,7 +79,7 @@ describe('Storage', () => {
       await fileUpload.uploader?.start()
 
       expect(editor.getText({ blockSeparator: ' ' })).toStrictEqual(
-        `GM! nostr:${nprofile}  nostr:${naddr}   nostr:${nevent}  #asknostr https://localhost:3000/6c36995913e97b73d5365f93a7b524a9e45edc68e4f11b78060154987c53602c.png https://localhost:3000/008a2224c4d2a513ab2a4add09a2ac20c2d9cec1144b5111bc1317edb2366eac.png`,
+        `GM! nostr:${nprofile}  nostr:${naddr}   nostr:${nevent}  #asknostr #Photography https://localhost:3000/6c36995913e97b73d5365f93a7b524a9e45edc68e4f11b78060154987c53602c.png https://localhost:3000/008a2224c4d2a513ab2a4add09a2ac20c2d9cec1144b5111bc1317edb2366eac.png`,
       )
       expect(nostr.getEditorTags()).toStrictEqual([
         ['p', ref.pubkey, 'relay1'],
@@ -87,7 +87,8 @@ describe('Storage', () => {
         ['a', `1:${ref.pubkey}:identifier`, 'relay1'],
         ['imeta', 'dim 500x500', 'm image/png', 'size 21792', `url https://localhost:3000/${hash1}.png`, `x ${hash1}`],
         ['imeta', 'dim 500x500', 'm image/png', 'size 16630', `url https://localhost:3000/${hash2}.png`, `x ${hash2}`],
-        ['t', '#asknostr'],
+        ['t', 'asknostr'],
+        ['t', 'photography'],
       ])
 
       // assert without relay hints
@@ -97,7 +98,8 @@ describe('Storage', () => {
         ['a', `1:${ref.pubkey}:identifier`],
         ['imeta', 'dim 500x500', 'm image/png', 'size 21792', `url https://localhost:3000/${hash1}.png`, `x ${hash1}`],
         ['imeta', 'dim 500x500', 'm image/png', 'size 16630', `url https://localhost:3000/${hash2}.png`, `x ${hash2}`],
-        ['t', '#asknostr'],
+        ['t', 'asknostr'],
+        ['t', 'photography'],
       ])
     })
   })
