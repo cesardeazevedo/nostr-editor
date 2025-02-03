@@ -15,7 +15,7 @@ declare module '@tiptap/core' {
       addFile: (file: File, pos: number) => ReturnType
       selectFiles: () => ReturnType
       uploadFiles: () => ReturnType
-      removeBlobs: () => ReturnType
+      removeBlobs: (errorsOnly?: boolean) => ReturnType
     }
   }
 }
@@ -79,17 +79,22 @@ export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploa
         props.tr.setMeta('uploadFiles', true)
         return true
       },
-      removeBlobs: () => (props) => {
-        props.state.doc.descendants((node, pos) => {
-          if (!(node.type.name === 'image' || node.type.name === 'video')) {
-            return
-          }
-          if (node.attrs.src.startsWith('blob:')) {
-            props.state.tr.delete(pos, pos + node.nodeSize)
-          }
-        })
-        return true
-      },
+      removeBlobs:
+        (errorsOnly = false) =>
+        (props) => {
+          props.state.doc.descendants((node, pos) => {
+            if (!(node.type.name === 'image' || node.type.name === 'video')) {
+              return
+            }
+            if (node.attrs.src.startsWith('blob:')) {
+              if (errorsOnly && !node.attrs.uploadError) {
+                return
+              }
+              props.state.tr.delete(pos, pos + node.nodeSize)
+            }
+          })
+          return true
+        },
     }
   },
 
@@ -234,7 +239,7 @@ class Uploader {
           : await uploadBlossom({ file, serverUrl, hash, sign, expiration })
     } catch (error) {
       const msg = error?.toString() as string
-      res = { uploadError: msg } as UploadTask
+      res = { uploadError: msg, url: serverUrl } as UploadTask
     }
 
     this.onUploadDone(node, res)
