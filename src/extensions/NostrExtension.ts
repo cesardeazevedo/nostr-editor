@@ -195,11 +195,11 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
     }
 
     this.storage.getTtags = () => {
-      const tags: string[][] = [];
+      const tags: string[][] = []
       this.storage.getTags().forEach(({ tag }) => {
-        const s = tag.slice(1).toLocaleLowerCase();
-        if (!tags.some((t) => t[1] === s)) tags.push(['t',s]);
-      });
+        const s = tag.slice(1).toLocaleLowerCase()
+        if (!tags.some((t) => t[1] === s)) tags.push(['t', s])
+      })
       return tags
     }
 
