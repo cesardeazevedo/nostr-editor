@@ -15,6 +15,7 @@ declare module '@tiptap/core' {
       addFile: (file: File, pos: number) => ReturnType
       selectFiles: () => ReturnType
       uploadFiles: () => ReturnType
+      removeBlobs: () => ReturnType
     }
   }
 }
@@ -76,6 +77,17 @@ export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploa
       },
       uploadFiles: () => (props) => {
         props.tr.setMeta('uploadFiles', true)
+        return true
+      },
+      removeBlobs: () => (props) => {
+        props.state.doc.descendants((node, pos) => {
+          if (!(node.type.name === 'image' || node.type.name === 'video')) {
+            return
+          }
+          if (node.attrs.src.startsWith('blob:')) {
+            props.state.tr.delete(pos, pos + node.nodeSize)
+          }
+        })
         return true
       },
     }
