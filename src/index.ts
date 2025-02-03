@@ -18,3 +18,5 @@ export { VideoExtension, type VideoAttributes } from './extensions/VideoExtensio
 export { type IMetaTags } from './helpers/nip92.imeta'
 export * from './types'
 export * from './uploaders/types'
+export * from './uploaders/blossom'
+export * from './uploaders/nip96'
