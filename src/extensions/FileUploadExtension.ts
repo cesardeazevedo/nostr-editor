@@ -213,7 +213,7 @@ class Uploader {
       if (node.attrs.src === nodeRef.attrs.src) {
         this.updateNodeAttributes(pos, {
           ...response,
-          src: response.url,
+          src: encodeURI(response.url),
           uploading: false,
         })
       }
