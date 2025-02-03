@@ -102,7 +102,10 @@ describe('FileUpload', () => {
     expect(spyUpload).toHaveBeenCalledOnce()
     expect(spyUpload).toHaveBeenCalledWith(editor, res1)
     expect(spyUploadError).toHaveBeenCalledOnce()
-    expect(spyUploadError).toHaveBeenCalledWith(editor, { uploadError: 'Error: Invalid file' })
+    expect(spyUploadError).toHaveBeenCalledWith(editor, {
+      uploadError: 'Error: Invalid file',
+      url: 'https://localhost:3000',
+    })
     expect(spyComplete).not.toHaveBeenCalledOnce()
   })
 
