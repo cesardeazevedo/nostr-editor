@@ -15,7 +15,8 @@ declare module '@tiptap/core' {
       addFile: (file: File, pos: number) => ReturnType
       selectFiles: () => ReturnType
       uploadFiles: () => ReturnType
-      removeBlobs: (errorsOnly?: boolean) => ReturnType
+      removeFailedUploads: () => ReturnType
+      removePendingUploads: () => ReturnType
     }
   }
 }
@@ -79,22 +80,24 @@ export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploa
         props.tr.setMeta('uploadFiles', true)
         return true
       },
-      removeBlobs:
-        (errorsOnly = false) =>
-        (props) => {
-          props.state.doc.descendants((node, pos) => {
-            if (!(node.type.name === 'image' || node.type.name === 'video')) {
-              return
-            }
-            if (node.attrs.src.startsWith('blob:')) {
-              if (errorsOnly && !node.attrs.uploadError) {
-                return
-              }
-              props.state.tr.delete(pos, pos + node.nodeSize)
-            }
-          })
-          return true
-        },
+      removePendingUploads: () => (props) => {
+        props.state.doc.descendants((node, pos) => {
+          if (['image', 'video'].includes(node.type.name) && node.attrs.uploading) {
+            props.state.tr.delete(pos, pos + node.nodeSize)
+          }
+        })
+
+        return true
+      },
+      removeFailedUploads: () => (props) => {
+        props.state.doc.descendants((node, pos) => {
+          if (['image', 'video'].includes(node.type.name) && node.attrs.uploadError) {
+            props.state.tr.delete(pos, pos + node.nodeSize)
+          }
+        })
+
+        return true
+      },
     }
   },
 
