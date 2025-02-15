@@ -46,7 +46,15 @@ export const mockBlossomServer = setupServer(
     const buffer = (await info.request.body?.getReader().read())?.value
     if (buffer) {
       const sha256 = bufferToHex(await crypto.subtle.digest('SHA-256', buffer.buffer)) as keyof typeof responses
-      return HttpResponse.json(responses[sha256] || {}, { status: sha256 === hash3 ? 401 : 200 })
+      if (sha256 === hash3) {
+        // Return error file response
+        return HttpResponse.json(responses[sha256] || {}, {
+          status: 401,
+          headers: { 'X-Reason': responses[sha256].message },
+        })
+      } else {
+        return HttpResponse.json(responses[sha256] || {}, { status: 200 })
+      }
     }
   }),
 )
