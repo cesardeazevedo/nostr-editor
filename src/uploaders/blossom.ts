@@ -53,10 +53,11 @@ export async function uploadBlossom(options: BlossomOptions): Promise<UploadTask
       authorization,
     },
   })
-  const data = await res.json()
   if (res.status !== 200) {
-    throw new Error((data as BlossomResponseError).message)
+    const reason = res.headers.get('X-Reason')
+    throw new Error(reason || 'Error on blossom upload')
   }
+  const data = await res.json()
   const { nip94, ...json } = data as BlossomResponse
   // Always append file extension if missing
   const { pathname } = new URL(json.url)
