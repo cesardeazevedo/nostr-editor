@@ -11,7 +11,7 @@ import { Video } from './Video'
 
 export function VideoEditor(props: NodeViewProps) {
   const { src, alt, uploadError, uploadUrl, uploading } = props.node.attrs as VideoAttributes
-  const isUploaded = !src.startsWith('blob://http')
+  const isUploaded = !src.startsWith('blob:http')
   return (
     <NodeViewWrapper
       data-drag-handle=''

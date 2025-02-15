@@ -11,7 +11,7 @@ import { Image } from './Image'
 
 export function ImageEditor(props: NodeViewProps) {
   const { src, alt, uploadUrl, uploading, uploadError } = props.node.attrs as ImageAttributes
-  const isUploaded = !src.startsWith('blob://http')
+  const isUploaded = !src.startsWith('blob:http')
   return (
     <NodeViewWrapper
       data-drag-handle=''
