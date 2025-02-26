@@ -28,6 +28,13 @@ export const VideoExtension = Node.create({
 
   draggable: true,
 
+  addOptions() {
+    return {
+      defaultUploadUrl: 'https://nostr.build',
+      defaultUploadType: 'nip96',
+    }
+  },
+
   addAttributes() {
     return {
       src: { default: null },
@@ -37,8 +44,8 @@ export const VideoExtension = Node.create({
       sha256: { default: null },
       uploading: { default: false },
       uploadError: { default: null },
-      uploadType: { default: 'nip96' },
-      uploadUrl: { default: 'https://nostr.build' },
+      uploadType: { default: this.options.defaultUploadType },
+      uploadUrl: { default: this.options.defaultUploadUrl },
     }
   },
 
