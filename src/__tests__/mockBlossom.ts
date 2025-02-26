@@ -14,6 +14,8 @@ export const responses = {
     url: `${url}/${hash1}`,
     type: 'image/png',
     size: 21792,
+    // Old blossom nip94 format
+    // https://github.com/hzrd149/blossom/pull/60
     nip94: {
       url: `${url}/${hash1}`,
       size: 21792,
@@ -27,13 +29,13 @@ export const responses = {
     url: `${url}/${hash2}`,
     type: 'image/png',
     size: 16630,
-    nip94: {
-      url: `${url}/${hash2}`,
-      size: 16630,
-      x: hash2,
-      m: 'image/png',
-      dim: '500x500',
-    },
+    nip94: [
+      ['url', `${url}/${hash2}`],
+      ['size', 16630],
+      ['x', hash2],
+      ['m', 'image/png'],
+      ['dim', '500x500'],
+    ],
   },
   // error hash
   [hash3]: {
