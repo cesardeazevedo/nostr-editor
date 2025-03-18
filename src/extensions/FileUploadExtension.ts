@@ -151,8 +151,11 @@ export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploa
               uploader.start()
             }
           },
-          handlePaste(_, event) {
-            return uploader.handlePaste(event)
+          handlePaste: (_, event) => {
+            uploader.handlePaste(event)
+            if (this.options.immediateUpload) {
+              uploader.start()
+            }
           },
         },
       }),
