@@ -86,7 +86,7 @@ export const test = base.extend<Fixtures>({
     return use((editor: Editor) => {
       const fileUpload = fileUploadExtension(editor)
 
-      const spySign = vitest.fn()
+      const spySign = vitest.fn(async (event) => Promise.resolve(event as NostrEvent))
       const spyHash = vitest.fn()
       const spyDrop = vitest.fn()
       const spyStart = vitest.fn()
