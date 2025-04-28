@@ -72,6 +72,7 @@
     "tiptap-markdown": "^0.8.10"
   },
   "dependencies": {
+    "js-base64": "^3.7.7",
     "light-bolt11-decoder": "^3.1.1"
   }
 }
