@@ -111,7 +111,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
       extensions.push(ImageExtension.configure(this.options.image).extend(extend.image))
     }
     if (this.options.video !== false) {
-      extensions.push(VideoExtension.extend(extend.video))
+      extensions.push(VideoExtension.configure(this.options.video).extend(extend.video))
     }
     if (this.options.tweet !== false) {
       extensions.push(TweetExtension.extend(extend.tweet))

@@ -1,3 +1,4 @@
+import { Base64 } from 'js-base64'
 import type { EventTemplate, NostrEvent } from 'nostr-tools/core'
 import type { UploadTask } from './types'
 
@@ -46,7 +47,7 @@ export async function uploadBlossom(options: BlossomOptions): Promise<UploadTask
       ['expiration', Math.floor(now + (options.expiration || 60000)).toString()],
     ],
   })
-  const base64 = btoa(JSON.stringify(event))
+  const base64 = Base64.encode(JSON.stringify(event))
   const authorization = `Nostr ${base64}`
   const res = await fetch(options.serverUrl + '/upload', {
     method: 'PUT',
