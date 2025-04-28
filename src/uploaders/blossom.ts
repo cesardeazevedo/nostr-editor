@@ -23,6 +23,8 @@ export interface BlossomResponseError {
   message: string
 }
 
+const mapUrlWithExtension = (url: string) => (tag: string[]) => (tag[0] === 'url' ? [tag[0], url] : tag)
+
 export async function uploadBlossom(options: BlossomOptions): Promise<UploadTask> {
   if (!options.hash) {
     throw new Error('No hash function provided')
@@ -68,6 +70,8 @@ export async function uploadBlossom(options: BlossomOptions): Promise<UploadTask
   return {
     ...json,
     url,
-    tags: Array.from(Object.entries(nip94 || [])).map((tag) => (tag[0] === 'url' ? [tag[0], url] : tag)),
+    tags: Array.isArray(nip94)
+      ? nip94.map(mapUrlWithExtension(url))
+      : Array.from(Object.entries(nip94 || {})).map(mapUrlWithExtension(url)),
   }
 }
