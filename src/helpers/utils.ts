@@ -1,3 +1,4 @@
+import type { EditorView } from 'prosemirror-view'
 import type { PasteRuleMatch } from '@tiptap/core'
 import type { IMetaTags } from './nip92.imeta'
 
@@ -45,4 +46,38 @@ export function replaceTextContent(content: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/(\n|\r)+/g, '<br />')
+}
+
+/**
+ * Override default paste behavior to avoid stripping new lines
+ * From: https://stackoverflow.com/q/79019919/1467342
+ */
+
+export function handleProsemirrorPaste(view: EditorView, event: ClipboardEvent) {
+  // Prevent the default paste behavior
+  event.preventDefault();
+
+  // Get plain text from clipboard
+  const text = event.clipboardData?.getData("text/plain");
+
+  if (text) {
+    // Split text by newlines
+    const lines = text.split(/\n/);
+
+    // Insert each line with proper paragraph formatting
+    const tr = view.state.tr;
+    lines.forEach((line, index) => {
+      // Insert line
+      tr.insertText(line);
+
+      // Add newline between paragraphs (except for last line)
+      if (index < lines.length - 1) {
+        tr.split(tr.selection.from);
+      }
+    });
+
+    view.dispatch(tr);
+  }
+
+  return true;
 }

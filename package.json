@@ -48,6 +48,7 @@
     "happy-dom": "^15.0.0",
     "msw": "2.5.2",
     "prettier": "^3.3.3",
+    "prosemirror-view": "^1.39.3",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-visualizer": "^5.12.0",
     "typescript": "^5.5.4",
@@ -69,6 +70,7 @@
     "prosemirror-markdown": "^1.13.0",
     "prosemirror-model": "^1.22.3",
     "prosemirror-state": "^1.4.3",
+    "prosemirror-view": "^1.39.3",
     "tiptap-markdown": "^0.8.10"
   },
   "dependencies": {
