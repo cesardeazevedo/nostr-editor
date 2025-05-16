@@ -6,7 +6,14 @@ import { EditorContent, ReactNodeViewRenderer, ReactRenderer, useEditor } from '
 import StarterKit from '@tiptap/starter-kit'
 import Suggestion from '@tiptap/suggestion'
 import type { NProfileAttributes } from 'nostr-editor'
-import { NostrExtension, makeNEventNode, makeNAddrNode, makeNProfileNode, makeBolt11Node } from 'nostr-editor'
+import {
+  NostrExtension,
+  makeNEventNode,
+  makeNAddrNode,
+  makeNProfileNode,
+  makeBolt11Node,
+  editorProps,
+} from 'nostr-editor'
 import type { EventTemplate, NostrEvent } from 'nostr-tools'
 import { nip19 } from 'nostr-tools'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -78,6 +85,7 @@ function App() {
   const editor = useEditor(
     {
       autofocus: true,
+      editorProps,
       extensions: [
         ...baseExtensions,
         NostrExtension.configure({
