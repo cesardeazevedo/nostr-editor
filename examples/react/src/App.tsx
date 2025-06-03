@@ -182,6 +182,7 @@ function App() {
             defaultUploadType: 'nip96',
           },
           fileUpload: settings.fileUpload !== false && {
+            encryptionAlgorithm: 'aes-gcm',
             immediateUpload: false,
             sign: async (event) => {
               if ('nostr' in window) {

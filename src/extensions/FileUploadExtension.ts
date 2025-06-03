@@ -34,6 +34,7 @@ export interface FileUploadOptions {
   onUpload: (currentEditor: Editor, file: UploadTask) => void
   onUploadError: (currentEditor: Editor, file: UploadTask) => void
   onComplete: (currentEditor: Editor, files: FileAttributes[]) => void
+  encryptionAlgorithm?: "aes-gcm"
 }
 
 export interface FileUploadStorage {
@@ -232,7 +233,7 @@ class Uploader {
   }
 
   private async upload(node: Node, pos: number) {
-    const { sign, hash, expiration } = this.options
+    const { sign, hash, expiration, encryptionAlgorithm } = this.options
     const { file, alt, uploadType, uploadUrl: serverUrl } = node.attrs as ImageAttributes | VideoAttributes
 
     this.updateNodeAttributes(pos, { uploading: true, uploadError: null })
@@ -242,7 +243,7 @@ class Uploader {
       res =
         uploadType === 'nip96'
           ? await uploadNIP96({ file, alt, sign, serverUrl })
-          : await uploadBlossom({ file, serverUrl, hash, sign, expiration })
+          : await uploadBlossom({ file, serverUrl, hash, sign, expiration, encryptionAlgorithm })
     } catch (error) {
       const msg = error?.toString() as string
       res = { uploadError: msg, url: serverUrl } as UploadTask

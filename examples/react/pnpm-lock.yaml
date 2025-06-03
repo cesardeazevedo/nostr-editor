@@ -38,9 +38,6 @@ importers:
       luxon:
         specifier: ^3.4.4
         version: 3.4.4
-      nostr-editor:
-        specifier: link:../..
-        version: link:../..
       nostr-tools:
         specifier: ^2.7.2
         version: 2.7.2(typescript@5.5.4)

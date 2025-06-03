@@ -25,8 +25,8 @@ export const Content = function Content(props: Props) {
             {node.type === 'heading' && <Heading node={node} />}
             {node.type === 'paragraph' && <Paragraph node={node} />}
             {node.type === 'horizontalRule' && <hr className='mt-6 mb-6' />}
-            {node.type === 'image' && <Image src={node.attrs.src} />}
-            {node.type === 'video' && <Video src={node.attrs.src} />}
+            {node.type === 'image' && <Image src={node.attrs.src} tags={node.attrs.tags} />}
+            {node.type === 'video' && <Video src={node.attrs.src} tags={node.attrs.tags} />}
             {node.type === 'nevent' && <NEvent {...node.attrs} />}
             {node.type === 'orderedList' && <List type='ol' node={node} />}
             {node.type === 'bulletList' && <List type='ul' node={node} />}

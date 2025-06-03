@@ -10,7 +10,7 @@ import { UploadingProgress } from '../UploadingProgress'
 import { Image } from './Image'
 
 export function ImageEditor(props: NodeViewProps) {
-  const { src, alt, uploadUrl, uploading, uploadError } = props.node.attrs as ImageAttributes
+  const { src, alt, uploadUrl, uploading, uploadError, tags } = props.node.attrs as ImageAttributes
   const isUploaded = !src.startsWith('blob:http')
   return (
     <NodeViewWrapper
@@ -19,7 +19,7 @@ export function ImageEditor(props: NodeViewProps) {
       className={`relative my-2 [&>img]:m-0 w-fit h-fit ${props.selected ? 'opacity-90' : ''}`}>
       <DeleteButton onClick={() => props.deleteNode()} />
       <UploadingProgress uploading={uploading} />
-      <Image src={src} />
+      <Image src={src} tags={tags} />
       <MediaFooter>
         {!isUploaded && <AltButton value={alt} onChange={(alt) => props.updateAttributes({ alt })} />}
         {!isUploaded && (

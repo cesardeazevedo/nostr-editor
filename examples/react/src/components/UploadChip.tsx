@@ -10,6 +10,8 @@ type Props = {
 
 const nip96urls = ['https://nostr.build', 'https://nostrcheck.me', 'https://nostrage.com']
 
+const blossomurls = ['https://cdn.satellite.earth']
+
 function Item(props: { url: string; onClick: () => void }) {
   const { url, onClick } = props
   return (
@@ -50,13 +52,16 @@ export function UploadChip(props: Props) {
             </ul>
             <span className='p-2 font-bold'>Blossom Servers:</span>
             <ul className='m-0 mb-1 list-none'>
-              <Item
-                url='http://localhost:3000'
-                onClick={() => {
-                  onChange('blossom', 'http://localhost:3000')
-                  setOpen(false)
-                }}
-              />
+              {blossomurls.map((url) => (
+                <Item
+                  key={url}
+                  url={url}
+                  onClick={() => {
+                    onChange('blossom', url)
+                    setOpen(false)
+                  }}
+                />
+              ))}
             </ul>
           </div>
         }>
