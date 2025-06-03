@@ -39,6 +39,12 @@ export type NostrExtension = {
   signEvent(event: EventTemplate): Promise<NostrEvent>
 }
 
+export function bufferToHex(buffer: ArrayBuffer) {
+  return Array.from(new Uint8Array(buffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
 function App() {
   const [raw, setRaw] = useState('')
   const [type, setType] = useState<EditorType>('text')
@@ -181,23 +187,18 @@ function App() {
             },
           },
           link: { autolink: type === 'markdown' },
-          video: {
-            defaultUploadUrl: 'https://nostr.build',
-            defaultUploadType: 'nip96',
-          },
-          image: {
-            defaultUploadUrl: 'https://nostr.build',
-            defaultUploadType: 'nip96',
-          },
           fileUpload: settings.fileUpload !== false && {
             immediateUpload: false,
-            sign: async (event) => {
-              if ('nostr' in window) {
-                const nostr = window.nostr as NostrExtension
-                return await nostr.signEvent(event)
+            upload: async (attrs) => {
+              const hash = bufferToHex(await crypto.subtle.digest('SHA-256', await attrs.file.arrayBuffer()))
+
+              return {
+                result: {
+                  url: URL.createObjectURL(attrs.file),
+                  sha256: hash,
+                  tags: [],
+                },
               }
-              console.error('No nostr extension found')
-              return Promise.reject('No signer found, install a nostr browser extension')
             },
             onDrop() {
               setPending(true)

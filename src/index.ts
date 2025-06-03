@@ -1,5 +1,5 @@
 export { Bolt11Extension, makeBolt11Attrs, makeBolt11Node, type Bolt11Attributes } from './extensions/Bolt11Extension'
-export { FileUploadExtension, type FileUploadOptions, type FileUploadStorage } from './extensions/FileUploadExtension'
+export { FileUploadExtension, type FileUploadOptions, type FileUploadStorage, type UploadTask, type UploadResult, type FileAttributes } from './extensions/FileUploadExtension'
 export { ImageExtension, type ImageOptions, type ImageAttributes } from './extensions/ImageExtension'
 export { LinkExtension, type LinkOptions, type LinkAttributes } from './extensions/LinkExtension'
 export { NAddrExtension, makeNAddrAttrs, makeNAddrNode, type NAddrAttributes } from './extensions/NAddrExtension'
@@ -18,6 +18,3 @@ export { VideoExtension, type VideoAttributes } from './extensions/VideoExtensio
 export { type IMetaTags } from './helpers/nip92.imeta'
 export { editorProps } from './helpers/utils'
 export * from './types'
-export * from './uploaders/types'
-export * from './uploaders/blossom'
-export * from './uploaders/nip96'

@@ -3,24 +3,20 @@ import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { readFile } from 'fs/promises'
 import { join } from 'node:path'
-import type { NostrEvent } from 'nostr-tools'
 import { Markdown as MarkdownExtension } from 'tiptap-markdown'
 import type { Mock } from 'vitest'
 import { test as base } from 'vitest'
 import type { FileUploadExtension } from '../extensions/FileUploadExtension'
 import { NostrExtension } from '../extensions/NostrExtension'
+import { getFakeTask } from './testUtils'
 
 const extensions = [
   StarterKit.configure({ history: false }),
   NostrExtension.configure({
     fileUpload: {
-      async sign(event) {
-        return Promise.resolve(event as NostrEvent)
+      async upload(attrs) {
+        return getFakeTask(attrs.file)
       },
-    },
-    image: {
-      defaultUploadType: 'blossom',
-      defaultUploadUrl: 'https://localhost:3000',
     },
   }),
 ]
@@ -34,13 +30,11 @@ type Fixtures = {
   getFile: (filaneme: TEST_FILE_NAMES) => Promise<File>
   fileUploadExtension: (editor: Editor) => typeof FileUploadExtension
   fileUploadSpies: (editor: Editor) => {
-    spySign: Mock
-    spyHash: Mock
-    spyDrop: Mock
-    spyStart: Mock
-    spyUpload: Mock
-    spyUploadError: Mock
-    spyComplete: Mock
+    spyOnDrop: Mock
+    spyOnStart: Mock
+    spyOnUpload: Mock
+    spyOnUploadError: Mock
+    spyOnComplete: Mock
   }
 }
 
@@ -86,30 +80,24 @@ export const test = base.extend<Fixtures>({
     return use((editor: Editor) => {
       const fileUpload = fileUploadExtension(editor)
 
-      const spySign = vitest.fn(async (event) => Promise.resolve(event as NostrEvent))
-      const spyHash = vitest.fn()
-      const spyDrop = vitest.fn()
-      const spyStart = vitest.fn()
-      const spyUpload = vitest.fn()
-      const spyUploadError = vitest.fn()
-      const spyComplete = vitest.fn()
+      const spyOnDrop = vitest.fn()
+      const spyOnStart = vitest.fn()
+      const spyOnUpload = vitest.fn()
+      const spyOnUploadError = vitest.fn()
+      const spyOnComplete = vitest.fn()
 
-      fileUpload.options.sign = spySign
-      fileUpload.options.hash = spyHash
-      fileUpload.options.onDrop = spyDrop
-      fileUpload.options.onStart = spyStart
-      fileUpload.options.onUpload = spyUpload
-      fileUpload.options.onUploadError = spyUploadError
-      fileUpload.options.onComplete = spyComplete
+      fileUpload.options.onDrop = spyOnDrop
+      fileUpload.options.onStart = spyOnStart
+      fileUpload.options.onUpload = spyOnUpload
+      fileUpload.options.onUploadError = spyOnUploadError
+      fileUpload.options.onComplete = spyOnComplete
 
       return {
-        spySign,
-        spyHash,
-        spyDrop,
-        spyStart,
-        spyUpload,
-        spyUploadError,
-        spyComplete,
+        spyOnDrop,
+        spyOnStart,
+        spyOnUpload,
+        spyOnUploadError,
+        spyOnComplete,
       }
     })
   },

@@ -1,42 +1,9 @@
-import { hash1, hash2, responses, mockBlossomServer } from './mockBlossom'
 import { test } from './fixtures'
-import { fakeEvent } from './testUtils'
-
-function getReponse(hash: typeof hash1 | typeof hash2) {
-  const res = responses[hash]
-  return {
-    sha256: res.sha256,
-    type: res.type,
-    size: res.size,
-    url: res.url + '.png',
-    tags: [
-      ['url', res.url + '.png'],
-      ['size', res.size],
-      ['x', res.sha256],
-      ['m', res.type],
-      ['dim', '500x500'],
-    ],
-  }
-}
-
-const res1 = getReponse(hash1)
-const res2 = getReponse(hash2)
+import { fakeEvent, getFakeUrl, getFakeHash, getFakeTask } from './testUtils'
 
 describe('FileUpload', () => {
-  beforeAll(() => {
-    mockBlossomServer.listen()
-  })
-
-  afterAll(() => {
-    mockBlossomServer.close()
-  })
-
-  afterEach(() => {
-    mockBlossomServer.resetHandlers()
-  })
-
   test('assert 2 successfully file uploads', async ({ editor, getFile, fileUploadSpies }) => {
-    const { spySign, spyHash, spyDrop, spyStart, spyUpload, spyUploadError, spyComplete } = fileUploadSpies(editor)
+    const { spyOnDrop, spyOnStart, spyOnUpload, spyOnUploadError, spyOnComplete } = fileUploadSpies(editor)
 
     const file = await getFile('test_upload.png')
     const file2 = await getFile('test_upload2.png')
@@ -61,27 +28,25 @@ describe('FileUpload', () => {
     expect(files).toHaveLength(2)
 
     const schema2 = editor.getJSON()
-    expect(schema2.content?.[1].attrs?.sha256).toStrictEqual(hash1)
-    expect(schema2.content?.[1].attrs?.src).toStrictEqual(`https://localhost:3000/${hash1}.png`)
-    expect(schema2.content?.[2].attrs?.sha256).toStrictEqual(hash2)
-    expect(schema2.content?.[2].attrs?.src).toStrictEqual(`https://localhost:3000/${hash2}.png`)
+    expect(schema2.content?.[1].attrs?.sha256).toStrictEqual(getFakeHash(file))
+    expect(schema2.content?.[1].attrs?.src).toStrictEqual(getFakeUrl(file))
+    expect(schema2.content?.[2].attrs?.sha256).toStrictEqual(getFakeHash(file2))
+    expect(schema2.content?.[2].attrs?.src).toStrictEqual(getFakeUrl(file2))
 
-    expect(spySign).toHaveBeenCalledTimes(2)
-    expect(spyHash).toHaveBeenCalledTimes(2)
-    expect(spyDrop).toHaveBeenCalledTimes(2)
-    expect(spyStart).toHaveBeenCalledOnce()
-    expect(spyUpload).toHaveBeenNthCalledWith(1, editor, res1)
-    expect(spyUpload).toHaveBeenNthCalledWith(2, editor, res2)
-    expect(spyUploadError).not.toHaveBeenCalled()
-    expect(spyComplete).toHaveBeenNthCalledWith(1, editor, files)
+    expect(spyOnDrop).toHaveBeenCalledTimes(2)
+    expect(spyOnStart).toHaveBeenCalledOnce()
+    expect(spyOnUpload).toHaveBeenNthCalledWith(1, editor, getFakeTask(file))
+    expect(spyOnUpload).toHaveBeenNthCalledWith(2, editor, getFakeTask(file2))
+    expect(spyOnUploadError).not.toHaveBeenCalled()
+    expect(spyOnComplete).toHaveBeenNthCalledWith(1, editor, files)
 
     expect(editor.getText({ blockSeparator: ' ' })).toStrictEqual(
-      `GM! https://localhost:3000/${hash1}.png https://localhost:3000/${hash2}.png`,
+      `GM! ${getFakeUrl(file)} ${getFakeUrl(file2)}`,
     )
   })
 
   test('assert error upload', async ({ editor, getFile, fileUploadSpies }) => {
-    const { spyDrop, spyUpload, spyUploadError, spyComplete } = fileUploadSpies(editor)
+    const { spyOnDrop, spyOnUpload, spyOnUploadError, spyOnComplete } = fileUploadSpies(editor)
 
     const file = await getFile('test_upload.png')
     const file2 = await getFile('test_upload_error.png')
@@ -90,23 +55,20 @@ describe('FileUpload', () => {
     editor.storage.fileUpload.uploader.addFile(file, editor.$doc.size - 2)
     editor.storage.fileUpload.uploader.addFile(file2, editor.$doc.size - 2)
 
-    await expect(editor.storage.fileUpload.uploader.start()).rejects.toStrictEqual(new Error('Error: Invalid file'))
+    await expect(editor.storage.fileUpload.uploader.start()).rejects.toStrictEqual(new Error('Invalid file'))
 
     const schema2 = editor.getJSON()
-    expect(schema2.content?.[1].attrs?.sha256).toStrictEqual(hash1)
-    expect(schema2.content?.[1].attrs?.uploadError).toBeNull()
+    expect(schema2.content?.[1].attrs?.sha256).toStrictEqual(getFakeHash(file))
+    expect(schema2.content?.[1].attrs?.error).toBeNull()
     expect(schema2.content?.[2].attrs?.sha256).toBeNull()
-    expect(schema2.content?.[2].attrs?.uploadError).toStrictEqual('Error: Invalid file')
+    expect(schema2.content?.[2].attrs?.error).toStrictEqual('Invalid file')
 
-    expect(spyDrop).toHaveBeenCalledTimes(2)
-    expect(spyUpload).toHaveBeenCalledOnce()
-    expect(spyUpload).toHaveBeenCalledWith(editor, res1)
-    expect(spyUploadError).toHaveBeenCalledOnce()
-    expect(spyUploadError).toHaveBeenCalledWith(editor, {
-      uploadError: 'Error: Invalid file',
-      url: 'https://localhost:3000',
-    })
-    expect(spyComplete).not.toHaveBeenCalledOnce()
+    expect(spyOnDrop).toHaveBeenCalledTimes(2)
+    expect(spyOnUpload).toHaveBeenCalledOnce()
+    expect(spyOnUpload).toHaveBeenCalledWith(editor, getFakeTask(file))
+    expect(spyOnUploadError).toHaveBeenCalledOnce()
+    expect(spyOnUploadError).toHaveBeenCalledWith(editor, {error: 'Invalid file'})
+    expect(spyOnComplete).not.toHaveBeenCalledOnce()
   })
 
   test('assert uploads with immediateUpload true', async ({
@@ -118,7 +80,7 @@ describe('FileUpload', () => {
     const fileUpload = fileUploadExtension(editor)
     fileUpload.options.immediateUpload = true
 
-    const { spyDrop, spyStart, spyUpload, spyUploadError, spyComplete } = fileUploadSpies(editor)
+    const { spyOnDrop, spyOnStart, spyOnUpload, spyOnUploadError, spyOnComplete } = fileUploadSpies(editor)
 
     const file = await getFile('test_upload.png')
 
@@ -127,11 +89,11 @@ describe('FileUpload', () => {
 
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 100))
 
-    expect(spyDrop).toHaveBeenCalledOnce()
-    expect(spyStart).toHaveBeenCalledOnce()
-    expect(spyUpload).toHaveBeenCalledOnce()
-    expect(spyUploadError).not.toHaveBeenCalled()
-    expect(spyComplete).toHaveBeenCalledOnce()
+    expect(spyOnDrop).toHaveBeenCalledOnce()
+    expect(spyOnStart).toHaveBeenCalledOnce()
+    expect(spyOnUpload).toHaveBeenCalledOnce()
+    expect(spyOnUploadError).not.toHaveBeenCalled()
+    expect(spyOnComplete).toHaveBeenCalledOnce()
   })
 
   test('assert blob urls as pending uploads and real urls as uploaded', async ({
@@ -148,9 +110,7 @@ describe('FileUpload', () => {
         sha256: null,
         src: 'https://nostr.com/image.jpg',
         tags: null,
-        uploadError: null,
-        uploadType: 'blossom',
-        uploadUrl: 'https://localhost:3000',
+        error: null,
         uploading: false,
       },
     ])

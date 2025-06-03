@@ -1,12 +1,9 @@
 import { Image } from '@tiptap/extension-image'
 import { defaultMarkdownSerializer } from 'prosemirror-markdown'
-import type { UploadParams } from '../uploaders/types'
 import type { NostrEvent } from 'nostr-tools'
 
 export interface ImageOptions {
   inline: boolean
-  defaultUploadType: UploadParams['type']
-  defaultUploadUrl: string
 }
 
 export interface ImageAttributes {
@@ -17,9 +14,7 @@ export interface ImageAttributes {
   tags: NostrEvent['tags']
   sha256: string
   uploading: boolean
-  uploadError: string
-  uploadType: UploadParams['type']
-  uploadUrl: string
+  error: string
 }
 
 export const ImageExtension = Image.extend<ImageOptions>({
@@ -28,8 +23,6 @@ export const ImageExtension = Image.extend<ImageOptions>({
   addOptions() {
     return {
       inline: false,
-      defaultUploadUrl: 'https://nostr.build',
-      defaultUploadType: 'nip96',
     }
   },
 
@@ -58,9 +51,7 @@ export const ImageExtension = Image.extend<ImageOptions>({
       tags: { default: null },
       sha256: { default: null },
       uploading: { default: false },
-      uploadError: { default: null },
-      uploadType: { default: this.options.defaultUploadType },
-      uploadUrl: { default: this.options.defaultUploadUrl },
+      error: { default: null },
     }
   },
 

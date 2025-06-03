@@ -57,7 +57,7 @@ export interface NostrOptions {
   video?: Partial<NodeConfig> | false
   youtube?: Partial<YoutubeOptions> | false
   nsecReject?: Partial<NSecRejectOptions> | false
-  fileUpload?: Partial<FileUploadOptions> | false
+  fileUpload?: Partial<FileUploadOptions> & Pick<FileUploadOptions, 'upload'>
   nprofile?: Partial<NProfileOptions> | false
   nevent?: Partial<NEventOptions> | false
   naddr?: Partial<NAddrOptions> | false
@@ -122,7 +122,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
     if (this.options.nsecReject !== false) {
       extensions.push(NSecRejectExtension)
     }
-    if (this.options.fileUpload !== false) {
+    if (this.options.fileUpload) {
       extensions.push(FileUploadExtension.configure(this.options.fileUpload))
     }
     return extensions
@@ -254,11 +254,13 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
             const meta: Record<string, string> = {
               url: x.src,
               x: x.sha256,
+              ox: x.sha256,
               m: x.file.type,
+              size: String(x.file.size)
             }
 
             // Add imeta based on tags returned by our uploader
-            for (const [k, v] of x.tags) {
+            for (const [k, v] of x.tags || []) {
               meta[k] = v
             }
 

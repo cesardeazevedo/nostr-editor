@@ -5,13 +5,12 @@ import type { VideoAttributes } from 'nostr-editor'
 import { AltButton } from '../AltChip'
 import { DeleteButton } from '../DeleteButton'
 import { MediaFooter } from '../MediaFooter'
-import { UploadChip } from '../UploadChip'
 import { UploadingProgress } from '../UploadingProgress'
 import { Video } from './Video'
 
 export function VideoEditor(props: NodeViewProps) {
-  const { src, alt, uploadError, uploadUrl, uploading } = props.node.attrs as VideoAttributes
-  const isUploaded = !src.startsWith('blob:http')
+  const { src, alt, sha256, error, uploading } = props.node.attrs as VideoAttributes
+  const isUploaded = Boolean(sha256)
   return (
     <NodeViewWrapper
       data-drag-handle=''
@@ -22,12 +21,6 @@ export function VideoEditor(props: NodeViewProps) {
       <Video controls={false} src={src} />
       <MediaFooter>
         {!isUploaded ? <AltButton value={alt} onChange={(alt) => props.updateAttributes({ alt })} /> : <div />}
-        {!isUploaded && (
-          <UploadChip
-            uploadUrl={uploadUrl}
-            onChange={(uploadType, uploadUrl) => props.updateAttributes({ uploadType, uploadUrl })}
-          />
-        )}
         {isUploaded && (
           <span data-tooltip={src}>
             <IconCheck
@@ -37,8 +30,8 @@ export function VideoEditor(props: NodeViewProps) {
             />
           </span>
         )}
-        {uploadError && (
-          <span data-tooltip={uploadError} className=''>
+        {error && (
+          <span data-tooltip={error} className=''>
             <IconFileX
               size={28}
               strokeWidth='1.5'

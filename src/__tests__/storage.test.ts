@@ -1,9 +1,8 @@
 import { nip19 } from 'nostr-tools'
 import type { NostrStorage } from '../extensions/NostrExtension'
 import { test } from './fixtures'
-import { fakeEvent } from './testUtils'
+import { fakeEvent, getFakeHash, getFakeUrl } from './testUtils'
 import type { FileUploadStorage } from '../extensions/FileUploadExtension'
-import { mockBlossomServer, hash1, hash2 } from './mockBlossom'
 
 describe('Storage', () => {
   test('assert getTags()', ({ editor }) => {
@@ -44,18 +43,6 @@ describe('Storage', () => {
   })
 
   describe('with upload', () => {
-    beforeAll(() => {
-      mockBlossomServer.listen()
-    })
-
-    afterAll(() => {
-      mockBlossomServer.close()
-    })
-
-    afterEach(() => {
-      mockBlossomServer.resetHandlers()
-    })
-
     test('assert getEditorTags()', async ({ editor, getFile }) => {
       const nostr = editor.storage.nostr as NostrStorage
       const fileUpload = editor.storage.fileUpload as FileUploadStorage
@@ -79,14 +66,14 @@ describe('Storage', () => {
       await fileUpload.uploader?.start()
 
       expect(editor.getText({ blockSeparator: ' ' })).toStrictEqual(
-        `GM! nostr:${nprofile}  nostr:${naddr}   nostr:${nevent}  #asknostr #Photography https://localhost:3000/6c36995913e97b73d5365f93a7b524a9e45edc68e4f11b78060154987c53602c.png https://localhost:3000/008a2224c4d2a513ab2a4add09a2ac20c2d9cec1144b5111bc1317edb2366eac.png`,
+        `GM! nostr:${nprofile}  nostr:${naddr}   nostr:${nevent}  #asknostr #Photography ${getFakeUrl(file)} ${getFakeUrl(file2)}`,
       )
       expect(nostr.getEditorTags()).toStrictEqual([
         ['p', ref.pubkey, 'relay1'],
         ['q', ref.id, 'relay1', ref.pubkey],
         ['a', `1:${ref.pubkey}:identifier`, 'relay1'],
-        ['imeta', 'dim 500x500', 'm image/png', 'size 21792', `url https://localhost:3000/${hash1}.png`, `x ${hash1}`],
-        ['imeta', 'dim 500x500', 'm image/png', 'size 16630', `url https://localhost:3000/${hash2}.png`, `x ${hash2}`],
+        ['imeta', `alt ${file.name}`, 'm image/png', `ox ${getFakeHash(file)}`, 'size 21792', `url ${getFakeUrl(file)}`, `x ${getFakeHash(file)}`],
+        ['imeta', `alt ${file2.name}`, 'm image/png', `ox ${getFakeHash(file2)}`, 'size 16630', `url ${getFakeUrl(file2)}`, `x ${getFakeHash(file2)}`],
         ['t', 'asknostr'],
         ['t', 'photography'],
       ])
@@ -96,8 +83,8 @@ describe('Storage', () => {
         ['p', ref.pubkey],
         ['q', ref.id],
         ['a', `1:${ref.pubkey}:identifier`],
-        ['imeta', 'dim 500x500', 'm image/png', 'size 21792', `url https://localhost:3000/${hash1}.png`, `x ${hash1}`],
-        ['imeta', 'dim 500x500', 'm image/png', 'size 16630', `url https://localhost:3000/${hash2}.png`, `x ${hash2}`],
+        ['imeta', `alt ${file.name}`, 'm image/png', `ox ${getFakeHash(file)}`, 'size 21792', `url ${getFakeUrl(file)}`, `x ${getFakeHash(file)}`],
+        ['imeta', `alt ${file2.name}`, 'm image/png', `ox ${getFakeHash(file2)}`, 'size 16630', `url ${getFakeUrl(file2)}`, `x ${getFakeHash(file2)}`],
         ['t', 'asknostr'],
         ['t', 'photography'],
       ])
