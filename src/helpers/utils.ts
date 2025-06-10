@@ -1,3 +1,5 @@
+import type { EditorView } from 'prosemirror-view'
+import type { Slice } from 'prosemirror-model'
 import type { PasteRuleMatch } from '@tiptap/core'
 import type { IMetaTags } from './nip92.imeta'
 
@@ -45,4 +47,59 @@ export function replaceTextContent(content: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/(\n|\r)+/g, '<br />')
+}
+
+/**
+ * Override default paste behavior to avoid stripping new lines
+ * From: https://stackoverflow.com/q/79019919/1467342
+ */
+function handlePaste(view: EditorView, event: ClipboardEvent) {
+  // Prevent the default paste behavior
+  event.preventDefault()
+
+  // Get plain text from clipboard
+  const text = event.clipboardData?.getData('text/plain')
+
+  if (text) {
+    // Split text by newlines
+    const lines = text.split(/\n/)
+
+    // Insert each line with proper paragraph formatting
+    const tr = view.state.tr
+
+    lines.forEach((line, index) => {
+      // Insert line
+      tr.insertText(line)
+
+      // Add newline between paragraphs (except for last line)
+      if (index < lines.length - 1) {
+        tr.split(tr.selection.from)
+      }
+    })
+
+    view.dispatch(tr.scrollIntoView().setMeta('paste', true).setMeta('uiEvent', 'paste'))
+  }
+
+  return true
+}
+
+/**
+ * Override default clipboard serialization behavior to avoid doubling new lines
+ */
+function clipboardTextSerializer(slice: Slice) {
+  let result = ''
+  slice.content.descendants((node, _pos, parent) => {
+    result += node.type.spec.toText?.({ node, parent }) || node.text || ''
+
+    if (node.type.name === 'paragraph') {
+      result += '\n'
+    }
+  })
+
+  return result.trim()
+}
+
+export const editorProps = {
+  handlePaste,
+  clipboardTextSerializer,
 }
