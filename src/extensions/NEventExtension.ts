@@ -1,5 +1,5 @@
 import { decode } from 'nostr-tools/nip19'
-import type { DecodeResult } from 'nostr-tools/nip19'
+import type { DecodedResult } from 'nostr-tools/nip19'
 import { mergeAttributes, Node, nodePasteRule } from '@tiptap/core'
 import type { Node as ProsemirrorNode } from '@tiptap/pm/model'
 import type { MarkdownSerializerState } from 'prosemirror-markdown'
@@ -19,7 +19,7 @@ export type NEventAttributes = {
 export const makeNEventAttrs = (input: string, options?: Nip19Options): NEventAttributes => {
   const bech32 = input.replace(/^nostr:/, '')
   const { type, data } = decode(bech32)
-  const relays = getNip19Relays({ type, data } as unknown as DecodeResult, options)
+  const relays = getNip19Relays({ type, data } as unknown as DecodedResult, options)
 
   switch (type) {
     case 'note':

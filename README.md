@@ -165,15 +165,23 @@ To handle image uploads with nostr-editor, you can configure the extension as fo
 
 ```ts
 NostrExtension.configure({
-  image: {
-    defaultUploadUrl: 'https://nostr.build',
-    defaultUploadType: 'nip96', // or blossom
-  },
-  video: {
-    defaultUploadUrl: 'https://nostr.build',
-    defaultUploadType: 'nip96', // or blossom
-  },
   fileUpload: {
+    uploadFile: (attrs: FileAttributes) => {
+      // If something went wrong, return an error string
+      if (error) {
+        return {error}
+      }
+
+      // Upload attrs.file and return an UploadTask
+      return {
+        result: {
+          url,         // The file url
+          sha256,      // The file hash
+          tags,        // Additional nostr tags to be added to imeta. Refer to NIP 94 for recommended tags.
+                       // url, x, ox, m, and size are automatically inferred but can be overridden
+        },
+      }
+    },
     immediateUpload: true, // It will automatically upload when a file is added to the editor, if false, call `editor.commands.uploadFiles()` manually
     sign: async (event) => {
       if ('nostr' in window) {

@@ -1,13 +1,21 @@
 import type { Editor } from '@tiptap/core'
 import { Extension } from '@tiptap/core'
-import type { EventTemplate, NostrEvent } from 'nostr-tools/core'
+import type { NostrEvent } from 'nostr-tools/core'
 import type { Node } from 'prosemirror-model'
 import { Plugin, PluginKey } from 'prosemirror-state'
-import { uploadBlossom } from '../uploaders/blossom'
-import { uploadNIP96 } from '../uploaders/nip96'
-import type { UploadTask } from '../uploaders/types'
 import type { ImageAttributes } from './ImageExtension'
 import type { VideoAttributes } from './VideoExtension'
+
+export interface UploadResult {
+  url: string
+  sha256: string
+  tags: NostrEvent['tags']
+}
+
+export interface UploadTask {
+  result?: UploadResult
+  error?: string
+}
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
@@ -21,30 +29,22 @@ declare module '@tiptap/core' {
   }
 }
 
-type FileAttributes = ImageAttributes | VideoAttributes
+export type FileAttributes = ImageAttributes | VideoAttributes
 
 export interface FileUploadOptions {
   allowedMimeTypes: string[]
-  expiration: number
   immediateUpload: boolean
-  hash: (file: File) => Promise<string>
-  sign?: (event: EventTemplate) => Promise<NostrEvent> | NostrEvent
+  upload: (attrs: FileAttributes) => Promise<UploadTask>
   onDrop: (currentEditor: Editor, file: File, pos: number) => void
   onStart: (currentEditor: Editor) => void
-  onUpload: (currentEditor: Editor, file: UploadTask) => void
-  onUploadError: (currentEditor: Editor, file: UploadTask) => void
+  onUpload: (currentEditor: Editor, task: UploadTask) => void
+  onUploadError: (currentEditor: Editor, task: UploadTask) => void
   onComplete: (currentEditor: Editor, files: FileAttributes[]) => void
 }
 
 export interface FileUploadStorage {
   uploader: Uploader | null
   getFiles: () => FileAttributes[]
-}
-
-export function bufferToHex(buffer: ArrayBuffer) {
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
 }
 
 export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploadStorage>({
@@ -54,9 +54,8 @@ export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploa
     return {
       allowedMimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/mpeg', 'video/webm'],
       immediateUpload: false,
-      expiration: 60000,
-      async hash(file: File) {
-        return bufferToHex(await crypto.subtle.digest('SHA-256', await file.arrayBuffer()))
+      async upload() {
+        return {error: "No uploader specified"}
       },
       onDrop() {},
       onStart() {},
@@ -91,7 +90,7 @@ export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploa
       },
       removeFailedUploads: () => (props) => {
         props.state.doc.descendants((node, pos) => {
-          if (['image', 'video'].includes(node.type.name) && node.attrs.uploadError) {
+          if (['image', 'video'].includes(node.type.name) && node.attrs.error) {
             props.state.tr.delete(pos, pos + node.nodeSize)
           }
         })
@@ -219,36 +218,37 @@ class Uploader {
     this.view.dispatch(tr)
   }
 
-  private onUploadDone(nodeRef: Node, response: UploadTask) {
+  private onUploadDone(nodeRef: Node, task: UploadTask) {
     this.findNodes(false).forEach(([node, pos]) => {
       if (node.attrs.src === nodeRef.attrs.src) {
-        this.updateNodeAttributes(pos, {
-          ...response,
-          src: encodeURI(response.url),
-          uploading: false,
-        })
+        if (task.result) {
+          this.updateNodeAttributes(pos, {
+            src: encodeURI(task.result.url),
+            sha256: task.result.sha256,
+            tags: task.result.tags,
+            uploading: false,
+          })
+        } else {
+          this.updateNodeAttributes(pos, {
+            error: task.error,
+            uploading: false,
+          })
+        }
       }
     })
   }
 
   private async upload(node: Node, pos: number) {
-    const { sign, hash, expiration } = this.options
-    const { file, alt, uploadType, uploadUrl: serverUrl } = node.attrs as ImageAttributes | VideoAttributes
+    this.updateNodeAttributes(pos, { uploading: true, error: null })
 
-    this.updateNodeAttributes(pos, { uploading: true, uploadError: null })
+    const res = await this.options.upload(node.attrs as FileAttributes)
 
-    let res
-    try {
-      res =
-        uploadType === 'nip96'
-          ? await uploadNIP96({ file, alt, sign, serverUrl })
-          : await uploadBlossom({ file, serverUrl, hash, sign, expiration })
-    } catch (error) {
-      const msg = error?.toString() as string
-      res = { uploadError: msg, url: serverUrl } as UploadTask
+    if (!res.error && !res.result) {
+      throw new Error("upload did not return either a result or an error")
     }
 
     this.onUploadDone(node, res)
+
     return res
   }
 
@@ -262,8 +262,8 @@ class Uploader {
     const errors = []
 
     for await (const res of tasks) {
-      if ('uploadError' in res) {
-        errors.push(res.uploadError)
+      if ('error' in res) {
+        errors.push(res.error)
         this.options.onUploadError(this.editor, res)
       } else {
         this.options.onUpload(this.editor, res)

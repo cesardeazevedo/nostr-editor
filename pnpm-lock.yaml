@@ -27,8 +27,8 @@ importers:
         specifier: ^4.1.3
         version: 4.3.1
       nostr-tools:
-        specifier: ~2.12.0
-        version: 2.12.0(typescript@5.8.3)
+        specifier: ^2.14.2
+        version: 2.15.0(typescript@5.8.3)
       prosemirror-markdown:
         specifier: ^1.13.0
         version: 1.13.2
@@ -84,9 +84,6 @@ importers:
       happy-dom:
         specifier: ^15.0.0
         version: 15.11.7
-      msw:
-        specifier: 2.5.2
-        version: 2.5.2(@types/node@22.15.31)(typescript@5.8.3)
       prettier:
         specifier: ^3.3.3
         version: 3.5.3
@@ -1370,8 +1367,8 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
-  nostr-tools@2.12.0:
-    resolution: {integrity: sha512-pUWEb020gTvt1XZvTa8AKNIHWFapjsv2NKyk43Ez2nnvz6WSXsrTFE0XtkNLSRBjPn6EpxumKeNiVzLz74jNSA==}
+  nostr-tools@2.15.0:
+    resolution: {integrity: sha512-Jj/+UFbu3JbTAWP4ipPFNuyD4W5eVRBNAP+kmnoRCYp3bLmTrlQ0Qhs5O1xSQJTFpjdZqoS0zZOUKdxUdjc+pw==}
     peerDependencies:
       typescript: '>=5.0.0'
     peerDependenciesMeta:
@@ -1923,15 +1920,18 @@ snapshots:
   '@bundled-es-modules/cookie@2.0.1':
     dependencies:
       cookie: 0.7.2
+    optional: true
 
   '@bundled-es-modules/statuses@1.0.1':
     dependencies:
       statuses: 2.0.2
+    optional: true
 
   '@bundled-es-modules/tough-cookie@0.1.6':
     dependencies:
       '@types/tough-cookie': 4.0.5
       tough-cookie: 4.1.4
+    optional: true
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
@@ -2047,6 +2047,7 @@ snapshots:
       '@inquirer/type': 3.0.7(@types/node@22.15.31)
     optionalDependencies:
       '@types/node': 22.15.31
+    optional: true
 
   '@inquirer/core@10.1.13(@types/node@22.15.31)':
     dependencies:
@@ -2060,12 +2061,15 @@ snapshots:
       yoctocolors-cjs: 2.1.2
     optionalDependencies:
       '@types/node': 22.15.31
+    optional: true
 
-  '@inquirer/figures@1.0.12': {}
+  '@inquirer/figures@1.0.12':
+    optional: true
 
   '@inquirer/type@3.0.7(@types/node@22.15.31)':
     optionalDependencies:
       '@types/node': 22.15.31
+    optional: true
 
   '@jridgewell/sourcemap-codec@1.5.0': {}
 
@@ -2112,6 +2116,7 @@ snapshots:
       is-node-process: 1.2.0
       outvariant: 1.4.3
       strict-event-emitter: 0.5.1
+    optional: true
 
   '@noble/ciphers@0.5.3': {}
 
@@ -2139,14 +2144,17 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
-  '@open-draft/deferred-promise@2.2.0': {}
+  '@open-draft/deferred-promise@2.2.0':
+    optional: true
 
   '@open-draft/logger@0.3.0':
     dependencies:
       is-node-process: 1.2.0
       outvariant: 1.4.3
+    optional: true
 
-  '@open-draft/until@2.1.0': {}
+  '@open-draft/until@2.1.0':
+    optional: true
 
   '@pkgr/core@0.2.7': {}
 
@@ -2259,12 +2267,12 @@ snapshots:
   '@scure/bip32@1.3.1':
     dependencies:
       '@noble/curves': 1.1.0
-      '@noble/hashes': 1.3.1
+      '@noble/hashes': 1.3.2
       '@scure/base': 1.1.1
 
   '@scure/bip39@1.2.1':
     dependencies:
-      '@noble/hashes': 1.3.1
+      '@noble/hashes': 1.3.2
       '@scure/base': 1.1.1
 
   '@tiptap/core@2.14.0(@tiptap/pm@2.14.0)':
@@ -2413,7 +2421,8 @@ snapshots:
 
   '@types/argparse@1.0.38': {}
 
-  '@types/cookie@0.6.0': {}
+  '@types/cookie@0.6.0':
+    optional: true
 
   '@types/estree@1.0.7': {}
 
@@ -2441,9 +2450,11 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/statuses@2.0.6': {}
+  '@types/statuses@2.0.6':
+    optional: true
 
-  '@types/tough-cookie@4.0.5': {}
+  '@types/tough-cookie@4.0.5':
+    optional: true
 
   '@typescript-eslint/eslint-plugin@8.34.0(@typescript-eslint/parser@8.34.0(eslint@9.7.0)(typescript@5.8.3))(eslint@9.7.0)(typescript@5.8.3)':
     dependencies:
@@ -2663,6 +2674,7 @@ snapshots:
   ansi-escapes@4.3.2:
     dependencies:
       type-fest: 0.21.3
+    optional: true
 
   ansi-regex@5.0.1: {}
 
@@ -2712,7 +2724,8 @@ snapshots:
 
   check-error@2.1.1: {}
 
-  cli-width@4.1.0: {}
+  cli-width@4.1.0:
+    optional: true
 
   cliui@8.0.1:
     dependencies:
@@ -2734,7 +2747,8 @@ snapshots:
 
   confbox@0.2.2: {}
 
-  cookie@0.7.2: {}
+  cookie@0.7.2:
+    optional: true
 
   crelt@1.0.6: {}
 
@@ -2950,7 +2964,8 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  graphql@16.11.0: {}
+  graphql@16.11.0:
+    optional: true
 
   happy-dom@15.11.7:
     dependencies:
@@ -2966,7 +2981,8 @@ snapshots:
 
   he@1.2.0: {}
 
-  headers-polyfill@4.0.3: {}
+  headers-polyfill@4.0.3:
+    optional: true
 
   ignore@5.3.2: {}
 
@@ -2995,7 +3011,8 @@ snapshots:
     dependencies:
       is-extglob: 2.1.1
 
-  is-node-process@1.2.0: {}
+  is-node-process@1.2.0:
+    optional: true
 
   is-number@7.0.0: {}
 
@@ -3138,16 +3155,18 @@ snapshots:
       typescript: 5.8.3
     transitivePeerDependencies:
       - '@types/node'
+    optional: true
 
   muggle-string@0.4.1: {}
 
-  mute-stream@2.0.0: {}
+  mute-stream@2.0.0:
+    optional: true
 
   nanoid@3.3.11: {}
 
   natural-compare@1.4.0: {}
 
-  nostr-tools@2.12.0(typescript@5.8.3):
+  nostr-tools@2.15.0(typescript@5.8.3):
     dependencies:
       '@noble/ciphers': 0.5.3
       '@noble/curves': 1.2.0
@@ -3155,12 +3174,11 @@ snapshots:
       '@scure/base': 1.1.1
       '@scure/bip32': 1.3.1
       '@scure/bip39': 1.2.1
-    optionalDependencies:
       nostr-wasm: 0.1.0
+    optionalDependencies:
       typescript: 5.8.3
 
-  nostr-wasm@0.1.0:
-    optional: true
+  nostr-wasm@0.1.0: {}
 
   open@8.4.2:
     dependencies:
@@ -3179,7 +3197,8 @@ snapshots:
 
   orderedmap@2.1.1: {}
 
-  outvariant@1.4.3: {}
+  outvariant@1.4.3:
+    optional: true
 
   p-limit@3.1.0:
     dependencies:
@@ -3201,7 +3220,8 @@ snapshots:
 
   path-parse@1.0.7: {}
 
-  path-to-regexp@6.3.0: {}
+  path-to-regexp@6.3.0:
+    optional: true
 
   pathe@1.1.2: {}
 
@@ -3347,6 +3367,7 @@ snapshots:
   psl@1.15.0:
     dependencies:
       punycode: 2.3.1
+    optional: true
 
   punycode.js@2.3.1: {}
 
@@ -3354,7 +3375,8 @@ snapshots:
 
   quansync@0.2.10: {}
 
-  querystringify@2.2.0: {}
+  querystringify@2.2.0:
+    optional: true
 
   queue-microtask@1.2.3: {}
 
@@ -3362,7 +3384,8 @@ snapshots:
 
   require-from-string@2.0.2: {}
 
-  requires-port@1.0.0: {}
+  requires-port@1.0.0:
+    optional: true
 
   resolve-from@4.0.0: {}
 
@@ -3433,7 +3456,8 @@ snapshots:
 
   siginfo@2.0.0: {}
 
-  signal-exit@4.1.0: {}
+  signal-exit@4.1.0:
+    optional: true
 
   source-map-js@1.2.1: {}
 
@@ -3445,11 +3469,13 @@ snapshots:
 
   stackback@0.0.2: {}
 
-  statuses@2.0.2: {}
+  statuses@2.0.2:
+    optional: true
 
   std-env@3.9.0: {}
 
-  strict-event-emitter@0.5.1: {}
+  strict-event-emitter@0.5.1:
+    optional: true
 
   string-argv@0.3.2: {}
 
@@ -3509,6 +3535,7 @@ snapshots:
       punycode: 2.3.1
       universalify: 0.2.0
       url-parse: 1.5.10
+    optional: true
 
   ts-api-utils@2.1.0(typescript@5.8.3):
     dependencies:
@@ -3518,9 +3545,11 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
 
-  type-fest@0.21.3: {}
+  type-fest@0.21.3:
+    optional: true
 
-  type-fest@4.41.0: {}
+  type-fest@4.41.0:
+    optional: true
 
   typescript-eslint@8.34.0(eslint@9.7.0)(typescript@5.8.3):
     dependencies:
@@ -3542,7 +3571,8 @@ snapshots:
 
   undici-types@6.21.0: {}
 
-  universalify@0.2.0: {}
+  universalify@0.2.0:
+    optional: true
 
   universalify@2.0.1: {}
 
@@ -3554,6 +3584,7 @@ snapshots:
     dependencies:
       querystringify: 2.2.0
       requires-port: 1.0.0
+    optional: true
 
   vite-node@2.1.9(@types/node@22.15.31):
     dependencies:
@@ -3661,6 +3692,7 @@ snapshots:
       ansi-styles: 4.3.0
       string-width: 4.2.3
       strip-ansi: 6.0.1
+    optional: true
 
   wrap-ansi@7.0.0:
     dependencies:
@@ -3686,4 +3718,5 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  yoctocolors-cjs@2.1.2: {}
+  yoctocolors-cjs@2.1.2:
+    optional: true

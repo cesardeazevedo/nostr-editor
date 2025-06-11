@@ -12,3 +12,24 @@ export function fakeEvent(data?: Partial<NostrEvent>): NostrEvent {
     generateSecretKey(),
   )
 }
+
+export const getFakeHash = (file: File) => `${file.name}-hash`
+
+export const getFakeUrl = (file: File) => `https://example.com/${file.name}`
+
+export function getFakeTask(file: File) {
+  if (file.name.includes('error')) {
+    return {
+      error: "Invalid file"
+    }
+  }
+
+  return {
+    result: {
+      url: getFakeUrl(file),
+      sha256: getFakeHash(file),
+      tags: [["alt", file.name]],
+    }
+  }
+}
+

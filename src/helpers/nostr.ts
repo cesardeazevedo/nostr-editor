@@ -1,10 +1,10 @@
-import type { DecodeResult } from 'nostr-tools/nip19'
+import type { DecodedResult } from 'nostr-tools/nip19'
 
 export type Nip19Options = {
-  getRelayHints?: (pointer: DecodeResult) => string[]
+  getRelayHints?: (pointer: DecodedResult) => string[]
 }
 
-export const getNip19Relays = (pointer: DecodeResult, options?: Nip19Options) => {
+export const getNip19Relays = (pointer: DecodedResult, options?: Nip19Options) => {
   let relays = (pointer.data as { relays?: string[] }).relays || []
 
   if (options?.getRelayHints) {

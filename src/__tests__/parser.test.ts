@@ -63,13 +63,11 @@ describe('parseNote()', () => {
           {
             "attrs": {
               "alt": null,
+              "error": null,
               "file": null,
               "sha256": null,
               "src": "http://host.com/image",
               "tags": null,
-              "uploadError": null,
-              "uploadType": "blossom",
-              "uploadUrl": "https://localhost:3000",
               "uploading": false,
             },
             "type": "image",
@@ -86,13 +84,11 @@ describe('parseNote()', () => {
           {
             "attrs": {
               "alt": null,
+              "error": null,
               "file": null,
               "sha256": null,
               "src": "http://host.com/video",
               "tags": null,
-              "uploadError": null,
-              "uploadType": "nip96",
-              "uploadUrl": "https://nostr.build",
               "uploading": false,
             },
             "type": "video",
@@ -229,13 +225,11 @@ describe('parseNote()', () => {
           {
             "attrs": {
               "alt": null,
+              "error": null,
               "file": null,
               "sha256": null,
               "src": "https://nostr.com/img.jpg",
               "tags": null,
-              "uploadError": null,
-              "uploadType": "blossom",
-              "uploadUrl": "https://localhost:3000",
               "uploading": false,
             },
             "type": "image",
@@ -252,13 +246,11 @@ describe('parseNote()', () => {
           {
             "attrs": {
               "alt": null,
+              "error": null,
               "file": null,
               "sha256": null,
               "src": "https://v.nostr.build/g6BQ.mp4",
               "tags": null,
-              "uploadError": null,
-              "uploadType": "nip96",
-              "uploadUrl": "https://nostr.build",
               "uploading": false,
             },
             "type": "video",
@@ -483,13 +475,11 @@ https://host.com/2.jpeg
           {
             "attrs": {
               "alt": null,
+              "error": null,
               "file": null,
               "sha256": null,
               "src": "https://host.com/1.jpeg",
               "tags": null,
-              "uploadError": null,
-              "uploadType": "blossom",
-              "uploadUrl": "https://localhost:3000",
               "uploading": false,
             },
             "type": "image",
@@ -505,13 +495,11 @@ https://host.com/2.jpeg
           {
             "attrs": {
               "alt": null,
+              "error": null,
               "file": null,
               "sha256": null,
               "src": "https://host.com/2.jpeg",
               "tags": null,
-              "uploadError": null,
-              "uploadType": "blossom",
-              "uploadUrl": "https://localhost:3000",
               "uploading": false,
             },
             "type": "image",
