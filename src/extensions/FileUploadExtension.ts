@@ -145,16 +145,22 @@ export const FileUploadExtension = Extension.create<FileUploadOptions, FileUploa
         },
         props: {
           handleDrop: (_, event) => {
-            uploader.handleDrop(event)
+            const handled = uploader.handleDrop(event)
+
             if (this.options.immediateUpload) {
               uploader.start()
             }
+
+            return handled
           },
           handlePaste: (_, event) => {
-            uploader.handlePaste(event)
-            if (this.options.immediateUpload) {
+            const handled = uploader.handlePaste(event)
+
+            if (handled && this.options.immediateUpload) {
               uploader.start()
             }
+
+            return handled
           },
         },
       }),
@@ -305,12 +311,16 @@ class Uploader {
 
     const pos = this.view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos
 
-    if (!pos) return
-    if (!event.dataTransfer) return
+    if (!pos) return false
+    if (!event.dataTransfer) return false
 
+    let handled = false
     for (const file of event.dataTransfer.files) {
       this.addFile(file, pos)
+      handled = true
     }
+
+    return handled
   }
 
   handlePaste(event: ClipboardEvent) {
