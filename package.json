@@ -1,6 +1,6 @@
 {
   "name": "nostr-editor",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "type": "module",
   "homepage": "https://cesardeazevedo.github.io/nostr-editor/",
   "license": "MIT",
