@@ -54,8 +54,10 @@ export function replaceTextContent(content: string): string {
  * From: https://stackoverflow.com/q/79019919/1467342
  */
 function handlePaste(view: EditorView, event: ClipboardEvent) {
-  // Prevent the default paste behavior
-  event.preventDefault()
+  // If there are files, let the FileUploadExtension handle them
+  if (event.clipboardData?.files && event.clipboardData.files.length > 0) {
+    return false
+  }
 
   // Get plain text from clipboard
   const text = event.clipboardData?.getData('text/plain')
@@ -80,7 +82,7 @@ function handlePaste(view: EditorView, event: ClipboardEvent) {
     view.dispatch(tr.scrollIntoView().setMeta('paste', true).setMeta('uiEvent', 'paste'))
   }
 
-  return true
+  return Boolean(text)
 }
 
 /**
