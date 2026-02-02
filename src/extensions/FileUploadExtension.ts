@@ -287,22 +287,60 @@ class Uploader {
   selectFiles() {
     return new Promise((resolve) => {
       const input = document.createElement('input')
+
       input.type = 'file'
       input.multiple = true
       input.accept = this.options.allowedMimeTypes.join(',')
-      input.onchange = (event) => {
-        const files = (event.target as HTMLInputElement).files
-        if (files) {
-          Array.from(files).forEach((file) => {
-            if (file) {
-              const pos = this.view.state.selection.from + 1
-              this.addFile(file, pos)
-            }
-          })
+      input.style.display = 'none'
+
+      let handled = false
+
+      const handleFiles = (event: Event) => {
+        if (!handled) {
+          const files = (event.target as HTMLInputElement).files
+
+          if (files) {
+            Array.from(files).forEach((file) => {
+              if (file) {
+                const pos = this.view.state.selection.from + 1
+                this.addFile(file, pos)
+              }
+            })
+          }
+
+          cleanup()
+          resolve(files)
+          handled = true
         }
-        resolve(files)
       }
-      input.click()
+
+      const handleCancel = () => {
+        cleanup()
+        resolve(null)
+      }
+
+      const cleanup = () => {
+        input.removeEventListener('change', handleFiles)
+        input.removeEventListener('input', handleFiles)
+        input.removeEventListener('cancel', handleCancel)
+
+        if (input.parentNode) {
+          input.parentNode.removeChild(input)
+        }
+      }
+
+      // Add both change and input listeners for iOS compatibility
+      input.addEventListener('change', handleFiles)
+      input.addEventListener('input', handleFiles)
+      input.addEventListener('cancel', handleCancel)
+
+      // Attach to DOM for iOS compatibility
+      document.body.appendChild(input)
+
+      // Small delay for iOS WebView
+      setTimeout(() => {
+        input.click()
+      }, 100)
     })
   }
 
