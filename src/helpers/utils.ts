@@ -59,6 +59,12 @@ function handlePaste(view: EditorView, event: ClipboardEvent) {
     return false
   }
 
+  // Let ProseMirror handle paste natively inside code blocks to preserve newlines
+  const { $from } = view.state.selection
+  if ($from.parent.type.spec.code) {
+    return false
+  }
+
   // Get plain text from clipboard
   const text = event.clipboardData?.getData('text/plain')
 
