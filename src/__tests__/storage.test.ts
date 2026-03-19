@@ -72,8 +72,8 @@ describe('Storage', () => {
         ['p', ref.pubkey, 'relay1'],
         ['q', ref.id, 'relay1', ref.pubkey],
         ['a', `1:${ref.pubkey}:identifier`, 'relay1'],
-        ['imeta', `alt ${file.name}`, 'm image/png', `ox ${getFakeHash(file)}`, 'size 21792', `url ${getFakeUrl(file)}`, `x ${getFakeHash(file)}`],
-        ['imeta', `alt ${file2.name}`, 'm image/png', `ox ${getFakeHash(file2)}`, 'size 16630', `url ${getFakeUrl(file2)}`, `x ${getFakeHash(file2)}`],
+        ['imeta', `alt ${file.name}`, 'blurhash {111!', 'dim 1080x1288', 'm image/png', `ox ${getFakeHash(file)}`, 'size 21792', `url ${getFakeUrl(file)}`, `x ${getFakeHash(file)}`],
+        ['imeta', `alt ${file2.name}`, 'blurhash {111!', 'dim 1080x1288', 'm image/png', `ox ${getFakeHash(file2)}`, 'size 16630', `url ${getFakeUrl(file2)}`, `x ${getFakeHash(file2)}`],
         ['t', 'asknostr'],
         ['t', 'photography'],
       ])
@@ -83,8 +83,8 @@ describe('Storage', () => {
         ['p', ref.pubkey],
         ['q', ref.id],
         ['a', `1:${ref.pubkey}:identifier`],
-        ['imeta', `alt ${file.name}`, 'm image/png', `ox ${getFakeHash(file)}`, 'size 21792', `url ${getFakeUrl(file)}`, `x ${getFakeHash(file)}`],
-        ['imeta', `alt ${file2.name}`, 'm image/png', `ox ${getFakeHash(file2)}`, 'size 16630', `url ${getFakeUrl(file2)}`, `x ${getFakeHash(file2)}`],
+        ['imeta', `alt ${file.name}`, 'blurhash {111!', 'dim 1080x1288', 'm image/png', `ox ${getFakeHash(file)}`, 'size 21792', `url ${getFakeUrl(file)}`, `x ${getFakeHash(file)}`],
+        ['imeta', `alt ${file2.name}`, 'blurhash {111!', 'dim 1080x1288', 'm image/png', `ox ${getFakeHash(file2)}`, 'size 16630', `url ${getFakeUrl(file2)}`, `x ${getFakeHash(file2)}`],
         ['t', 'asknostr'],
         ['t', 'photography'],
       ])

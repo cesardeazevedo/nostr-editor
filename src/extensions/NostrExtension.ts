@@ -131,7 +131,7 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
   addStorage() {
     return {
       imeta: null,
-      setImeta: () => {},
+      setImeta: () => { },
       getTags: () => [],
       getNaddrs: () => [],
       getNprofiles: () => [],
@@ -259,9 +259,21 @@ export const NostrExtension = Extension.create<NostrOptions, NostrStorage>({
               size: String(x.file.size),
             }
 
-            // Add imeta based on tags returned by our uploader
-            for (const [k, v] of x.tags || []) {
-              meta[k] = v
+            for (const tag of x.tags || []) {
+              if (tag[0] === 'imeta') {
+                for (const value of tag.slice(1)) {
+                  const [k, v] = value.split(/\s/) as [string, string]
+                  if (k && v) {
+                    meta[k] = v
+                  }
+                }
+                continue
+              }
+
+              const [k, v] = tag
+              if (k && v) {
+                meta[k] = v
+              }
             }
 
             return [

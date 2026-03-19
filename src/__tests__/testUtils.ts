@@ -28,7 +28,10 @@ export function getFakeTask(file: File) {
     result: {
       url: getFakeUrl(file),
       sha256: getFakeHash(file),
-      tags: [["alt", file.name]],
+      tags: [
+        ["alt", file.name],
+        ["imeta", 'dim 1080x1288', 'blurhash {111!'],
+      ],
     }
   }
 }
